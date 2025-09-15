@@ -124,57 +124,59 @@ def parse_from_mongo(item):
                     pass
     return item
 
-# AI Training Program Generator
+# AI Training Program Generator in Arabic
 async def generate_ai_training_program(assessment: PlayerAssessment) -> str:
     try:
         # Initialize LLM Chat
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
             session_id=f"training_{assessment.id}",
-            system_message="You are a professional soccer training expert specializing in creating personalized training programs based on player assessments."
+            system_message="أنت خبير تدريب كرة قدم محترف متخصص في إنشاء برامج تدريبية مخصصة بناءً على تقييمات اللاعبين. يجب أن تجيب باللغة العربية فقط."
         ).with_model("openai", "gpt-4o")
 
-        # Create assessment summary
+        # Create assessment summary in Arabic
         assessment_text = f"""
-        Player Assessment Data:
-        Name: {assessment.player_name}
-        Age: {assessment.age}
-        Position: {assessment.position}
+        بيانات تقييم اللاعب:
+        الاسم: {assessment.player_name}
+        العمر: {assessment.age} سنة
+        المركز: {assessment.position}
         
-        Speed Metrics:
-        - 40m Sprint: {assessment.sprint_40m}s
-        - 100m Sprint: {assessment.sprint_100m}s
+        مقاييس السرعة:
+        - عدو 40 متر: {assessment.sprint_40m} ثانية
+        - عدو 100 متر: {assessment.sprint_100m} ثانية
         
-        Agility Metrics:
-        - Cone Drill: {assessment.cone_drill}s
-        - Ladder Drill: {assessment.ladder_drill}s
-        - Shuttle Run: {assessment.shuttle_run}s
+        مقاييس الرشاقة:
+        - تدريب المخاريط: {assessment.cone_drill} ثانية
+        - تدريب السلم: {assessment.ladder_drill} ثانية
+        - الجري المكوكي: {assessment.shuttle_run} ثانية
         
-        Flexibility Metrics:
-        - Sit & Reach: {assessment.sit_reach}cm
-        - Shoulder Flexibility: {assessment.shoulder_flexibility}°
-        - Hip Flexibility: {assessment.hip_flexibility}°
+        مقاييس المرونة:
+        - الجلوس والوصول: {assessment.sit_reach} سم
+        - مرونة الكتف: {assessment.shoulder_flexibility} درجة
+        - مرونة الورك: {assessment.hip_flexibility} درجة
         
-        Ball Handling Metrics:
-        - Juggling Count: {assessment.juggling_count}
-        - Dribbling Time: {assessment.dribbling_time}s
-        - Passing Accuracy: {assessment.passing_accuracy}%
-        - Shooting Accuracy: {assessment.shooting_accuracy}%
+        مقاييس التحكم بالكرة:
+        - عدد الشقلبات: {assessment.juggling_count}
+        - وقت المراوغة: {assessment.dribbling_time} ثانية
+        - دقة التمرير: {assessment.passing_accuracy}%
+        - دقة التسديد: {assessment.shooting_accuracy}%
         """
 
         prompt = f"""
-        Based on the following player assessment, create a comprehensive 8-week training program focused on improving the player's weakest areas while maintaining strengths.
+        بناءً على تقييم اللاعب التالي، قم بإنشاء برنامج تدريبي شامل لمدة 8 أسابيع يركز على تحسين النقاط الضعيفة للاعب مع الحفاظ على نقاط القوة.
 
         {assessment_text}
 
-        Please provide:
-        1. A detailed analysis of strengths and weaknesses
-        2. Specific training exercises for each weakness
-        3. Weekly progression plan
-        4. Key milestones to track
-        5. Professional tips inspired by elite players like Ronaldo
+        يرجى تقديم:
+        1. تحليل مفصل لنقاط القوة والضعف
+        2. تمارين محددة لكل نقطة ضعف
+        3. خطة التقدم الأسبوعية
+        4. المعالم الرئيسية للمتابعة
+        5. نصائح احترافية مستوحاة من لاعبين نخبة مثل رونالدو
 
-        Format the response in a structured way with clear sections for each week.
+        قم بتنسيق الرد بطريقة منظمة مع أقسام واضحة لكل أسبوع.
+        
+        يجب أن يكون الرد باللغة العربية فقط ومناسب للاعب العربي.
         """
 
         user_message = UserMessage(text=prompt)
@@ -182,13 +184,13 @@ async def generate_ai_training_program(assessment: PlayerAssessment) -> str:
         return response
 
     except Exception as e:
-        logging.error(f"Error generating AI training program: {e}")
-        return "Error generating training program. Please try again."
+        logging.error(f"خطأ في إنشاء برنامج التدريب بالذكاء الاصطناعي: {e}")
+        return "خطأ في إنشاء برنامج التدريب. يرجى المحاولة مرة أخرى."
 
 # Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Soccer Pro Training Tracker API"}
+    return {"message": "واجهة برمجة التطبيقات لمتتبع التدريب الاحترافي لكرة القدم"}
 
 @api_router.post("/assessments", response_model=PlayerAssessment)
 async def create_assessment(assessment: AssessmentCreate):
@@ -214,7 +216,7 @@ async def get_assessment(player_id: str):
     try:
         assessment = await db.assessments.find_one({"id": player_id})
         if not assessment:
-            raise HTTPException(status_code=404, detail="Assessment not found")
+            raise HTTPException(status_code=404, detail="لم يتم العثور على التقييم")
         return PlayerAssessment(**parse_from_mongo(assessment))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -225,7 +227,7 @@ async def create_training_program(program: TrainingProgramCreate):
         # Get player assessment
         assessment = await db.assessments.find_one({"id": program.player_id})
         if not assessment:
-            raise HTTPException(status_code=404, detail="Player assessment not found")
+            raise HTTPException(status_code=404, detail="لم يتم العثور على تقييم اللاعب")
         
         assessment_obj = PlayerAssessment(**parse_from_mongo(assessment))
         
@@ -233,71 +235,71 @@ async def create_training_program(program: TrainingProgramCreate):
         if program.program_type == "AI_Generated":
             program_content = await generate_ai_training_program(assessment_obj)
             weekly_schedule = {
-                "Monday": "Speed and Agility Training",
-                "Tuesday": "Ball Handling Drills",
-                "Wednesday": "Flexibility and Recovery",
-                "Thursday": "Technical Skills",
-                "Friday": "Match Simulation",
-                "Saturday": "Individual Weaknesses Focus",
-                "Sunday": "Rest Day"
+                "Monday": "تدريب السرعة والرشاقة",
+                "Tuesday": "تدريبات التحكم بالكرة",
+                "Wednesday": "المرونة والتعافي",
+                "Thursday": "المهارات الفنية",
+                "Friday": "محاكاة المباراة",
+                "Saturday": "التركيز على نقاط الضعف الفردية",
+                "Sunday": "يوم راحة"
             }
             milestones = [
-                {"week": 2, "target": "10% improvement in weakest metric"},
-                {"week": 4, "target": "15% improvement in agility"},
-                {"week": 6, "target": "20% improvement in ball handling"},
-                {"week": 8, "target": "Overall assessment improvement"}
+                {"week": 2, "target": "تحسين 10% في أضعف مقياس"},
+                {"week": 4, "target": "تحسين 15% في الرشاقة"},
+                {"week": 6, "target": "تحسين 20% في التحكم بالكرة"},
+                {"week": 8, "target": "تحسين شامل في التقييم"}
             ]
         elif program.program_type == "Ronaldo_Template":
             program_content = """
-            CRISTIANO RONALDO INSPIRED TRAINING PROGRAM
+            برنامج التدريب المستوحى من كريستيانو رونالدو
             
-            This program is based on Ronaldo's training methodology focusing on:
-            - Explosive power and speed
-            - Core strength and flexibility
-            - Technical precision
-            - Mental resilience
+            هذا البرنامج مبني على منهجية تدريب رونالدو مع التركيز على:
+            - القوة الانفجارية والسرعة
+            - قوة العضلات الأساسية والمرونة
+            - الدقة الفنية
+            - المرونة العقلية
             
-            WEEK 1-2: Foundation Building
-            - Daily 1-hour cardio (running/cycling)
-            - Core strengthening (200 sit-ups, planks)
-            - Ball control drills (1000 touches daily)
-            - Flexibility routine (30 mins yoga)
+            الأسبوع 1-2: بناء الأساسات
+            - تمارين القلب يومياً لمدة ساعة (جري/دراجة)
+            - تقوية العضلات الأساسية (200 تمرين معدة، بلانك)
+            - تدريبات التحكم بالكرة (1000 لمسة يومياً)
+            - روتين المرونة (30 دقيقة يوغا)
             
-            WEEK 3-4: Intensity Increase
-            - Sprint intervals (10x100m)
-            - Plyometric exercises
-            - Advanced ball skills
-            - Weight training (legs focus)
+            الأسبوع 3-4: زيادة الكثافة
+            - فترات العدو (10x100 متر)
+            - تمارين البليومتريك
+            - مهارات الكرة المتقدمة
+            - تدريب الأثقال (التركيز على الساقين)
             
-            WEEK 5-6: Technical Mastery
-            - Free kick practice (50 attempts daily)
-            - Shooting accuracy drills
-            - Crossing and finishing
-            - Match simulation
+            الأسبوع 5-6: إتقان الفنيات
+            - تمرين الضربات الحرة (50 محاولة يومياً)
+            - تدريبات دقة التسديد
+            - التمرير والإنهاء
+            - محاكاة المباراة
             
-            WEEK 7-8: Peak Performance
-            - High-intensity interval training
-            - Competition preparation
-            - Mental visualization
-            - Recovery optimization
+            الأسبوع 7-8: الأداء القمة
+            - تدريب عالي الكثافة متقطع
+            - الإعداد للمنافسة
+            - التصور الذهني
+            - تحسين التعافي
             """
             weekly_schedule = {
-                "Monday": "Power and Speed",
-                "Tuesday": "Technical Skills",
-                "Wednesday": "Core and Flexibility",
-                "Thursday": "Ball Mastery",
-                "Friday": "Match Preparation",
-                "Saturday": "Competition Day",
-                "Sunday": "Active Recovery"
+                "Monday": "القوة والسرعة",
+                "Tuesday": "المهارات الفنية",
+                "Wednesday": "العضلات الأساسية والمرونة",
+                "Thursday": "إتقان الكرة",
+                "Friday": "إعداد المباراة",
+                "Saturday": "يوم المنافسة",
+                "Sunday": "التعافي النشط"
             }
             milestones = [
-                {"week": 2, "target": "Master 1000 ball touches"},
-                {"week": 4, "target": "Improve sprint time by 0.2s"},
-                {"week": 6, "target": "80% free kick accuracy"},
-                {"week": 8, "target": "Professional level fitness"}
+                {"week": 2, "target": "إتقان 1000 لمسة كرة"},
+                {"week": 4, "target": "تحسين وقت العدو بـ 0.2 ثانية"},
+                {"week": 6, "target": "80% دقة الضربات الحرة"},
+                {"week": 8, "target": "لياقة على المستوى الاحترافي"}
             ]
         else:
-            program_content = "Custom training program to be defined."
+            program_content = "برنامج تدريب مخصص سيتم تحديده."
             weekly_schedule = {}
             milestones = []
 
