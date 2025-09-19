@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import axios from "axios";
@@ -12,13 +12,377 @@ import { Badge } from "./components/ui/badge";
 import { Progress } from "./components/ui/progress";
 import { useSpeechSynthesis, useSpeechRecognition } from "react-speech-kit";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
-import { Activity, Target, TrendingUp, Mic, MicOff, Volume2, VolumeX, Square, Trophy, Users, Music, Bell, Coins, Gift, Zap, Crown, Star, Flame } from "lucide-react";
+import { Activity, Target, TrendingUp, Mic, MicOff, Volume2, VolumeX, Square, Trophy, Users, Music, Bell, Coins, Gift, Zap, Crown, Star, Flame, Languages, Globe } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Language Context
+const LanguageContext = createContext();
+
+// Translations
+const translations = {
+  en: {
+    appTitle: "🔥 Yoyo the Fire Boy ⚽",
+    appSubtitle: "✨ Professional soccer training program generator with AI-powered insights ✨",
+    badges: {
+      igniteYourPower: "🔥 Ignite Your Power",
+      trainWithFriends: "👥 Train with Friends", 
+      collectTrophies: "🏆 Collect Trophies & Coins"
+    },
+    assessment: {
+      title: "🔥 Yoyo the Fire Boy Assessment 🔥",
+      subtitle: "✨ Discover your true power and ignite the fire on the field! ✨",
+      playerName: "Fire Warrior Name",
+      playerNamePlaceholder: "Enter your name, champion!",
+      starAge: "Star Age",
+      agePlaceholder: "How old are you?",
+      powerPosition: "Power Position",
+      positionPlaceholder: "Choose your battle position",
+      positions: {
+        goalkeeper: "🥅 Fortress Guardian",
+        defender: "🛡️ Defense Warrior",
+        midfielder: "⚡ Midfield Master",
+        forward: "🗡️ Fire Striker",
+        striker: "🔥 Net Destroyer"
+      },
+      speedMetrics: "⚡ Super Speed Power",
+      agilityMetrics: "🎯 Golden Agility Skills",
+      flexibilityMetrics: "🧘‍♂️ Magic Flexibility Power",
+      ballHandling: "⚽ Ball Control Magic ✨",
+      fields: {
+        sprint40: "🏃‍♂️ 40m Sprint (seconds)",
+        sprint100: "🚀 100m Sprint (seconds)", 
+        coneDrill: "🔶 Cone Drill (seconds)",
+        ladderDrill: "🪜 Ladder Drill (seconds)",
+        shuttleRun: "🔄 Shuttle Run (seconds)",
+        sitReach: "🤸‍♂️ Sit & Reach (cm)",
+        shoulderFlex: "💪 Shoulder Flexibility (degrees)",
+        hipFlex: "🦵 Hip Flexibility (degrees)",
+        juggling: "🤹‍♂️ Magic Juggling Count",
+        dribbling: "🏃‍♂️ Magic Dribbling Time (seconds)",
+        passing: "🎯 Passing Accuracy (%)",
+        shooting: "⚽ Deadly Shooting Accuracy (%)"
+      },
+      placeholders: {
+        lightningSpeed: "Lightning speed!",
+        fasterThanWind: "Faster than wind!"
+      },
+      submitButton: "🚀 Ignite the Fire and Start the Glory Journey! 🚀",
+      submitting: "🔥 Creating Yoyo's Fire Profile..."
+    },
+    training: {
+      title: "🔥 Fire Training Programs for Yoyo {playerName} 🔥",
+      groupTraining: "Group training with friends",
+      spotifyPlaceholder: "Spotify link for motivation (optional)",
+      aiProgram: "🤖 Yoyo's Smart Fire Program",
+      ronaldoTemplate: "👑 Legendary Ronaldo Template",
+      generating: "🔥 Generating...",
+      tabs: {
+        content: "🔥 Fire Program Content",
+        schedule: "⚡ Motivational Weekly Schedule", 
+        milestones: "🏆 Glory Milestones"
+      },
+      days: {
+        Monday: "Monday",
+        Tuesday: "Tuesday",
+        Wednesday: "Wednesday", 
+        Thursday: "Thursday",
+        Friday: "Friday",
+        Saturday: "Saturday",
+        Sunday: "Sunday"
+      },
+      weeklySchedule: {
+        Monday: "🔥 Fire Speed Training",
+        Tuesday: "⚽ Ball Control Challenge",
+        Wednesday: "🧘‍♂️ Flexibility & Recovery Day",
+        Thursday: "✨ Yoyo's Technical Skills",
+        Friday: "⚔️ Match Simulation Battle",
+        Saturday: "💪 Weakness Challenge",
+        Sunday: "😴 Warrior's Rest Day"
+      },
+      target: "🔥 Fire Target"
+    },
+    progress: {
+      title: "🏆 Yoyo {playerName}'s Achievement Tracker 🏆",
+      addEntry: "🚀 Add Your New Achievement, Yoyo! 🚀",
+      metricType: "Metric Type",
+      metricTypePlaceholder: "Choose challenge type",
+      metricTypes: {
+        speed: "⚡ Super Speed",
+        agility: "🎯 Golden Agility", 
+        flexibility: "🧘‍♂️ Magic Flexibility",
+        ball_handling: "⚽ Ball Control Magic"
+      },
+      metricName: "Metric Name",
+      metricNamePlaceholder: "e.g., Fire 40m Sprint",
+      amazingValue: "Amazing Value",
+      valuePlaceholder: "Your achievement",
+      recordButton: "🔥 Record Achievement",
+      trophiesTitle: "🏆 Yoyo's Fire Boy Trophies 🏆",
+      progressOverTime: "🚀 Progress Journey Through Time",
+      currentProfile: "🌟 Current Power Profile"
+    },
+    voice: {
+      title: "🎤 Yoyo's Voice Notes & Notifications 🔔",
+      motivationNotifications: "🔔 Fire Motivation Notifications",
+      listenToMotivation: "Listen to Motivation",
+      recordTitle: "🎤 Record Your Fire Notes",
+      startRecording: "🎤 Start Fire Recording",
+      stopRecording: "🔴 Stop Recording",
+      saveNote: "💾 Save Note",
+      clear: "🗑️ Clear",
+      motivationNotification: "🔔 Motivation Notification",
+      stop: "Stop"
+    },
+    group: {
+      title: "👥 Fire Group Training 👥",
+      createButton: "Create New Training Group",
+      createTitle: "🔥 Create Fire Training Group",
+      groupName: "Fire Group Name",
+      groupNamePlaceholder: "e.g., Yoyo's Fire Warriors",
+      challengeDescription: "Challenge Description",
+      challengePlaceholder: "Training description and goals",
+      friendIds: "Friend IDs (comma separated)",
+      friendIdsPlaceholder: "ID1, ID2, ID3",
+      spotifyLink: "Spotify link for motivation (optional)",
+      createGroup: "🚀 Create Group",
+      cancel: "Cancel",
+      members: "👥 {count} members",
+      completionReward: "🪙 Completion Reward: {reward} coins"
+    },
+    common: {
+      selectPlayer: "Select Fire Warrior",
+      tabs: {
+        assessment: "🔥 Assessment",
+        training: "🚀 Training Programs", 
+        progress: "🏆 Progress Tracking",
+        voice: "🎤 Voice & Notifications",
+        group: "👥 Group Training"
+      },
+      loading: "Loading...",
+      error: "Error occurred",
+      success: "Success!",
+      coins: "coins",
+      level: "Level",
+      age: "Age"
+    }
+  },
+  ar: {
+    appTitle: "🔥 يويو الفتى الناري ⚽",
+    appSubtitle: "✨ مولد برامج التدريب الاحترافية مع رؤى مدعومة بالذكاء الاصطناعي ✨",
+    badges: {
+      igniteYourPower: "🔥 أشعل النار في قوتك",
+      trainWithFriends: "👥 تدرب مع الأصدقاء",
+      collectTrophies: "🏆 اجمع الكؤوس والعملات"
+    },
+    assessment: {
+      title: "🔥 تقييم يويو الفتى الناري 🔥",
+      subtitle: "✨ اكتشف قوتك الحقيقية وأشعل النار في الملعب! ✨",
+      playerName: "اسم المحارب الناري",
+      playerNamePlaceholder: "أدخل اسمك يا بطل!",
+      starAge: "عمر النجم",
+      agePlaceholder: "كم عمرك؟",
+      powerPosition: "مركز القوة",
+      positionPlaceholder: "اختر مركزك في المعركة",
+      positions: {
+        goalkeeper: "🥅 حارس الحصن",
+        defender: "🛡️ محارب الدفاع",
+        midfielder: "⚡ سيد الوسط",
+        forward: "🗡️ مهاجم ناري",
+        striker: "🔥 مدمر الشباك"
+      },
+      speedMetrics: "⚡ قوة السرعة الخارقة",
+      agilityMetrics: "🎯 مهارات الرشاقة الذهبية",
+      flexibilityMetrics: "🧘‍♂️ قوة المرونة السحرية",
+      ballHandling: "⚽ سحر التحكم بالكرة ✨",
+      fields: {
+        sprint40: "🏃‍♂️ عدو 40 متر (ثانية)",
+        sprint100: "🚀 عدو 100 متر (ثانية)",
+        coneDrill: "🔶 تدريب المخاريط (ثانية)",
+        ladderDrill: "🪜 تدريب السلم (ثانية)",
+        shuttleRun: "🔄 الجري المكوكي (ثانية)",
+        sitReach: "🤸‍♂️ الجلوس والوصول (سم)",
+        shoulderFlex: "💪 مرونة الكتف (درجة)",
+        hipFlex: "🦵 مرونة الورك (درجة)",
+        juggling: "🤹‍♂️ عدد الشقلبات السحرية",
+        dribbling: "🏃‍♂️ وقت المراوغة الساحرة (ثانية)",
+        passing: "🎯 دقة التمرير (%)",
+        shooting: "⚽ دقة التسديد القاتلة (%)"
+      },
+      placeholders: {
+        lightningSpeed: "سرعة البرق!",
+        fasterThanWind: "أسرع من الريح!"
+      },
+      submitButton: "🚀 أشعل النار وابدأ رحلة المجد! 🚀",
+      submitting: "🔥 جاري إنشاء ملف يويو الناري..."
+    },
+    training: {
+      title: "🔥 برامج التدريب الناري ليويو {playerName} 🔥",
+      groupTraining: "تدريب جماعي مع الأصدقاء",
+      spotifyPlaceholder: "رابط Spotify للتحفيز (اختياري)",
+      aiProgram: "🤖 برنامج يويو الذكي الناري",
+      ronaldoTemplate: "👑 قالب رونالدو الأسطوري",
+      generating: "🔥 جاري الإنشاء...",
+      tabs: {
+        content: "🔥 محتوى البرنامج الناري",
+        schedule: "⚡ الجدول الأسبوعي المحفز",
+        milestones: "🏆 معالم المجد"
+      },
+      days: {
+        Monday: "الإثنين",
+        Tuesday: "الثلاثاء",
+        Wednesday: "الأربعاء",
+        Thursday: "الخميس", 
+        Friday: "الجمعة",
+        Saturday: "السبت",
+        Sunday: "الأحد"
+      },
+      weeklySchedule: {
+        Monday: "🔥 تدريب السرعة الناري",
+        Tuesday: "⚽ تحدي التحكم بالكرة",
+        Wednesday: "🧘‍♂️ يوم المرونة والتعافي",
+        Thursday: "✨ مهارات يويو الفنية",
+        Friday: "⚔️ معركة محاكاة المباراة",
+        Saturday: "💪 تحدي نقاط الضعف",
+        Sunday: "😴 يوم راحة المحارب"
+      },
+      target: "🔥 هدف ناري"
+    },
+    progress: {
+      title: "🏆 متتبع إنجازات يويو {playerName} 🏆",
+      addEntry: "🚀 أضف إنجازك الجديد يا يويو! 🚀",
+      metricType: "نوع المقياس",
+      metricTypePlaceholder: "اختر نوع التحدي",
+      metricTypes: {
+        speed: "⚡ السرعة الخارقة",
+        agility: "🎯 الرشاقة الذهبية",
+        flexibility: "🧘‍♂️ المرونة السحرية",
+        ball_handling: "⚽ سحر التحكم بالكرة"
+      },
+      metricName: "اسم المقياس",
+      metricNamePlaceholder: "مثال: عدو 40 متر الناري",
+      amazingValue: "القيمة المذهلة",
+      valuePlaceholder: "إنجازك",
+      recordButton: "🔥 سجل الإنجاز",
+      trophiesTitle: "🏆 كؤوس يويو الناري 🏆",
+      progressOverTime: "🚀 رحلة التقدم عبر الزمن",
+      currentProfile: "🌟 ملف القوة الحالي"
+    },
+    voice: {
+      title: "🎤 مذكرات يويو الصوتية والإشعارات 🔔",
+      motivationNotifications: "🔔 إشعارات التحفيز الناري",
+      listenToMotivation: "استمع للتحفيز",
+      recordTitle: "🎤 سجل مذكراتك الناري",
+      startRecording: "🎤 بدء التسجيل الناري",
+      stopRecording: "🔴 إيقاف التسجيل",
+      saveNote: "💾 حفظ المذكرة",
+      clear: "🗑️ مسح",
+      motivationNotification: "🔔 إشعار تحفيزي",
+      stop: "إيقاف"
+    },
+    group: {
+      title: "👥 تدريبات المجموعة الناري 👥",
+      createButton: "إنشاء مجموعة تدريب جديدة",
+      createTitle: "🔥 إنشاء مجموعة تدريب ناري",
+      groupName: "اسم المجموعة الناري",
+      groupNamePlaceholder: "مثال: محاربو يويو النار",
+      challengeDescription: "وصف التحدي",
+      challengePlaceholder: "وصف التدريب والأهداف",
+      friendIds: "معرفات الأصدقاء (مفصولة بفاصلة)",
+      friendIdsPlaceholder: "ID1, ID2, ID3",
+      spotifyLink: "رابط Spotify للتحفيز (اختياري)",
+      createGroup: "🚀 إنشاء المجموعة",
+      cancel: "إلغاء",
+      members: "👥 {count} عضو",
+      completionReward: "🪙 مكافأة الإنجاز: {reward} عملة"
+    },
+    common: {
+      selectPlayer: "اختيار المحارب الناري",
+      tabs: {
+        assessment: "🔥 التقييم",
+        training: "🚀 برامج التدريب",
+        progress: "🏆 تتبع التقدم",
+        voice: "🎤 المذكرات والإشعارات",
+        group: "👥 التدريب الجماعي"
+      },
+      loading: "جاري التحميل...",
+      error: "حدث خطأ",
+      success: "نجح!",
+      coins: "عملة",
+      level: "المستوى",
+      age: "العمر"
+    }
+  }
+};
+
+// Language Provider Component
+const LanguageProvider = ({ children }) => {
+  const [language, setLanguage] = useState('en');
+  const [direction, setDirection] = useState('ltr');
+
+  const toggleLanguage = () => {
+    const newLang = language === 'en' ? 'ar' : 'en';
+    const newDir = newLang === 'ar' ? 'rtl' : 'ltr';
+    setLanguage(newLang);
+    setDirection(newDir);
+    document.documentElement.dir = newDir;
+    document.documentElement.lang = newLang;
+  };
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return value || key;
+  };
+
+  const formatText = (text, params = {}) => {
+    let formatted = text;
+    Object.keys(params).forEach(key => {
+      formatted = formatted.replace(`{${key}}`, params[key]);
+    });
+    return formatted;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, direction, toggleLanguage, t, formatText }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+// Custom hook to use language context
+const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
+
+// Language Toggle Component
+const LanguageToggle = () => {
+  const { language, toggleLanguage } = useLanguage();
+  
+  return (
+    <Button
+      onClick={toggleLanguage}
+      variant="outline"
+      size="sm"
+      className="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur-sm border-orange-300 text-orange-700 hover:bg-orange-50"
+    >
+      <Globe className="w-4 h-4 mr-2" />
+      {language === 'en' ? 'العربية' : 'English'}
+    </Button>
+  );
+};
+
 // Assessment Component
 const AssessmentForm = ({ onAssessmentCreated }) => {
+  const { t, direction } = useLanguage();
   const [formData, setFormData] = useState({
     player_name: "",
     age: "",
@@ -63,7 +427,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
         shooting_accuracy: ""
       });
     } catch (error) {
-      console.error("خطأ في إنشاء التقييم:", error);
+      console.error("Error creating assessment:", error);
     }
     setIsLoading(false);
   };
@@ -76,10 +440,10 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
     <Card className="max-w-4xl mx-auto bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 border-orange-300 fire-glow">
       <CardHeader className="text-center">
         <CardTitle className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent">
-          🔥 تقييم يويو الفتى الناري 🔥
+          {t('assessment.title')}
         </CardTitle>
         <CardDescription className="text-orange-700 text-lg font-semibold">
-          ✨ اكتشف قوتك الحقيقية وأشعل النار في الملعب! ✨
+          {t('assessment.subtitle')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -88,8 +452,8 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <Label htmlFor="player_name" className="text-orange-800 font-bold flex items-center">
-                <Flame className="ml-2 w-4 h-4" />
-                اسم المحارب الناري
+                <Flame className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-4 h-4`} />
+                {t('assessment.playerName')}
               </Label>
               <Input
                 id="player_name"
@@ -98,14 +462,14 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 onChange={handleChange}
                 required
                 className="border-orange-400 focus:border-red-500 bg-gradient-to-r from-orange-100 to-yellow-100"
-                dir="rtl"
-                placeholder="أدخل اسمك يا بطل!"
+                dir={direction}
+                placeholder={t('assessment.playerNamePlaceholder')}
               />
             </div>
             <div>
               <Label htmlFor="age" className="text-orange-800 font-bold flex items-center">
-                <Star className="ml-2 w-4 h-4" />
-                عمر النجم
+                <Star className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-4 h-4`} />
+                {t('assessment.starAge')}
               </Label>
               <Input
                 id="age"
@@ -115,24 +479,24 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 onChange={handleChange}
                 required
                 className="border-orange-400 focus:border-red-500 bg-gradient-to-r from-orange-100 to-yellow-100"
-                placeholder="كم عمرك؟"
+                placeholder={t('assessment.agePlaceholder')}
               />
             </div>
             <div>
               <Label htmlFor="position" className="text-orange-800 font-bold flex items-center">
-                <Target className="ml-2 w-4 h-4" />
-                مركز القوة
+                <Target className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-4 h-4`} />
+                {t('assessment.powerPosition')}
               </Label>
               <Select onValueChange={(value) => setFormData({...formData, position: value})}>
                 <SelectTrigger className="border-orange-400 focus:border-red-500 bg-gradient-to-r from-orange-100 to-yellow-100">
-                  <SelectValue placeholder="اختر مركزك في المعركة" />
+                  <SelectValue placeholder={t('assessment.positionPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="goalkeeper">🥅 حارس الحصن</SelectItem>
-                  <SelectItem value="defender">🛡️ محارب الدفاع</SelectItem>
-                  <SelectItem value="midfielder">⚡ سيد الوسط</SelectItem>
-                  <SelectItem value="forward">🗡️ مهاجم ناري</SelectItem>
-                  <SelectItem value="striker">🔥 مدمر الشباك</SelectItem>
+                  <SelectItem value="goalkeeper">{t('assessment.positions.goalkeeper')}</SelectItem>
+                  <SelectItem value="defender">{t('assessment.positions.defender')}</SelectItem>
+                  <SelectItem value="midfielder">{t('assessment.positions.midfielder')}</SelectItem>
+                  <SelectItem value="forward">{t('assessment.positions.forward')}</SelectItem>
+                  <SelectItem value="striker">{t('assessment.positions.striker')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -141,12 +505,12 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
           {/* Speed Metrics */}
           <div className="bg-gradient-to-r from-red-100 to-orange-100 rounded-lg p-6 border-2 border-red-300 fire-glow">
             <h3 className="text-xl font-bold text-red-800 mb-4 flex items-center">
-              <Zap className="ml-2 text-yellow-500" />
-              قوة السرعة الخارقة ⚡
+              <Zap className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-yellow-500`} />
+              {t('assessment.speedMetrics')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="sprint_40m" className="text-red-700 font-semibold">🏃‍♂️ عدو 40 متر (ثانية)</Label>
+                <Label htmlFor="sprint_40m" className="text-red-700 font-semibold">{t('assessment.fields.sprint40')}</Label>
                 <Input
                   id="sprint_40m"
                   name="sprint_40m"
@@ -156,11 +520,11 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   onChange={handleChange}
                   required
                   className="border-red-400 focus:border-red-600 bg-gradient-to-r from-red-50 to-orange-50"
-                  placeholder="سرعة البرق!"
+                  placeholder={t('assessment.placeholders.lightningSpeed')}
                 />
               </div>
               <div>
-                <Label htmlFor="sprint_100m" className="text-red-700 font-semibold">🚀 عدو 100 متر (ثانية)</Label>
+                <Label htmlFor="sprint_100m" className="text-red-700 font-semibold">{t('assessment.fields.sprint100')}</Label>
                 <Input
                   id="sprint_100m"
                   name="sprint_100m"
@@ -170,7 +534,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   onChange={handleChange}
                   required
                   className="border-red-400 focus:border-red-600 bg-gradient-to-r from-red-50 to-orange-50"
-                  placeholder="أسرع من الريح!"
+                  placeholder={t('assessment.placeholders.fasterThanWind')}
                 />
               </div>
             </div>
@@ -179,12 +543,12 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
           {/* Agility Metrics */}
           <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg p-6 border-2 border-yellow-400 fire-glow">
             <h3 className="text-xl font-bold text-yellow-800 mb-4 flex items-center">
-              <Target className="ml-2 text-orange-500" />
-              مهارات الرشاقة الذهبية 🎯
+              <Target className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-orange-500`} />
+              {t('assessment.agilityMetrics')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="cone_drill" className="text-yellow-700 font-semibold">🔶 تدريب المخاريط (ثانية)</Label>
+                <Label htmlFor="cone_drill" className="text-yellow-700 font-semibold">{t('assessment.fields.coneDrill')}</Label>
                 <Input
                   id="cone_drill"
                   name="cone_drill"
@@ -197,7 +561,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="ladder_drill" className="text-yellow-700 font-semibold">🪜 تدريب السلم (ثانية)</Label>
+                <Label htmlFor="ladder_drill" className="text-yellow-700 font-semibold">{t('assessment.fields.ladderDrill')}</Label>
                 <Input
                   id="ladder_drill"
                   name="ladder_drill"
@@ -210,7 +574,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="shuttle_run" className="text-yellow-700 font-semibold">🔄 الجري المكوكي (ثانية)</Label>
+                <Label htmlFor="shuttle_run" className="text-yellow-700 font-semibold">{t('assessment.fields.shuttleRun')}</Label>
                 <Input
                   id="shuttle_run"
                   name="shuttle_run"
@@ -228,11 +592,11 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
           {/* Flexibility Metrics */}
           <div className="bg-gradient-to-r from-green-100 to-blue-100 rounded-lg p-6 border-2 border-green-400 fire-glow">
             <h3 className="text-xl font-bold text-green-800 mb-4 flex items-center">
-              🧘‍♂️ قوة المرونة السحرية
+              {t('assessment.flexibilityMetrics')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="sit_reach" className="text-green-700 font-semibold">🤸‍♂️ الجلوس والوصول (سم)</Label>
+                <Label htmlFor="sit_reach" className="text-green-700 font-semibold">{t('assessment.fields.sitReach')}</Label>
                 <Input
                   id="sit_reach"
                   name="sit_reach"
@@ -245,7 +609,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="shoulder_flexibility" className="text-green-700 font-semibold">💪 مرونة الكتف (درجة)</Label>
+                <Label htmlFor="shoulder_flexibility" className="text-green-700 font-semibold">{t('assessment.fields.shoulderFlex')}</Label>
                 <Input
                   id="shoulder_flexibility"
                   name="shoulder_flexibility"
@@ -257,7 +621,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="hip_flexibility" className="text-green-700 font-semibold">🦵 مرونة الورك (درجة)</Label>
+                <Label htmlFor="hip_flexibility" className="text-green-700 font-semibold">{t('assessment.fields.hipFlex')}</Label>
                 <Input
                   id="hip_flexibility"  
                   name="hip_flexibility"
@@ -274,11 +638,11 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
           {/* Ball Handling Metrics */}
           <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-6 border-2 border-purple-400 fire-glow">
             <h3 className="text-xl font-bold text-purple-800 mb-4 flex items-center">
-              ⚽ سحر التحكم بالكرة ✨
+              {t('assessment.ballHandling')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="juggling_count" className="text-purple-700 font-semibold">🤹‍♂️ عدد الشقلبات السحرية</Label>
+                <Label htmlFor="juggling_count" className="text-purple-700 font-semibold">{t('assessment.fields.juggling')}</Label>
                 <Input
                   id="juggling_count"
                   name="juggling_count"
@@ -290,7 +654,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="dribbling_time" className="text-purple-700 font-semibold">🏃‍♂️ وقت المراوغة الساحرة (ثانية)</Label>
+                <Label htmlFor="dribbling_time" className="text-purple-700 font-semibold">{t('assessment.fields.dribbling')}</Label>
                 <Input
                   id="dribbling_time"
                   name="dribbling_time"
@@ -303,7 +667,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="passing_accuracy" className="text-purple-700 font-semibold">🎯 دقة التمرير (%)</Label>
+                <Label htmlFor="passing_accuracy" className="text-purple-700 font-semibold">{t('assessment.fields.passing')}</Label>
                 <Input
                   id="passing_accuracy"
                   name="passing_accuracy"
@@ -316,7 +680,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="shooting_accuracy" className="text-purple-700 font-semibold">⚽ دقة التسديد القاتلة (%)</Label>
+                <Label htmlFor="shooting_accuracy" className="text-purple-700 font-semibold">{t('assessment.fields.shooting')}</Label>
                 <Input
                   id="shooting_accuracy"
                   name="shooting_accuracy"
@@ -336,7 +700,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
             disabled={isLoading}
             className="w-full bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 hover:from-orange-700 hover:via-red-700 hover:to-yellow-700 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 fire-glow text-xl"
           >
-            {isLoading ? "🔥 جاري إنشاء ملف يويو الناري..." : "🚀 أشعل النار وابدأ رحلة المجد! 🚀"}
+            {isLoading ? t('assessment.submitting') : t('assessment.submitButton')}
           </Button>
         </form>
       </CardContent>
@@ -346,6 +710,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
 
 // Training Program Component
 const TrainingProgram = ({ playerId, playerName }) => {
+  const { t, formatText, direction } = useLanguage();
   const [programs, setPrograms] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [spotifyLink, setSpotifyLink] = useState("");
@@ -361,7 +726,7 @@ const TrainingProgram = ({ playerId, playerName }) => {
       const response = await axios.get(`${API}/training-programs/${playerId}`);
       setPrograms(response.data);
     } catch (error) {
-      console.error("خطأ في جلب البرامج:", error);
+      console.error("Error fetching programs:", error);
     }
   };
 
@@ -377,7 +742,7 @@ const TrainingProgram = ({ playerId, playerName }) => {
       setPrograms([response.data, ...programs]);
       setSpotifyLink("");
     } catch (error) {
-      console.error("خطأ في إنشاء البرنامج:", error);
+      console.error("Error generating program:", error);
     }
     setIsGenerating(false);
   };
@@ -386,10 +751,10 @@ const TrainingProgram = ({ playerId, playerName }) => {
     if (speaking) {
       cancel();
     } else {
-      const arabicVoice = voices.find(voice => voice.lang.includes('ar')) || voices[0];
+      const preferredVoice = voices.find(voice => voice.lang.includes(direction === 'rtl' ? 'ar' : 'en')) || voices[0];
       speak({ 
         text: content, 
-        voice: arabicVoice,
+        voice: preferredVoice,
         rate: 0.8,
         pitch: 1
       });
@@ -404,7 +769,7 @@ const TrainingProgram = ({ playerId, playerName }) => {
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent mb-4">
-          🔥 برامج التدريب الناري ليويو {playerName} 🔥
+          {formatText(t('training.title'), { playerName })}
         </h2>
         
         {/* Options */}
@@ -418,18 +783,18 @@ const TrainingProgram = ({ playerId, playerName }) => {
                   onChange={(e) => setIsGroup(e.target.checked)}
                   className="form-checkbox text-orange-600"
                 />
-                <Users className="w-4 h-4 text-orange-600 ml-2" />
-                <span className="text-orange-800 font-semibold">تدريب جماعي مع الأصدقاء</span>
+                <Users className={`w-4 h-4 text-orange-600 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                <span className="text-orange-800 font-semibold">{t('training.groupTraining')}</span>
               </Label>
             </div>
             <div className="flex items-center justify-center space-x-2">
               <Music className="w-5 h-5 text-green-600" />
               <Input
-                placeholder="رابط Spotify للتحفيز (اختياري)"
+                placeholder={t('training.spotifyPlaceholder')}
                 value={spotifyLink}
                 onChange={(e) => setSpotifyLink(e.target.value)}
                 className="max-w-md border-green-400 focus:border-green-600"
-                dir="rtl"
+                dir={direction}
               />
             </div>
           </div>
@@ -439,16 +804,16 @@ const TrainingProgram = ({ playerId, playerName }) => {
           <Button
             onClick={() => generateProgram("AI_Generated")}
             disabled={isGenerating}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 fire-glow ml-4"
+            className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 fire-glow ${direction === 'rtl' ? 'ml-4' : 'mr-4'}`}
           >
-            {isGenerating ? "🔥 جاري الإنشاء..." : "🤖 برنامج يويو الذكي الناري"}
+            {isGenerating ? t('training.generating') : t('training.aiProgram')}
           </Button>
           <Button
             onClick={() => generateProgram("Ronaldo_Template")}
             disabled={isGenerating}
             className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 fire-glow"
           >
-            {isGenerating ? "🔥 جاري الإنشاء..." : "👑 قالب رونالدو الأسطوري"}
+            {isGenerating ? t('training.generating') : t('training.ronaldoTemplate')}
           </Button>
         </div>
       </div>
@@ -460,21 +825,21 @@ const TrainingProgram = ({ playerId, playerName }) => {
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle className="text-xl text-orange-800 flex items-center">
-                    <Flame className="ml-2 w-5 h-5" />
-                    🔥 برامج التدريب الناري ليويو {playerName} 🔥
+                    <Flame className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+                    {formatText(t('training.title'), { playerName })}
                   </CardTitle>
                   <CardDescription className="flex items-center space-x-2">
-                    <span>تم إنشاؤه: {new Date(program.created_at).toLocaleDateString('ar-SA')}</span>
-                    {program.is_group && <Badge className="bg-blue-100 text-blue-800 mr-2">تدريب جماعي 👥</Badge>}
-                    {program.spotify_playlist && <Badge className="bg-green-100 text-green-800 mr-2">موسيقى تحفيزية 🎵</Badge>}
+                    <span>Created: {new Date(program.created_at).toLocaleDateString()}</span>
+                    {program.is_group && <Badge className={`bg-blue-100 text-blue-800 ${direction === 'rtl' ? 'mr-2' : 'ml-2'}`}>Group Training 👥</Badge>}
+                    {program.spotify_playlist && <Badge className={`bg-green-100 text-green-800 ${direction === 'rtl' ? 'mr-2' : 'ml-2'}`}>Motivational Music 🎵</Badge>}
                   </CardDescription>
                 </div>
                 <div className="flex space-x-2">
                   <Badge 
                     variant={program.program_type === "AI_Generated" ? "default" : "secondary"}
-                    className="bg-orange-100 text-orange-800 ml-2"
+                    className={`bg-orange-100 text-orange-800 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`}
                   >
-                    {program.program_type === "AI_Generated" ? "ذكاء اصطناعي 🤖" : program.program_type === "Ronaldo_Template" ? "رونالدو 👑" : "مخصص 🔥"}
+                    {program.program_type === "AI_Generated" ? "AI Smart 🤖" : program.program_type === "Ronaldo_Template" ? "Ronaldo 👑" : "Custom 🔥"}
                   </Badge>
                   <Button
                     size="sm"
@@ -510,58 +875,47 @@ const TrainingProgram = ({ playerId, playerName }) => {
             <CardContent>
               <Tabs defaultValue="content" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="content">محتوى البرنامج الناري 🔥</TabsTrigger>
-                  <TabsTrigger value="schedule">الجدول الأسبوعي المحفز ⚡</TabsTrigger>
-                  <TabsTrigger value="milestones">معالم المجد 🏆</TabsTrigger>
+                  <TabsTrigger value="content">{t('training.tabs.content')}</TabsTrigger>
+                  <TabsTrigger value="schedule">{t('training.tabs.schedule')}</TabsTrigger>
+                  <TabsTrigger value="milestones">{t('training.tabs.milestones')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="content" className="mt-4">
                   <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-lg border border-orange-200 max-h-96 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-sm text-gray-700 text-right" dir="rtl">{program.program_content}</pre>
+                    <pre className={`whitespace-pre-wrap text-sm text-gray-700 ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>{program.program_content}</pre>
                   </div>
                 </TabsContent>
                 <TabsContent value="schedule" className="mt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {Object.entries(program.weekly_schedule || {}).map(([day, activity]) => {
-                      const arabicDays = {
-                        'Monday': 'الإثنين',
-                        'Tuesday': 'الثلاثاء', 
-                        'Wednesday': 'الأربعاء',
-                        'Thursday': 'الخميس',
-                        'Friday': 'الجمعة',
-                        'Saturday': 'السبت',
-                        'Sunday': 'الأحد'
-                      };
-                      return (
-                        <div key={day} className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg border border-yellow-200">
-                          <div className="font-semibold text-orange-800 text-right flex items-center">
-                            <Flame className="w-4 h-4 ml-2" />
-                            {arabicDays[day] || day}
-                          </div>
-                          <div className="text-sm text-gray-600 text-right" dir="rtl">{activity}</div>
+                    {Object.entries(program.weekly_schedule || {}).map(([day, activity]) => (
+                      <div key={day} className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg border border-yellow-200">
+                        <div className={`font-semibold text-orange-800 ${direction === 'rtl' ? 'text-right' : 'text-left'} flex items-center`}>
+                          <Flame className={`w-4 h-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                          {t(`training.days.${day}`) || day}
                         </div>
-                      );
-                    })}
+                        <div className={`text-sm text-gray-600 ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>{activity}</div>
+                      </div>
+                    ))}
                   </div>
                 </TabsContent>
                 <TabsContent value="milestones" className="mt-4">
                   <div className="space-y-3">
                     {program.milestones?.map((milestone, index) => (
                       <div key={index} className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200 flex justify-between items-center">
-                        <div className="text-right">
+                        <div className={direction === 'rtl' ? 'text-right' : 'text-left'}>
                           <span className="font-semibold text-green-800 flex items-center">
-                            <Trophy className="w-4 h-4 ml-2" />
-                            الأسبوع {milestone.week}:
+                            <Trophy className={`w-4 h-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                            Week {milestone.week}:
                           </span>
-                          <span className="mr-2 text-gray-700" dir="rtl">{milestone.target}</span>
+                          <span className={`${direction === 'rtl' ? 'mr-2' : 'ml-2'} text-gray-700`} dir={direction}>{milestone.target}</span>
                           {milestone.coins && (
-                            <Badge className="bg-yellow-100 text-yellow-800 mr-2">
+                            <Badge className={`bg-yellow-100 text-yellow-800 ${direction === 'rtl' ? 'mr-2' : 'ml-2'}`}>
                               <Coins className="w-3 h-3 ml-1" />
-                              {milestone.coins} عملة
+                              {milestone.coins} {t('common.coins')}
                             </Badge>
                           )}
                         </div>
                         <Badge variant="outline" className="border-green-300 text-green-700">
-                          هدف ناري 🔥
+                          {t('training.target')}
                         </Badge>
                       </div>
                     ))}
@@ -578,6 +932,7 @@ const TrainingProgram = ({ playerId, playerName }) => {
 
 // Progress Tracker Component with Achievements
 const ProgressTracker = ({ playerId, playerName }) => {
+  const { t, formatText, direction } = useLanguage();
   const [progressData, setProgressData] = useState([]);
   const [trophies, setTrophies] = useState([]);
   const [newEntry, setNewEntry] = useState({
@@ -597,7 +952,7 @@ const ProgressTracker = ({ playerId, playerName }) => {
       const response = await axios.get(`${API}/progress/${playerId}`);
       setProgressData(response.data);
     } catch (error) {
-      console.error("خطأ في جلب التقدم:", error);
+      console.error("Error fetching progress:", error);
     }
   };
 
@@ -606,7 +961,7 @@ const ProgressTracker = ({ playerId, playerName }) => {
       const response = await axios.get(`${API}/trophies/${playerId}`);
       setTrophies(response.data);
     } catch (error) {
-      console.error("خطأ في جلب الكؤوس:", error);
+      console.error("Error fetching trophies:", error);
     }
   };
 
@@ -622,13 +977,13 @@ const ProgressTracker = ({ playerId, playerName }) => {
       fetchProgress();
       fetchTrophies();
     } catch (error) {
-      console.error("خطأ في إضافة التقدم:", error);
+      console.error("Error adding progress:", error);
     }
   };
 
   // Process data for charts
   const chartData = progressData.reduce((acc, entry) => {
-    const date = new Date(entry.date).toLocaleDateString('ar-SA');
+    const date = new Date(entry.date).toLocaleDateString();
     const existingDate = acc.find(item => item.date === date);
     if (existingDate) {
       existingDate[entry.metric_name] = entry.value;
@@ -657,7 +1012,7 @@ const ProgressTracker = ({ playerId, playerName }) => {
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent mb-4">
-          🏆 متتبع إنجازات يويو {playerName} 🏆
+          {formatText(t('progress.title'), { playerName })}
         </h2>
       </div>
 
@@ -666,20 +1021,20 @@ const ProgressTracker = ({ playerId, playerName }) => {
         <Card className="bg-gradient-to-r from-green-100 to-blue-100 border-2 border-green-400 fire-glow">
           <CardHeader>
             <CardTitle className="text-green-800 flex items-center">
-              <Gift className="ml-2 w-5 h-5" />
+              <Gift className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
               {lastResult.message}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-center space-x-4">
-              <Badge className="bg-yellow-100 text-yellow-800 text-lg p-2 ml-4">
+              <Badge className={`bg-yellow-100 text-yellow-800 text-lg p-2 ${direction === 'rtl' ? 'ml-4' : 'mr-4'}`}>
                 <Coins className="w-4 h-4 ml-1" />
-                +{lastResult.coins_earned} عملة ذهبية
+                +{lastResult.coins_earned} {t('common.coins')}
               </Badge>
               {lastResult.trophies_unlocked && lastResult.trophies_unlocked.length > 0 && (
                 <div className="flex space-x-2">
                   {lastResult.trophies_unlocked.map((trophy, index) => (
-                    <Badge key={index} className="bg-purple-100 text-purple-800 text-lg p-2 mr-2">
+                    <Badge key={index} className={`bg-purple-100 text-purple-800 text-lg p-2 ${direction === 'rtl' ? 'mr-2' : 'ml-2'}`}>
                       <Trophy className="w-4 h-4 ml-1" />
                       {trophy.icon} {trophy.trophy_name}
                     </Badge>
@@ -696,8 +1051,8 @@ const ProgressTracker = ({ playerId, playerName }) => {
         <Card className="bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-400">
           <CardHeader>
             <CardTitle className="text-yellow-800 flex items-center">
-              <Crown className="ml-2 w-5 h-5" />
-              🏆 كؤوس يويو الناري 🏆
+              <Crown className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+              {t('progress.trophiesTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -722,43 +1077,43 @@ const ProgressTracker = ({ playerId, playerName }) => {
       <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300">
         <CardHeader>
           <CardTitle className="text-orange-800 flex items-center">
-            <Flame className="ml-2 w-5 h-5" />
-            🔥 متتبع إنجازات يويو {playerName} 🏆
+            <Flame className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+            {t('progress.addEntry')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={addProgress} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
-              <Label className="text-orange-700 font-semibold">نوع المقياس</Label>
+              <Label className="text-orange-700 font-semibold">{t('progress.metricType')}</Label>
               <Select onValueChange={(value) => setNewEntry({...newEntry, metric_type: value})}>
                 <SelectTrigger className="border-orange-400 focus:border-red-500">
-                  <SelectValue placeholder="اختر نوع التحدي" />
+                  <SelectValue placeholder={t('progress.metricTypePlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="speed">⚡ السرعة الخارقة</SelectItem>
-                  <SelectItem value="agility">🎯 الرشاقة الذهبية</SelectItem>
-                  <SelectItem value="flexibility">🧘‍♂️ المرونة السحرية</SelectItem>
-                  <SelectItem value="ball_handling">⚽ سحر التحكم بالكرة</SelectItem>
+                  <SelectItem value="speed">{t('progress.metricTypes.speed')}</SelectItem>
+                  <SelectItem value="agility">{t('progress.metricTypes.agility')}</SelectItem>
+                  <SelectItem value="flexibility">{t('progress.metricTypes.flexibility')}</SelectItem>
+                  <SelectItem value="ball_handling">{t('progress.metricTypes.ball_handling')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-orange-700 font-semibold">اسم المقياس</Label>
+              <Label className="text-orange-700 font-semibold">{t('progress.metricName')}</Label>
               <Input
-                placeholder="مثال: عدو 40 متر الناري"
+                placeholder={t('progress.metricNamePlaceholder')}
                 value={newEntry.metric_name}
                 onChange={(e) => setNewEntry({...newEntry, metric_name: e.target.value})}
                 required
-                dir="rtl"
+                dir={direction}
                 className="border-orange-400 focus:border-red-500"
               />
             </div>
             <div>
-              <Label className="text-orange-700 font-semibold">القيمة المذهلة</Label>
+              <Label className="text-orange-700 font-semibold">{t('progress.amazingValue')}</Label>
               <Input
                 type="number"
                 step="0.01"
-                placeholder="إنجازك"
+                placeholder={t('progress.valuePlaceholder')}
                 value={newEntry.value}
                 onChange={(e) => setNewEntry({...newEntry, value: e.target.value})}
                 required
@@ -766,7 +1121,7 @@ const ProgressTracker = ({ playerId, playerName }) => {
               />
             </div>
             <Button type="submit" className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 fire-glow">
-              🔥 سجل الإنجاز
+              {t('progress.recordButton')}
             </Button>
           </form>
         </CardContent>
@@ -777,8 +1132,8 @@ const ProgressTracker = ({ playerId, playerName }) => {
         <Card className="border-2 border-blue-300">
           <CardHeader>
             <CardTitle className="text-blue-800 flex items-center">
-              <TrendingUp className="ml-2" />
-              🚀 رحلة التقدم عبر الزمن
+              <TrendingUp className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+              {t('progress.progressOverTime')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -805,7 +1160,7 @@ const ProgressTracker = ({ playerId, playerName }) => {
 
         <Card className="border-2 border-purple-300">
           <CardHeader>
-            <CardTitle className="text-purple-800">🌟 ملف القوة الحالي</CardTitle>
+            <CardTitle className="text-purple-800">{t('progress.currentProfile')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -814,7 +1169,7 @@ const ProgressTracker = ({ playerId, playerName }) => {
                 <PolarAngleAxis dataKey="metric" />
                 <PolarRadiusAxis />
                 <Radar
-                  name="قوة يويو"
+                  name="Yoyo's Power"
                   dataKey="value"
                   stroke="#f97316"
                   fill="#f97316"
@@ -832,6 +1187,7 @@ const ProgressTracker = ({ playerId, playerName }) => {
 
 // Enhanced Voice Notes Component
 const VoiceNotes = ({ playerId, playerName }) => {
+  const { t, formatText, direction } = useLanguage();
   const [notes, setNotes] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [isListening, setIsListening] = useState(false);
@@ -848,7 +1204,7 @@ const VoiceNotes = ({ playerId, playerName }) => {
       const response = await axios.get(`${API}/voice-notes/${playerId}`);
       setNotes(response.data);
     } catch (error) {
-      console.error("خطأ في جلب الملاحظات:", error);
+      console.error("Error fetching notes:", error);
     }
   };
 
@@ -857,7 +1213,7 @@ const VoiceNotes = ({ playerId, playerName }) => {
       const response = await axios.get(`${API}/notifications/${playerId}`);
       setNotifications(response.data);
     } catch (error) {
-      console.error("خطأ في جلب الإشعارات:", error);
+      console.error("Error fetching notifications:", error);
     }
   };
 
@@ -872,32 +1228,32 @@ const VoiceNotes = ({ playerId, playerName }) => {
       resetTranscript();
       fetchNotes();
     } catch (error) {
-      console.error("خطأ في حفظ الملاحظة:", error);
+      console.error("Error saving note:", error);
     }
   };
 
   const createMotivationNotification = async () => {
     try {
       const motivationalMessages = [
-        "🔥 يويو! حان وقت إشعال النار في التدريب!",
-        "⚡ استيقظ يا محارب! الملعب ينتظر قوتك!",
-        "🚀 اليوم هو يومك لتحطيم كل الأرقام القياسية!",
-        "👑 أنت الأسطورة! اذهب وأظهر للعالم قوتك الحقيقية!"
+        "🔥 Yoyo! Time to ignite the fire in training!",
+        "⚡ Wake up warrior! The field awaits your power!",
+        "🚀 Today is your day to break all records!",
+        "👑 You're the legend! Go show the world your true power!"
       ];
       
       const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
       
       await axios.post(`${API}/notifications`, {
         player_id: playerId,
-        title: "⏰ إشعار التحفيز الناري",
+        title: "⏰ Fire Motivation Alert",
         message: randomMessage,
         notification_type: "motivation",
-        spotify_link: "https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP" // Example workout playlist
+        spotify_link: "https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP"
       });
       
       fetchNotifications();
     } catch (error) {
-      console.error("خطأ في إنشاء إشعار التحفيز:", error);
+      console.error("Error creating motivation notification:", error);
     }
   };
 
@@ -905,10 +1261,10 @@ const VoiceNotes = ({ playerId, playerName }) => {
     if (speaking) {
       cancel();
     } else {
-      const arabicVoice = voices.find(voice => voice.lang.includes('ar')) || voices[0];
+      const preferredVoice = voices.find(voice => voice.lang.includes(direction === 'rtl' ? 'ar' : 'en')) || voices[0];
       speak({ 
         text: text, 
-        voice: arabicVoice,
+        voice: preferredVoice,
         rate: 0.8,
         pitch: 1
       });
@@ -920,14 +1276,14 @@ const VoiceNotes = ({ playerId, playerName }) => {
   };
 
   if (!browserSupportsSpeechRecognition) {
-    return <div className="text-center text-red-600">المتصفح لا يدعم التعرف على الكلام.</div>;
+    return <div className="text-center text-red-600">Browser doesn't support speech recognition.</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent mb-4">
-          🎤 مذكرات يويو الصوتية والإشعارات 🔔
+          {formatText(t('voice.title'), { playerName })}
         </h2>
       </div>
 
@@ -936,17 +1292,17 @@ const VoiceNotes = ({ playerId, playerName }) => {
         <Card className="bg-gradient-to-r from-blue-100 to-purple-100 border-2 border-blue-300">
           <CardHeader>
             <CardTitle className="text-blue-800 flex items-center">
-              <Bell className="ml-2 w-5 h-5" />
-              🔔 إشعارات التحفيز الناري
+              <Bell className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+              {t('voice.motivationNotifications')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-40 overflow-y-auto">
               {notifications.slice(0, 5).map((notification) => (
                 <div key={notification.id} className="bg-white p-3 rounded-lg border border-blue-200 flex justify-between items-center">
-                  <div className="text-right flex-1">
+                  <div className={`${direction === 'rtl' ? 'text-right' : 'text-left'} flex-1`}>
                     <div className="font-semibold text-blue-800">{notification.title}</div>
-                    <div className="text-sm text-blue-600" dir="rtl">{notification.message}</div>
+                    <div className={`text-sm text-blue-600`} dir={direction}>{notification.message}</div>
                     {notification.spotify_link && (
                       <Button
                         size="sm"
@@ -955,7 +1311,7 @@ const VoiceNotes = ({ playerId, playerName }) => {
                         className="mt-2 border-green-300 text-green-700 hover:bg-green-50"
                       >
                         <Music className="w-3 h-3 ml-1" />
-                        استمع للتحفيز
+                        {t('voice.listenToMotivation')}
                       </Button>
                     )}
                   </div>
@@ -970,38 +1326,38 @@ const VoiceNotes = ({ playerId, playerName }) => {
       <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300">
         <CardHeader>
           <CardTitle className="text-orange-800 flex items-center">
-            <Flame className="ml-2 w-5 h-5" />
-            🎤 سجل مذكراتك الناري
+            <Flame className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+            {t('voice.recordTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-4">
             <Button
               onClick={() => setIsListening(!isListening)}
-              className={`${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-600 hover:bg-orange-700'} transition-colors ml-4 fire-glow`}
+              className={`${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-600 hover:bg-orange-700'} transition-colors ${direction === 'rtl' ? 'ml-4' : 'mr-4'} fire-glow`}
             >
-              {isListening ? <MicOff className="ml-2" /> : <Mic className="ml-2" />}
-              {isListening ? '🔴 إيقاف التسجيل' : '🎤 بدء التسجيل الناري'}
+              {isListening ? <MicOff className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} /> : <Mic className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />}
+              {isListening ? t('voice.stopRecording') : t('voice.startRecording')}
             </Button>
             <Button
               onClick={saveNote}
               disabled={!transcript}
               className="bg-blue-600 hover:bg-blue-700 fire-glow"
             >
-              💾 حفظ المذكرة
+              {t('voice.saveNote')}
             </Button>
             <Button
               onClick={resetTranscript}
               variant="outline"
               className="border-gray-300"
             >
-              🗑️ مسح
+              {t('voice.clear')}
             </Button>
             <Button
               onClick={createMotivationNotification}
               className="bg-purple-600 hover:bg-purple-700 fire-glow"
             >
-              🔔 إشعار تحفيزي
+              {t('voice.motivationNotification')}
             </Button>
             {speaking && (
               <Button
@@ -1009,15 +1365,15 @@ const VoiceNotes = ({ playerId, playerName }) => {
                 variant="outline"
                 className="border-red-300 text-red-700 hover:bg-red-50"
               >
-                <Square className="w-4 h-4 ml-2" />
-                إيقاف الصوت
+                <Square className={`w-4 h-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                {t('voice.stop')}
               </Button>
             )}
           </div>
           
           {transcript && (
             <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border border-orange-200">
-              <p className="text-gray-700 text-right" dir="rtl">{transcript}</p>
+              <p className={`text-gray-700 ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>{transcript}</p>
             </div>
           )}
         </CardContent>
@@ -1030,16 +1386,16 @@ const VoiceNotes = ({ playerId, playerName }) => {
             <CardContent className="p-4">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <p className="text-gray-700 mb-2 text-right" dir="rtl">{note.note_text}</p>
+                  <p className={`text-gray-700 mb-2 ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>{note.note_text}</p>
                   <p className="text-sm text-gray-500">
-                    {new Date(note.created_at).toLocaleString('ar-SA')}
+                    {new Date(note.created_at).toLocaleString()}
                   </p>
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => speakNote(note.note_text)}
-                  className="mr-4 border-orange-300 text-orange-700 hover:bg-orange-50"
+                  className={`${direction === 'rtl' ? 'mr-4' : 'ml-4'} border-orange-300 text-orange-700 hover:bg-orange-50`}
                 >
                   {speaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </Button>
@@ -1054,6 +1410,7 @@ const VoiceNotes = ({ playerId, playerName }) => {
 
 // Group Training Component
 const GroupTraining = ({ playerId, playerName }) => {
+  const { t, formatText, direction } = useLanguage();
   const [groups, setGroups] = useState([]);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [newGroup, setNewGroup] = useState({
@@ -1072,7 +1429,7 @@ const GroupTraining = ({ playerId, playerName }) => {
       const response = await axios.get(`${API}/group-training/${playerId}`);
       setGroups(response.data);
     } catch (error) {
-      console.error("خطأ في جلب المجموعات:", error);
+      console.error("Error fetching groups:", error);
     }
   };
 
@@ -1096,7 +1453,7 @@ const GroupTraining = ({ playerId, playerName }) => {
       setShowCreateGroup(false);
       fetchGroups();
     } catch (error) {
-      console.error("خطأ في إنشاء المجموعة:", error);
+      console.error("Error creating group:", error);
     }
   };
 
@@ -1104,14 +1461,14 @@ const GroupTraining = ({ playerId, playerName }) => {
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent mb-4">
-          👥 تدريبات المجموعة الناري 👥
+          {t('group.title')}
         </h2>
         <Button
           onClick={() => setShowCreateGroup(!showCreateGroup)}
           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 fire-glow"
         >
-          <Users className="ml-2 w-4 h-4" />
-          إنشاء مجموعة تدريب جديدة
+          <Users className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-4 h-4`} />
+          {t('group.createButton')}
         </Button>
       </div>
 
@@ -1119,43 +1476,43 @@ const GroupTraining = ({ playerId, playerName }) => {
       {showCreateGroup && (
         <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300">
           <CardHeader>
-            <CardTitle className="text-blue-800">🔥 إنشاء مجموعة تدريب ناري</CardTitle>
+            <CardTitle className="text-blue-800">{t('group.createTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={createGroup} className="space-y-4">
               <div>
-                <Label className="text-blue-700 font-semibold">اسم المجموعة الناري</Label>
+                <Label className="text-blue-700 font-semibold">{t('group.groupName')}</Label>
                 <Input
                   value={newGroup.training_name}
                   onChange={(e) => setNewGroup({...newGroup, training_name: e.target.value})}
                   required
-                  placeholder="مثال: محاربو يويو النار"
+                  placeholder={t('group.groupNamePlaceholder')}
                   className="border-blue-400 focus:border-purple-500"
-                  dir="rtl"
+                  dir={direction}
                 />
               </div>
               <div>
-                <Label className="text-blue-700 font-semibold">وصف التحدي</Label>
+                <Label className="text-blue-700 font-semibold">{t('group.challengeDescription')}</Label>
                 <Input
                   value={newGroup.description}
                   onChange={(e) => setNewGroup({...newGroup, description: e.target.value})}
                   required
-                  placeholder="وصف التدريب والأهداف"
+                  placeholder={t('group.challengePlaceholder')}
                   className="border-blue-400 focus:border-purple-500"
-                  dir="rtl"
+                  dir={direction}
                 />
               </div>
               <div>
-                <Label className="text-blue-700 font-semibold">معرفات الأصدقاء (مفصولة بفاصلة)</Label>
+                <Label className="text-blue-700 font-semibold">{t('group.friendIds')}</Label>
                 <Input
                   value={newGroup.invited_members}
                   onChange={(e) => setNewGroup({...newGroup, invited_members: e.target.value})}
-                  placeholder="ID1, ID2, ID3"
+                  placeholder={t('group.friendIdsPlaceholder')}
                   className="border-blue-400 focus:border-purple-500"
                 />
               </div>
               <div>
-                <Label className="text-blue-700 font-semibold">رابط Spotify للتحفيز (اختياري)</Label>
+                <Label className="text-blue-700 font-semibold">{t('group.spotifyLink')}</Label>
                 <Input
                   value={newGroup.spotify_playlist}
                   onChange={(e) => setNewGroup({...newGroup, spotify_playlist: e.target.value})}
@@ -1164,11 +1521,11 @@ const GroupTraining = ({ playerId, playerName }) => {
                 />
               </div>
               <div className="flex space-x-2">
-                <Button type="submit" className="bg-green-600 hover:bg-green-700 fire-glow mr-2">
-                  🚀 إنشاء المجموعة
+                <Button type="submit" className={`bg-green-600 hover:bg-green-700 fire-glow ${direction === 'rtl' ? 'mr-2' : 'ml-2'}`}>
+                  {t('group.createGroup')}
                 </Button>
                 <Button type="button" onClick={() => setShowCreateGroup(false)} variant="outline">
-                  إلغاء
+                  {t('group.cancel')}
                 </Button>
               </div>
             </form>
@@ -1182,7 +1539,7 @@ const GroupTraining = ({ playerId, playerName }) => {
           <Card key={group.id} className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300">
             <CardHeader>
               <CardTitle className="text-green-800 flex items-center">
-                <Users className="ml-2 w-5 h-5" />
+                <Users className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
                 {group.training_name}
               </CardTitle>
               <CardDescription>{group.description}</CardDescription>
@@ -1190,11 +1547,11 @@ const GroupTraining = ({ playerId, playerName }) => {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-center space-x-4">
-                  <Badge className="bg-blue-100 text-blue-800 ml-4">
-                    👥 {group.members.length + 1} عضو
+                  <Badge className={`bg-blue-100 text-blue-800 ${direction === 'rtl' ? 'ml-4' : 'mr-4'}`}>
+                    {formatText(t('group.members'), { count: group.members.length + 1 })}
                   </Badge>
-                  <Badge className="bg-purple-100 text-purple-800 ml-4">
-                    📅 {new Date(group.created_at).toLocaleDateString('ar-SA')}
+                  <Badge className={`bg-purple-100 text-purple-800 ${direction === 'rtl' ? 'ml-4' : 'mr-4'}`}>
+                    📅 {new Date(group.created_at).toLocaleDateString()}
                   </Badge>
                   {group.spotify_playlist && (
                     <Button
@@ -1204,18 +1561,18 @@ const GroupTraining = ({ playerId, playerName }) => {
                       className="border-green-300 text-green-700 hover:bg-green-50"
                     >
                       <Music className="w-4 h-4 ml-1" />
-                      استمع للموسيقى
+                      Listen to Music
                     </Button>
                   )}
                 </div>
                 {group.target_date && (
                   <div className="text-sm text-gray-600">
-                    تاريخ الهدف: {new Date(group.target_date).toLocaleDateString('ar-SA')}
+                    Target Date: {new Date(group.target_date).toLocaleDateString()}
                   </div>
                 )}
                 <Badge className="bg-yellow-100 text-yellow-800">
                   <Coins className="w-3 h-3 ml-1" />
-                  مكافأة الإنجاز: {group.completion_reward} عملة
+                  {formatText(t('group.completionReward'), { reward: group.completion_reward })}
                 </Badge>
               </div>
             </CardContent>
@@ -1228,6 +1585,7 @@ const GroupTraining = ({ playerId, playerName }) => {
 
 // Main Dashboard Component
 const Dashboard = () => {
+  const { t, formatText, direction } = useLanguage();
   const [assessments, setAssessments] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [activeTab, setActiveTab] = useState("assessment");
@@ -1241,7 +1599,7 @@ const Dashboard = () => {
       const response = await axios.get(`${API}/assessments`);
       setAssessments(response.data);
     } catch (error) {
-      console.error("خطأ في جلب التقييمات:", error);
+      console.error("Error fetching assessments:", error);
     }
   };
 
@@ -1252,28 +1610,29 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-red-50 via-yellow-50 to-white fire-background" dir="rtl">
+    <div className={`min-h-screen bg-gradient-to-br from-orange-100 via-red-50 via-yellow-50 to-white fire-background`} dir={direction}>
+      <LanguageToggle />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent mb-4 fire-glow">
-            🔥 يويو الفتى الناري ⚽
+            {t('appTitle')}
           </h1>
           <p className="text-orange-700 text-xl font-bold">
-            ✨ مولد برامج التدريب الاحترافية مع رؤى مدعومة بالذكاء الاصطناعي ✨
+            {t('appSubtitle')}
           </p>
           <div className="flex justify-center items-center space-x-4 mt-4">
-            <Badge className="bg-yellow-100 text-yellow-800 text-lg p-2 ml-4">
+            <Badge className={`bg-yellow-100 text-yellow-800 text-lg p-2 ${direction === 'rtl' ? 'ml-4' : 'mr-4'}`}>
               <Flame className="w-4 h-4 ml-1" />
-              أشعل النار في قوتك
+              {t('badges.igniteYourPower')}
             </Badge>
-            <Badge className="bg-blue-100 text-blue-800 text-lg p-2 ml-4">
+            <Badge className={`bg-blue-100 text-blue-800 text-lg p-2 ${direction === 'rtl' ? 'ml-4' : 'mr-4'}`}>
               <Users className="w-4 h-4 ml-1" />
-              تدرب مع الأصدقاء
+              {t('badges.trainWithFriends')}
             </Badge>
             <Badge className="bg-green-100 text-green-800 text-lg p-2">
               <Trophy className="w-4 h-4 ml-1" />
-              اجمع الكؤوس والعملات
+              {t('badges.collectTrophies')}
             </Badge>
           </div>
         </div>
@@ -1283,8 +1642,8 @@ const Dashboard = () => {
           <Card className="mb-8 bg-gradient-to-r from-white to-orange-50 border-2 border-orange-300 fire-glow">
             <CardHeader>
               <CardTitle className="text-orange-800 flex items-center">
-                <Crown className="ml-2 w-5 h-5" />
-                اختيار المحارب الناري
+                <Crown className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+                {t('common.selectPlayer')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -1294,20 +1653,20 @@ const Dashboard = () => {
                     key={assessment.id}
                     variant={selectedPlayer?.id === assessment.id ? "default" : "outline"}
                     onClick={() => setSelectedPlayer(assessment)}
-                    className={`p-4 h-auto flex flex-col items-end text-right fire-glow ${
+                    className={`p-4 h-auto flex flex-col ${direction === 'rtl' ? 'items-end text-right' : 'items-start text-left'} fire-glow ${
                       selectedPlayer?.id === assessment.id 
                         ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700' 
                         : 'border-orange-300 hover:bg-orange-50'
                     }`}
                   >
                     <span className="font-bold text-lg flex items-center">
-                      <Flame className="w-4 h-4 ml-2" />
+                      <Flame className={`w-4 h-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                       {assessment.player_name}
                     </span>
                     <span className="text-sm opacity-75 flex items-center">
-                      <span>{assessment.position} • عمر {assessment.age}</span>
+                      <span>{assessment.position} • {t('common.age')} {assessment.age}</span>
                       {assessment.total_coins > 0 && (
-                        <Badge className="bg-yellow-100 text-yellow-800 mr-2">
+                        <Badge className={`bg-yellow-100 text-yellow-800 ${direction === 'rtl' ? 'mr-2' : 'ml-2'}`}>
                           <Coins className="w-3 h-3 ml-1" />
                           {assessment.total_coins}
                         </Badge>
@@ -1324,19 +1683,19 @@ const Dashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-8 bg-gradient-to-r from-orange-200 to-red-200">
             <TabsTrigger value="assessment" className="data-[state=active]:bg-orange-600 data-[state=active]:text-white fire-glow">
-              🔥 التقييم
+              {t('common.tabs.assessment')}
             </TabsTrigger>
             <TabsTrigger value="training" disabled={!selectedPlayer} className="data-[state=active]:bg-orange-600 data-[state=active]:text-white fire-glow">
-              🚀 برامج التدريب
+              {t('common.tabs.training')}
             </TabsTrigger>
             <TabsTrigger value="progress" disabled={!selectedPlayer} className="data-[state=active]:bg-orange-600 data-[state=active]:text-white fire-glow">
-              🏆 تتبع التقدم
+              {t('common.tabs.progress')}
             </TabsTrigger>
             <TabsTrigger value="voice" disabled={!selectedPlayer} className="data-[state=active]:bg-orange-600 data-[state=active]:text-white fire-glow">
-              🎤 المذكرات والإشعارات
+              {t('common.tabs.voice')}
             </TabsTrigger>
             <TabsTrigger value="group" disabled={!selectedPlayer} className="data-[state=active]:bg-orange-600 data-[state=active]:text-white fire-glow">
-              👥 التدريب الجماعي
+              {t('common.tabs.group')}
             </TabsTrigger>
           </TabsList>
 
@@ -1387,13 +1746,15 @@ const Dashboard = () => {
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <LanguageProvider>
+      <div className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </LanguageProvider>
   );
 }
 

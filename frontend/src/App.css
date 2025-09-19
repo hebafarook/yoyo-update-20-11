@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 * {
   margin: 0;
@@ -6,15 +7,26 @@
   box-sizing: border-box;
 }
 
+/* Base styles for English */
 body {
-  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 25%, #fed7aa 50%, #fdba74 75%, #fb923c 100%);
   min-height: 100vh;
+  direction: ltr;
+  text-align: left;
+}
+
+/* Arabic font styles */
+[dir="rtl"] body {
+  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   direction: rtl;
+  text-align: right;
 }
 
 .App {
@@ -61,9 +73,34 @@ body {
   transform: translateY(-2px);
 }
 
-/* Arabic RTL Support */
+/* Language Toggle Button */
+.language-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(251, 146, 60, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.language-toggle:hover {
+  background: rgba(251, 146, 60, 0.1);
+  border-color: rgba(251, 146, 60, 0.6);
+  transform: translateY(-2px);
+}
+
+/* RTL Support */
 [dir="rtl"] {
   text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
 }
 
 [dir="rtl"] .flex {
@@ -354,8 +391,17 @@ label {
   font-weight: 700;
   margin-bottom: 0.5rem;
   display: block;
-  text-align: right;
   color: var(--fire-orange-800);
+}
+
+/* English labels aligned left */
+[dir="ltr"] label {
+  text-align: left;
+}
+
+/* Arabic labels aligned right */
+[dir="rtl"] label {
+  text-align: right;
 }
 
 /* Professional metrics display with fire theme */
@@ -416,14 +462,27 @@ label {
   100% { transform: rotate(360deg); }
 }
 
-/* Arabic font improvements with fire theme */
+/* Font improvements for both languages */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Cairo', sans-serif;
   font-weight: 800;
   color: var(--fire-orange-800);
 }
 
-p, span, div {
+/* English typography */
+[dir="ltr"] h1, [dir="ltr"] h2, [dir="ltr"] h3, [dir="ltr"] h4, [dir="ltr"] h5, [dir="ltr"] h6 {
+  font-family: 'Inter', sans-serif;
+}
+
+[dir="ltr"] p, [dir="ltr"] span, [dir="ltr"] div {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Arabic typography */
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
+  font-family: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] p, [dir="rtl"] span, [dir="rtl"] div {
   font-family: 'Cairo', sans-serif;
 }
 
@@ -453,16 +512,23 @@ p, span, div {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  flex-direction: row-reverse;
   background: linear-gradient(135deg, rgba(255, 247, 237, 0.8), rgba(255, 237, 213, 0.8));
   padding: 1rem;
   border-radius: 12px;
   border: 1px solid rgba(251, 146, 60, 0.3);
 }
 
-/* Arabic text alignment */
+[dir="rtl"] .fire-voice-controls {
+  flex-direction: row-reverse;
+}
+
+/* Text alignment classes */
 .text-right {
   text-align: right;
+}
+
+.text-left {
+  text-align: left;
 }
 
 /* Speaking indicator with fire theme */
@@ -520,4 +586,44 @@ p, span, div {
 
 .fire-transition-fast {
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Language-specific responsive adjustments */
+@media (max-width: 640px) {
+  .language-toggle {
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  [dir="rtl"] .language-toggle {
+    right: auto;
+    left: 0.5rem;
+  }
+}
+
+/* Improved button spacing for RTL */
+[dir="rtl"] .flex.space-x-4 > * + * {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+[dir="rtl"] .flex.space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* Better form layout for both directions */
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+[dir="ltr"] .form-grid {
+  text-align: left;
+}
+
+[dir="rtl"] .form-grid {
+  text-align: right;
 }
