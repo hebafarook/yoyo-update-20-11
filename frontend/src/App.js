@@ -460,8 +460,8 @@ const TrainingProgram = ({ playerId, playerName }) => {
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle className="text-xl text-orange-800 flex items-center">
-                    <Fire className="ml-2 w-5 h-5" />
-                    برنامج {program.program_type === "AI_Generated" ? "الذكاء الاصطناعي الناري 🤖" : program.program_type === "Ronaldo_Template" ? "رونالدو الأسطوري 👑" : "مخصص 🔥"}
+                    <Flame className="ml-2 w-5 h-5" />
+                    🔥 برامج التدريب الناري ليويو {playerName} 🔥
                   </CardTitle>
                   <CardDescription className="flex items-center space-x-2">
                     <span>تم إنشاؤه: {new Date(program.created_at).toLocaleDateString('ar-SA')}</span>
