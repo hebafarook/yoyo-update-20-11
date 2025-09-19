@@ -534,7 +534,7 @@ const TrainingProgram = ({ playerId, playerName }) => {
                       return (
                         <div key={day} className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg border border-yellow-200">
                           <div className="font-semibold text-orange-800 text-right flex items-center">
-                            <Fire className="w-4 h-4 ml-2" />
+                            <Flame className="w-4 h-4 ml-2" />
                             {arabicDays[day] || day}
                           </div>
                           <div className="text-sm text-gray-600 text-right" dir="rtl">{activity}</div>
