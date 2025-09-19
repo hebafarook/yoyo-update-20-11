@@ -1264,7 +1264,7 @@ const Dashboard = () => {
           </p>
           <div className="flex justify-center items-center space-x-4 mt-4">
             <Badge className="bg-yellow-100 text-yellow-800 text-lg p-2 ml-4">
-              <Fire className="w-4 h-4 ml-1" />
+              <Flame className="w-4 h-4 ml-1" />
               أشعل النار في قوتك
             </Badge>
             <Badge className="bg-blue-100 text-blue-800 text-lg p-2 ml-4">
