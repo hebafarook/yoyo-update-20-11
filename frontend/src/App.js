@@ -970,7 +970,7 @@ const VoiceNotes = ({ playerId, playerName }) => {
       <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300">
         <CardHeader>
           <CardTitle className="text-orange-800 flex items-center">
-            <Fire className="ml-2 w-5 h-5" />
+            <Flame className="ml-2 w-5 h-5" />
             🎤 سجل مذكراتك الناري
           </CardTitle>
         </CardHeader>
