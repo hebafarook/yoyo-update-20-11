@@ -552,7 +552,19 @@ async def create_assessment(assessment: AssessmentCreate):
 async def get_assessments():
     try:
         assessments = await db.assessments.find().to_list(1000)
-        return [PlayerAssessment(**parse_from_mongo(assessment)) for assessment in assessments]
+        valid_assessments = []
+        
+        for assessment in assessments:
+            try:
+                # Only include assessments that have the new Youth Handbook fields
+                parsed_assessment = parse_from_mongo(assessment)
+                if all(field in parsed_assessment for field in ['sprint_30m', 'yo_yo_test', 'vo2_max', 'ball_control', 'game_intelligence', 'coachability']):
+                    valid_assessments.append(PlayerAssessment(**parsed_assessment))
+            except Exception as e:
+                # Skip assessments that don't match the new format
+                continue
+                
+        return valid_assessments
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
