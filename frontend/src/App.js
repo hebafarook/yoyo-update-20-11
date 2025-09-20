@@ -18,6 +18,8 @@ import ProgressTracker from "./components/ProgressTracker";
 import ComingSoon from "./components/ComingSoon";
 import VO2MaxCalculator from "./components/VO2MaxCalculator";
 import TrainingDashboard from "./components/TrainingDashboard";
+import PerformanceHighlights from "./components/PerformanceHighlights";
+import PhysicalPerformanceMonitor from "./components/PhysicalPerformanceMonitor";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
