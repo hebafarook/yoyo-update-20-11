@@ -1502,6 +1502,336 @@ async def delete_vo2_benchmark(benchmark_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Enhanced Training Program Endpoints with Periodization
+@api_router.post("/periodized-programs", response_model=PeriodizedProgram)
+async def create_periodized_program(program: PeriodizedProgramCreate):
+    """Create a comprehensive periodized training program"""
+    try:
+        from exercise_database import PERIODIZATION_TEMPLATES, generate_daily_routine
+        
+        # Determine player weaknesses based on latest assessment
+        assessment = await db.assessments.find_one(
+            {"player_name": program.player_id}, 
+            sort=[("created_at", -1)]
+        )
+        
+        weaknesses = []
+        if assessment:
+            # Analyze assessment to identify weak areas
+            if assessment.get("sprint_30m", 10) > 4.5:
+                weaknesses.append("speed")
+            if assessment.get("ball_control", 3) < 4:
+                weaknesses.append("ball_control")
+            if assessment.get("passing_accuracy", 80) < 75:
+                weaknesses.append("passing")
+            if assessment.get("game_intelligence", 3) < 4:
+                weaknesses.append("tactical")
+        
+        # Create macro cycles
+        macro_cycles = []
+        current_date = datetime.now(timezone.utc)
+        
+        phases = ["foundation_building", "development_phase", "peak_performance"]
+        total_weeks = 0
+        
+        for i, phase in enumerate(phases):
+            template = PERIODIZATION_TEMPLATES[phase]
+            phase_weeks = template["duration_weeks"]
+            
+            # Create micro cycles (weeks) for this phase
+            micro_cycles = []
+            for week in range(1, phase_weeks + 1):
+                # Create daily routines for this week
+                daily_routines = []
+                for day in range(1, 6):  # 5 training days per week
+                    routine_data = generate_daily_routine(phase, week, day, weaknesses)
+                    daily_routine = DailyRoutine(**routine_data)
+                    daily_routines.append(daily_routine)
+                
+                micro_cycle = MicroCycle(
+                    name=f"Week {total_weeks + week}: {template['phase_name']}",
+                    cycle_number=total_weeks + week,
+                    phase=phase,
+                    daily_routines=daily_routines,
+                    objectives=template["objectives"],
+                    assessment_metrics=["sprint_30m", "ball_control", "passing_accuracy", "game_intelligence"]
+                )
+                micro_cycles.append(micro_cycle)
+            
+            # Create macro cycle
+            start_date = current_date + timedelta(weeks=total_weeks)
+            end_date = start_date + timedelta(weeks=phase_weeks)
+            assessment_date = end_date + timedelta(days=1)
+            
+            macro_cycle = MacroCycle(
+                name=f"Phase {i+1}: {template['phase_name']}",
+                phase_number=i+1,
+                duration_weeks=phase_weeks,
+                micro_cycles=micro_cycles,
+                start_date=start_date,
+                end_date=end_date,
+                assessment_date=assessment_date,
+                objectives=template["objectives"],
+                success_criteria=[
+                    f"Improve weak areas by 15%",
+                    f"Complete 90% of scheduled training",
+                    f"Achieve {template['intensity_progression'][-1]}% intensity capacity"
+                ]
+            )
+            macro_cycles.append(macro_cycle)
+            total_weeks += phase_weeks
+        
+        # Create the full periodized program
+        next_assessment = current_date + timedelta(weeks=program.assessment_interval_weeks)
+        
+        periodized_program = PeriodizedProgram(
+            player_id=program.player_id,
+            program_name=program.program_name,
+            total_duration_weeks=total_weeks,
+            macro_cycles=macro_cycles,
+            next_assessment_date=next_assessment,
+            program_objectives=program.program_objectives
+        )
+        
+        # Save to database
+        program_data = prepare_for_mongo(periodized_program.dict())
+        await db.periodized_programs.insert_one(program_data)
+        
+        return periodized_program
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/periodized-programs/{player_id}", response_model=Optional[PeriodizedProgram])
+async def get_player_program(player_id: str):
+    """Get the current periodized program for a player"""
+    try:
+        program = await db.periodized_programs.find_one(
+            {"player_id": player_id}, 
+            sort=[("created_at", -1)]
+        )
+        if program:
+            return PeriodizedProgram(**parse_from_mongo(program))
+        return None
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/daily-progress", response_model=DailyProgress)
+async def log_daily_progress(progress: DailyProgressCreate):
+    """Log daily training progress and exercise completions"""
+    try:
+        # Create exercise completions
+        completed_exercises = []
+        for completion_data in progress.completed_exercises:
+            completion = ExerciseCompletion(**completion_data.dict())
+            completed_exercises.append(completion)
+        
+        # Create daily progress entry
+        daily_progress = DailyProgress(
+            player_id=progress.player_id,
+            routine_id=progress.routine_id,
+            completed_exercises=completed_exercises,
+            overall_rating=progress.overall_rating,
+            energy_level=progress.energy_level,
+            motivation_level=progress.motivation_level,
+            daily_notes=progress.daily_notes,
+            total_time_spent=progress.total_time_spent
+        )
+        
+        # Save to database
+        progress_data = prepare_for_mongo(daily_progress.dict())
+        await db.daily_progress.insert_one(progress_data)
+        
+        # Update performance metrics based on completed exercises
+        await update_performance_metrics(progress.player_id, completed_exercises)
+        
+        return daily_progress
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/daily-progress/{player_id}")
+async def get_daily_progress(player_id: str, days: int = 30):
+    """Get daily progress history for a player"""
+    try:
+        start_date = datetime.now(timezone.utc) - timedelta(days=days)
+        progress_entries = await db.daily_progress.find(
+            {
+                "player_id": player_id,
+                "date": {"$gte": start_date}
+            }
+        ).sort("date", -1).to_list(1000)
+        
+        return [DailyProgress(**parse_from_mongo(entry)) for entry in progress_entries]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/current-routine/{player_id}")
+async def get_current_routine(player_id: str):
+    """Get today's training routine for a player"""
+    try:
+        # Get player's current program
+        program = await db.periodized_programs.find_one(
+            {"player_id": player_id}, 
+            sort=[("created_at", -1)]
+        )
+        
+        if not program:
+            raise HTTPException(status_code=404, detail="No training program found")
+        
+        # Calculate current position in program
+        start_date = program["program_start_date"]
+        current_date = datetime.now(timezone.utc)
+        days_elapsed = (current_date - start_date).days
+        
+        current_week = (days_elapsed // 7) + 1
+        current_day = (days_elapsed % 7) + 1
+        
+        # Find current routine
+        current_routine = None
+        current_phase = None
+        
+        week_count = 0
+        for macro_cycle in program["macro_cycles"]:
+            for micro_cycle in macro_cycle["micro_cycles"]:
+                week_count += 1
+                if week_count == current_week:
+                    current_phase = macro_cycle["phase_number"]
+                    if current_day <= len(micro_cycle["daily_routines"]):
+                        current_routine = micro_cycle["daily_routines"][current_day - 1]
+                    break
+            if current_routine:
+                break
+        
+        if not current_routine:
+            return {"message": "Rest day or program completed", "routine": None}
+        
+        return {
+            "routine": current_routine,
+            "current_week": current_week,
+            "current_day": current_day,
+            "current_phase": current_phase,
+            "program_name": program["program_name"]
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/performance-metrics/{player_id}")
+async def get_performance_metrics(player_id: str):
+    """Get performance metrics and progress tracking"""
+    try:
+        # Get recent performance metrics
+        metrics = await db.performance_metrics.find(
+            {"player_id": player_id}
+        ).sort("measurement_date", -1).to_list(1000)
+        
+        # Get daily progress for visualization
+        progress_entries = await db.daily_progress.find(
+            {"player_id": player_id}
+        ).sort("date", -1).limit(30).to_list(1000)
+        
+        # Calculate improvement trends
+        improvement_data = calculate_improvement_trends(metrics)
+        
+        return {
+            "metrics": [PerformanceMetric(**parse_from_mongo(metric)) for metric in metrics],
+            "daily_progress": [DailyProgress(**parse_from_mongo(entry)) for entry in progress_entries],
+            "improvement_trends": improvement_data,
+            "next_assessment": get_next_assessment_date(player_id)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def update_performance_metrics(player_id: str, completed_exercises: List[ExerciseCompletion]):
+    """Update performance metrics based on completed exercises"""
+    try:
+        # Get current program to determine phase and week
+        program = await db.periodized_programs.find_one(
+            {"player_id": player_id}, 
+            sort=[("created_at", -1)]
+        )
+        
+        if not program:
+            return
+        
+        current_week = calculate_current_week(program)
+        current_phase = calculate_current_phase(program)
+        
+        # Update metrics based on exercise performance
+        for exercise in completed_exercises:
+            if exercise.performance_rating and exercise.performance_rating >= 4:
+                # Good performance - create positive metric entry
+                metric = PerformanceMetric(
+                    player_id=player_id,
+                    metric_name=f"{exercise.exercise_id}_performance",
+                    value=exercise.performance_rating,
+                    phase_number=current_phase,
+                    week_number=current_week
+                )
+                
+                metric_data = prepare_for_mongo(metric.dict())
+                await db.performance_metrics.insert_one(metric_data)
+        
+    except Exception as e:
+        print(f"Error updating performance metrics: {e}")
+
+def calculate_current_week(program):
+    """Calculate current week in program"""
+    start_date = program["program_start_date"]
+    current_date = datetime.now(timezone.utc)
+    days_elapsed = (current_date - start_date).days
+    return (days_elapsed // 7) + 1
+
+def calculate_current_phase(program):
+    """Calculate current phase in program"""
+    current_week = calculate_current_week(program)
+    week_count = 0
+    
+    for i, macro_cycle in enumerate(program["macro_cycles"]):
+        week_count += macro_cycle["duration_weeks"]
+        if current_week <= week_count:
+            return i + 1
+    
+    return len(program["macro_cycles"])
+
+def calculate_improvement_trends(metrics):
+    """Calculate improvement trends from performance metrics"""
+    trends = {}
+    
+    # Group metrics by type
+    metric_groups = {}
+    for metric in metrics:
+        metric_type = metric["metric_name"]
+        if metric_type not in metric_groups:
+            metric_groups[metric_type] = []
+        metric_groups[metric_type].append(metric)
+    
+    # Calculate trends for each metric type
+    for metric_type, metric_list in metric_groups.items():
+        if len(metric_list) >= 2:
+            # Sort by date
+            sorted_metrics = sorted(metric_list, key=lambda x: x["measurement_date"])
+            first_value = sorted_metrics[0]["value"]
+            last_value = sorted_metrics[-1]["value"]
+            
+            if first_value > 0:
+                improvement_percentage = ((last_value - first_value) / first_value) * 100
+                trends[metric_type] = {
+                    "improvement_percentage": round(improvement_percentage, 2),
+                    "trend_direction": "up" if improvement_percentage > 0 else "down",
+                    "data_points": len(sorted_metrics)
+                }
+    
+    return trends
+
+def get_next_assessment_date(player_id: str):
+    """Get the next assessment date for a player"""
+    # This would get the next assessment date from the program
+    # For now, return a default 4 weeks from now
+    return datetime.now(timezone.utc) + timedelta(weeks=4)
+
 # Include the router in the main app
 app.include_router(api_router)
 
