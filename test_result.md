@@ -154,6 +154,18 @@ backend:
           comment: "Added POST/GET/PUT endpoints for weekly progress tracking and adaptive training programs"
 
 frontend:
+  - task: "VO2 Max Calculator Component"
+    implemented: true
+    working: false
+    file: "App.js, VO2MaxCalculator.js, App.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Created VO2MaxCalculator component with ACSM formulas, integrated into assessment form, added benchmark saving functionality"
+
   - task: "Update age-based standards from PDF"
     implemented: true
     working: true
