@@ -123,16 +123,16 @@ const ProgressTracker = ({ playerData, targetGoals }) => {
                   {/* Current vs Target */}
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-[--primary-blue]">
+                      <div className="text-2xl font-bold text-black">
                         {current}{metric.unit}
                       </div>
-                      <div className="text-sm text-[--text-muted]">Current</div>
+                      <div className="text-sm text-gray-600">Current</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-[--secondary-gold]">
+                      <div className="text-2xl font-bold text-gray-600">
                         {target}{metric.unit}
                       </div>
-                      <div className="text-sm text-[--text-muted]">Target</div>
+                      <div className="text-sm text-gray-600">Target</div>
                     </div>
                   </div>
 
