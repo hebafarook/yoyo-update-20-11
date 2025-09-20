@@ -339,7 +339,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
           <CardTitle className="text-3xl font-bold mb-3">
             {t('assessment.title')}
           </CardTitle>
-          <CardDescription className="text-lg text-[--secondary-gold]">
+          <CardDescription className="text-lg text-gray-600">
             {t('assessment.subtitle')}
           </CardDescription>
         </CardHeader>
