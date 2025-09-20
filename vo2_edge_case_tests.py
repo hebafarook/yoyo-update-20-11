@@ -93,7 +93,8 @@ class VO2EdgeCaseTester:
             "Save VO2 Benchmark - Missing Required Fields",
             "POST",
             "vo2-benchmarks",
-            422  # Should return validation error
+            422,  # Should return validation error
+            data=incomplete_data
         )
 
     def test_invalid_vo2_values(self):
