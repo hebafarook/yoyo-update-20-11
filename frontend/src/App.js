@@ -501,7 +501,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                     min="5"
                     max="30"
                     value={formData.body_fat}
-                    onChange={handleRange}
+                    onChange={handleChange}
                     required
                     className={`elite-input ${getFieldValidation('body_fat', formData.body_fat, formData.age) || ''}`}
                     placeholder="e.g., 12.5"
