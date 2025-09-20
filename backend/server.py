@@ -1681,6 +1681,8 @@ async def get_current_routine(player_id: str):
         
         # Calculate current position in program
         start_date = program["program_start_date"]
+        if isinstance(start_date, str):
+            start_date = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
         current_date = datetime.now(timezone.utc)
         days_elapsed = (current_date - start_date).days
         
