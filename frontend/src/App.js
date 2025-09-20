@@ -360,6 +360,32 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
     }
   };
 
+  const createPeriodizedProgram = async (playerId) => {
+    try {
+      const programData = {
+        player_id: playerId,
+        program_name: `Elite Development Program - ${playerId}`,
+        total_duration_weeks: 14, // Foundation (4) + Development (6) + Peak (4)
+        program_objectives: [
+          "Develop technical skills under pressure",
+          "Improve physical conditioning and speed",
+          "Enhance tactical awareness and decision making",
+          "Build mental toughness and confidence",
+          "Achieve optimal match performance"
+        ],
+        assessment_interval_weeks: 4
+      };
+
+      const response = await axios.post(`${API}/periodized-programs`, programData);
+      console.log('Periodized program created:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating periodized program:', error);
+      // Don't throw error - program creation is optional
+      return null;
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto">
       <StandardsLegend />
