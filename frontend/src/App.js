@@ -177,24 +177,24 @@ const StandardsLegend = () => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 professional-card">
-              <Crown className="w-8 h-8 mx-auto mb-3 text-[--secondary-gold]" />
+              <Crown className="w-8 h-8 mx-auto mb-3 text-black" />
               <h4 className="font-semibold text-lg mb-1">{t('common.excellent')}</h4>
-              <p className="text-sm text-[--text-muted]">Elite/International Level</p>
+              <p className="text-sm text-gray-600">Elite/International Level</p>
             </div>
             <div className="text-center p-4 professional-card">
-              <Award className="w-8 h-8 mx-auto mb-3 text-[--success]" />
+              <Award className="w-8 h-8 mx-auto mb-3 text-black" />
               <h4 className="font-semibold text-lg mb-1">{t('common.good')}</h4>
-              <p className="text-sm text-[--text-muted]">High Competitive Standard</p>
+              <p className="text-sm text-gray-600">High Competitive Standard</p>
             </div>
             <div className="text-center p-4 professional-card">
-              <Star className="w-8 h-8 mx-auto mb-3 text-[--text-muted]" />
+              <Star className="w-8 h-8 mx-auto mb-3 text-gray-600" />
               <h4 className="font-semibold text-lg mb-1">{t('common.average')}</h4>
-              <p className="text-sm text-[--text-muted]">Solid Club Level</p>
+              <p className="text-sm text-gray-600">Solid Club Level</p>
             </div>
             <div className="text-center p-4 professional-card">
-              <Target className="w-8 h-8 mx-auto mb-3 text-[--error]" />
+              <Target className="w-8 h-8 mx-auto mb-3 text-black" />
               <h4 className="font-semibold text-lg mb-1">{t('common.poor')}</h4>
-              <p className="text-sm text-[--text-muted]">Development Required</p>
+              <p className="text-sm text-gray-600">Development Required</p>
             </div>
           </div>
         </CardContent>
