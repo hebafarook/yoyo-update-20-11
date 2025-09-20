@@ -461,7 +461,7 @@ async def generate_ai_training_program(assessment: PlayerAssessment) -> str:
             system_message="أنت مدرب يويو الفتى الناري، خبير تدريب كرة قدم محترف ومحفز. أنشئ برامج تدريبية ممتعة ومحفزة للشباب. يجب أن تجيب باللغة العربية فقط مع طاقة عالية وحماس."
         ).with_model("openai", "gpt-4o")
 
-        # Create assessment summary in Arabic
+        # Create assessment summary in Arabic using Youth Handbook fields
         assessment_text = f"""
         بيانات تقييم يويو الفتى الناري:
         الاسم: {assessment.player_name}
@@ -469,26 +469,30 @@ async def generate_ai_training_program(assessment: PlayerAssessment) -> str:
         المركز: {assessment.position}
         المستوى: {assessment.level}
         العملات المجمعة: {assessment.total_coins}
+        النتيجة الإجمالية: {assessment.overall_score}
         
-        مقاييس السرعة:
-        - عدو 40 متر: {assessment.sprint_40m} ثانية
-        - عدو 100 متر: {assessment.sprint_100m} ثانية
+        المقاييس البدنية (20%):
+        - عدو 30 متر: {assessment.sprint_30m} ثانية
+        - اختبار يو-يو: {assessment.yo_yo_test} متر
+        - الحد الأقصى لاستهلاك الأكسجين: {assessment.vo2_max} مل/كغ/دقيقة
+        - القفز العمودي: {assessment.vertical_jump} سم
+        - نسبة الدهون: {assessment.body_fat}%
         
-        مقاييس الرشاقة:
-        - تدريب المخاريط: {assessment.cone_drill} ثانية
-        - تدريب السلم: {assessment.ladder_drill} ثانية
-        - الجري المكوكي: {assessment.shuttle_run} ثانية
-        
-        مقاييس المرونة:
-        - الجلوس والوصول: {assessment.sit_reach} سم
-        - مرونة الكتف: {assessment.shoulder_flexibility} درجة
-        - مرونة الورك: {assessment.hip_flexibility} درجة
-        
-        مقاييس التحكم بالكرة:
-        - عدد الشقلبات: {assessment.juggling_count}
-        - وقت المراوغة: {assessment.dribbling_time} ثانية
+        المهارات التقنية (40%):
+        - التحكم بالكرة: {assessment.ball_control}/5
         - دقة التمرير: {assessment.passing_accuracy}%
+        - نجاح المراوغة: {assessment.dribbling_success}%
         - دقة التسديد: {assessment.shooting_accuracy}%
+        - المبارزات الدفاعية: {assessment.defensive_duels}%
+        
+        الوعي التكتيكي (30%):
+        - ذكاء اللعب: {assessment.game_intelligence}/5
+        - تحديد المواقع: {assessment.positioning}/5
+        - اتخاذ القرار: {assessment.decision_making}/5
+        
+        الصفات النفسية (10%):
+        - قابلية التدريب: {assessment.coachability}/5
+        - الصلابة الذهنية: {assessment.mental_toughness}/5
         """
 
         prompt = f"""
