@@ -1782,6 +1782,8 @@ async def update_performance_metrics(player_id: str, completed_exercises: List[E
 def calculate_current_week(program):
     """Calculate current week in program"""
     start_date = program["program_start_date"]
+    if isinstance(start_date, str):
+        start_date = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
     current_date = datetime.now(timezone.utc)
     days_elapsed = (current_date - start_date).days
     return (days_elapsed // 7) + 1
