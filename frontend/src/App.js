@@ -348,7 +348,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <Label htmlFor="player_name" className="text-base font-medium mb-2 block">
+                <Label htmlFor="player_name" className="text-base font-medium mb-2 block" style={{color: 'var(--text-black)'}}>
                   Player Name
                 </Label>
                 <input
