@@ -1199,6 +1199,102 @@ async def get_assessment_progress(player_id: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+@api_router.post("/weekly-progress", response_model=WeeklyProgress)
+async def create_weekly_progress(progress: WeeklyProgressCreate):
+    try:
+        progress_dict = progress.dict()
+        progress_obj = WeeklyProgress(**progress_dict)
+        progress_data = prepare_for_mongo(progress_obj.dict())
+        await db.weekly_progress.insert_one(progress_data)
+        return progress_obj
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/weekly-progress/{player_id}", response_model=List[WeeklyProgress])
+async def get_weekly_progress(player_id: str):
+    try:
+        progress_entries = await db.weekly_progress.find({"player_id": player_id}).sort("created_at", -1).to_list(1000)
+        return [WeeklyProgress(**parse_from_mongo(entry)) for entry in progress_entries]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/weekly-progress/{player_id}/{program_id}", response_model=List[WeeklyProgress])
+async def get_program_weekly_progress(player_id: str, program_id: str):
+    try:
+        progress_entries = await db.weekly_progress.find({
+            "player_id": player_id, 
+            "program_id": program_id
+        }).sort("week_number", 1).to_list(1000)
+        return [WeeklyProgress(**parse_from_mongo(entry)) for entry in progress_entries]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/weekly-progress/{progress_id}", response_model=WeeklyProgress)
+async def update_weekly_progress(progress_id: str, progress: WeeklyProgressCreate):
+    try:
+        progress_dict = progress.dict()
+        progress_dict["id"] = progress_id
+        
+        await db.weekly_progress.update_one(
+            {"id": progress_id},
+            {"$set": prepare_for_mongo(progress_dict)}
+        )
+        
+        updated_progress = await db.weekly_progress.find_one({"id": progress_id})
+        if not updated_progress:
+            raise HTTPException(status_code=404, detail="Weekly progress not found")
+        
+        return WeeklyProgress(**parse_from_mongo(updated_progress))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/training-programs/adaptive")
+async def create_adaptive_training_program(player_id: str, week_number: int = 1):
+    try:
+        # Get player assessment
+        assessment = await db.assessments.find_one({"id": player_id})
+        if not assessment:
+            raise HTTPException(status_code=404, detail="Player assessment not found")
+        
+        assessment_obj = PlayerAssessment(**parse_from_mongo(assessment))
+        
+        # Get weekly progress history
+        progress_history = await db.weekly_progress.find({"player_id": player_id}).to_list(1000)
+        
+        # Generate adaptive program
+        program_content = await generate_adaptive_training_program(
+            assessment_obj, 
+            week_number, 
+            progress_history
+        )
+        
+        # Create program with adaptive content
+        program_obj = TrainingProgram(
+            player_id=player_id,
+            program_type="Elite_Adaptive_AI",
+            program_content=program_content,
+            weekly_schedule={
+                "Monday": f"النخبة: التركيز الأسبوعي رقم {week_number} - اليوم الأول 🔥",
+                "Tuesday": f"النخبة: التقنيات المتقدمة - الأسبوع {week_number} ⚽",
+                "Wednesday": f"النخبة: التكتيكات الذكية - الأسبوع {week_number} 🧠",
+                "Thursday": f"النخبة: القوة والسرعة - الأسبوع {week_number} ⚡",
+                "Friday": f"النخبة: الإنهاء الاحترافي - الأسبوع {week_number} 🎯",
+                "Saturday": f"النخبة: محاكاة المباراة - الأسبوع {week_number} 🏆",
+                "Sunday": f"النخبة: التعافي والتحليل - الأسبوع {week_number} 🧘‍♂️"
+            },
+            milestones=[
+                {"week": week_number, "target": f"إتقان تحديات الأسبوع {week_number} النخبوية", "coins": 100 + (week_number * 50)}
+            ]
+        )
+        
+        program_data = prepare_for_mongo(program_obj.dict())
+        await db.training_programs.insert_one(program_data)
+        return program_obj
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/voice-notes", response_model=VoiceNote)
 async def add_voice_note(note: VoiceNoteCreate):
     try:
         note_obj = VoiceNote(**note.dict())
