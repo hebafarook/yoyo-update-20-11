@@ -249,8 +249,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "VO2 Max Calculator Integration"
-    - "VO2 Max Benchmark API Endpoints"
+    - "Enhanced Training Program System"
+    - "Performance Highlights & Body Monitor"
+    - "Enhanced Training Programs with Periodization"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
