@@ -959,6 +959,87 @@ async def get_player_trophies(player_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Weekly Progress Tracking Endpoints
+@api_router.post("/weekly-progress", response_model=WeeklyProgress)
+async def create_weekly_progress(progress: WeeklyProgressCreate):
+    try:
+        progress_obj = WeeklyProgress(**progress.dict())
+        progress_data = prepare_for_mongo(progress_obj.dict())
+        await db.weekly_progress.insert_one(progress_data)
+        return progress_obj
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/weekly-progress/{player_id}", response_model=List[WeeklyProgress])
+async def get_weekly_progress(player_id: str):
+    try:
+        progress_entries = await db.weekly_progress.find({"player_id": player_id}).sort("created_at", -1).to_list(1000)
+        return [WeeklyProgress(**parse_from_mongo(entry)) for entry in progress_entries]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/weekly-progress/{player_id}/{program_id}", response_model=List[WeeklyProgress])
+async def get_weekly_progress_by_program(player_id: str, program_id: str):
+    try:
+        progress_entries = await db.weekly_progress.find({
+            "player_id": player_id, 
+            "program_id": program_id
+        }).sort("week_number", 1).to_list(1000)
+        return [WeeklyProgress(**parse_from_mongo(entry)) for entry in progress_entries]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/weekly-progress/{progress_id}", response_model=WeeklyProgress)
+async def update_weekly_progress(progress_id: str, progress_update: WeeklyProgressCreate):
+    try:
+        update_data = prepare_for_mongo(progress_update.dict())
+        result = await db.weekly_progress.update_one(
+            {"id": progress_id},
+            {"$set": update_data}
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Weekly progress not found")
+        
+        updated_progress = await db.weekly_progress.find_one({"id": progress_id})
+        return WeeklyProgress(**parse_from_mongo(updated_progress))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Enhanced Training Program Generation with Weekly Adaptation
+@api_router.post("/training-programs/adaptive", response_model=Dict[str, Any])
+async def create_adaptive_training_program(request: Dict[str, Any]):
+    try:
+        player_id = request.get("player_id")
+        week_number = request.get("week_number", 1)
+        
+        # Get player assessment
+        assessment = await db.assessments.find_one({"id": player_id})
+        if not assessment:
+            raise HTTPException(status_code=404, detail="لم يتم العثور على تقييم يويو")
+        
+        assessment_obj = PlayerAssessment(**parse_from_mongo(assessment))
+        
+        # Get weekly progress history
+        progress_history = await db.weekly_progress.find({"player_id": player_id}).to_list(1000)
+        progress_history_dicts = [parse_from_mongo(p) for p in progress_history]
+        
+        # Generate adaptive program
+        program_content = await generate_adaptive_training_program(
+            assessment_obj, 
+            week_number, 
+            progress_history_dicts
+        )
+        
+        return {
+            "program_content": program_content,
+            "week_number": week_number,
+            "player_id": player_id,
+            "adaptation_level": "نخبوي متقدم",
+            "message": f"تم إنشاء برنامج تدريبي نخبوي للأسبوع {week_number}! 🔥👑"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/group-training", response_model=GroupTraining)
 async def create_group_training(group: GroupTrainingCreate):
     try:
