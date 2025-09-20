@@ -362,7 +362,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="age" className="text-base font-medium mb-2 block">
+                <Label htmlFor="age" className="text-base font-medium mb-2 block" style={{color: 'var(--text-black)'}}>
                   Age
                 </Label>
                 <input
