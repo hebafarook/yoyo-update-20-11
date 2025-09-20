@@ -17,6 +17,7 @@ import { YOUTH_HANDBOOK_STANDARDS, ASSESSMENT_EXPLANATIONS, evaluatePerformance,
 import ProgressTracker from "./components/ProgressTracker";
 import ComingSoon from "./components/ComingSoon";
 import VO2MaxCalculator from "./components/VO2MaxCalculator";
+import TrainingDashboard from "./components/TrainingDashboard";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
