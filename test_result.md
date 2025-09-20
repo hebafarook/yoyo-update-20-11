@@ -185,7 +185,9 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "VO2 Max Calculator Integration"
+    - "VO2 Max Benchmark API Endpoints"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
