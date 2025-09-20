@@ -170,8 +170,8 @@ const StandardsLegend = () => {
       <Card className="professional-card">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-3">
-            <Crown className="w-6 h-6 text-black" />
-            Performance Standards Guide
+            <Crown className="w-6 h-6" style={{color: 'var(--primary-black)'}} />
+            <span style={{color: 'var(--text-black)'}}>Performance Standards Guide</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
