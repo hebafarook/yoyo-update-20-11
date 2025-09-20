@@ -222,13 +222,13 @@ const FieldExplanation = ({ fieldName, isVisible, onToggle }) => {
       </button>
       
       {isVisible && (
-        <div className="mt-3 p-4 professional-card border border-[--primary-blue]">
-          <h5 className="font-semibold text-lg mb-2 text-[--primary-blue]">{explanation.title}</h5>
+        <div className="mt-3 p-4 professional-card border border-black">
+          <h5 className="font-semibold text-lg mb-2 text-black">{explanation.title}</h5>
           <p className="text-sm mb-3" dir={direction}>{explanation.description}</p>
           <div className="space-y-2 text-sm">
-            <p><strong className="text-[--secondary-gold]">Importance:</strong> {explanation.importance}</p>
-            <p><strong className="text-[--success]">Tips:</strong> {explanation.tips}</p>
-            <p><strong className="text-[--primary-blue]">Scoring:</strong> {explanation.scoring}</p>
+            <p><strong className="text-black">Importance:</strong> {explanation.importance}</p>
+            <p><strong className="text-black">Tips:</strong> {explanation.tips}</p>
+            <p><strong className="text-black">Scoring:</strong> {explanation.scoring}</p>
           </div>
         </div>
       )}
