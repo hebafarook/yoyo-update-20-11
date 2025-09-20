@@ -986,6 +986,46 @@ const MainDashboard = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Assessment Report Modal */}
+      {showAssessmentReport && currentPlayer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-6xl max-h-[90vh] overflow-y-auto w-full">
+            <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+              <h2 className="text-xl font-bold">
+                {isStartupReport ? 'Program Startup Report' : 'Assessment Milestone Report'}
+              </h2>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAssessmentReport(false);
+                    if (!isStartupReport) {
+                      setActiveTab("training");
+                    }
+                  }}
+                >
+                  Continue to Training
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAssessmentReport(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+            <div className="p-6">
+              <AssessmentReport
+                playerData={currentPlayer}
+                previousAssessments={previousAssessments}
+                showComparison={previousAssessments.length > 0}
+                isStartupReport={isStartupReport}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Professional Header */}
       <div className="app-header">
         <button
