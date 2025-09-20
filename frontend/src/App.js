@@ -16,6 +16,7 @@ import { Activity, Target, TrendingUp, Mic, MicOff, Volume2, VolumeX, Square, Tr
 import { YOUTH_HANDBOOK_STANDARDS, ASSESSMENT_EXPLANATIONS, evaluatePerformance, getAgeCategory, calculateOverallScore } from "./AssessmentStandards";
 import ProgressTracker from "./components/ProgressTracker";
 import ComingSoon from "./components/ComingSoon";
+import VO2MaxCalculator from "./components/VO2MaxCalculator";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
