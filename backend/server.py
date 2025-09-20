@@ -1677,7 +1677,7 @@ async def get_current_routine(player_id: str):
         )
         
         if not program:
-            raise HTTPException(status_code=404, detail="No training program found")
+            return {"message": "No training program found", "routine": None}
         
         # Calculate current position in program
         start_date = program["program_start_date"]
