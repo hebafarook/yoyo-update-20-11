@@ -538,24 +538,32 @@ const FieldExplanation = ({ fieldName, isVisible, onToggle }) => {
   );
 };
 
-// Enhanced Assessment Component with Handbook Standards
+// Enhanced Assessment Component with Complete Handbook Standards
 const AssessmentForm = ({ onAssessmentCreated }) => {
   const { t, direction } = useLanguage();
   const [formData, setFormData] = useState({
     player_name: "",
     age: "",
     position: "",
-    // Updated fields based on handbook
+    // Physical metrics
     sprint_30m: "",
     yo_yo_test: "",
     vo2_max: "",
     vertical_jump: "",
     body_fat: "",
+    // Technical metrics
     ball_control: "",
     passing_accuracy: "",
     dribbling_success: "",
     shooting_accuracy: "",
-    defensive_duels: ""
+    defensive_duels: "",
+    // Tactical metrics
+    game_intelligence: "",
+    positioning: "",
+    decision_making: "",
+    // Psychological metrics
+    coachability: "",
+    mental_toughness: ""
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -580,7 +588,12 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
         passing_accuracy: "",
         dribbling_success: "",
         shooting_accuracy: "",
-        defensive_duels: ""
+        defensive_duels: "",
+        game_intelligence: "",
+        positioning: "",
+        decision_making: "",
+        coachability: "",
+        mental_toughness: ""
       });
     } catch (error) {
       console.error("Error creating assessment:", error);
@@ -621,13 +634,13 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
   return (
     <div>
       <StandardsLegend />
-      <Card className="max-w-5xl mx-auto bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 border-orange-300 fire-glow">
+      <Card className="max-w-6xl mx-auto bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 border-orange-300 fire-glow">
         <CardHeader className="text-center">
           <CardTitle className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent">
             {t('assessment.title')}
           </CardTitle>
           <CardDescription className="text-orange-700 text-lg font-semibold">
-            {t('assessment.subtitle')}
+            Complete Youth Handbook Assessment Framework
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -637,7 +650,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
               <div>
                 <Label htmlFor="player_name" className="text-orange-800 font-bold flex items-center">
                   <Flame className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-4 h-4`} />
-                  {t('assessment.playerName')}
+                  Player Name
                 </Label>
                 <Input
                   id="player_name"
@@ -647,13 +660,13 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   required
                   className="border-orange-400 focus:border-red-500 bg-gradient-to-r from-orange-100 to-yellow-100"
                   dir={direction}
-                  placeholder={t('assessment.playerNamePlaceholder')}
+                  placeholder="Enter fire boy name"
                 />
               </div>
               <div>
                 <Label htmlFor="age" className="text-orange-800 font-bold flex items-center">
                   <Star className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-4 h-4`} />
-                  {t('assessment.starAge')}
+                  Age
                 </Label>
                 <Input
                   id="age"
@@ -665,43 +678,43 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   onChange={handleChange}
                   required
                   className="border-orange-400 focus:border-red-500 bg-gradient-to-r from-orange-100 to-yellow-100"
-                  placeholder={t('assessment.agePlaceholder')}
+                  placeholder="Your age"
                 />
                 {formData.age && (
                   <Badge className="mt-1 bg-blue-100 text-blue-800">
-                    {t(`common.${getAgeCategory(parseInt(formData.age))}`)}
+                    Age Group: {getAgeCategory(parseInt(formData.age))}
                   </Badge>
                 )}
               </div>
               <div>
                 <Label htmlFor="position" className="text-orange-800 font-bold flex items-center">
                   <Target className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-4 h-4`} />
-                  {t('assessment.powerPosition')}
+                  Position
                 </Label>
                 <Select onValueChange={(value) => setFormData({...formData, position: value})}>
                   <SelectTrigger className="border-orange-400 focus:border-red-500 bg-gradient-to-r from-orange-100 to-yellow-100">
-                    <SelectValue placeholder={t('assessment.positionPlaceholder')} />
+                    <SelectValue placeholder="Select your position" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="goalkeeper">{t('assessment.positions.goalkeeper')}</SelectItem>
-                    <SelectItem value="defender">{t('assessment.positions.defender')}</SelectItem>
-                    <SelectItem value="midfielder">{t('assessment.positions.midfielder')}</SelectItem>
-                    <SelectItem value="forward">{t('assessment.positions.forward')}</SelectItem>
-                    <SelectItem value="striker">{t('assessment.positions.striker')}</SelectItem>
+                    <SelectItem value="goalkeeper">Goalkeeper</SelectItem>
+                    <SelectItem value="defender">Defender</SelectItem>
+                    <SelectItem value="midfielder">Midfielder</SelectItem>
+                    <SelectItem value="forward">Forward</SelectItem>
+                    <SelectItem value="striker">Striker</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {/* Physical Metrics */}
+            {/* Physical Metrics - 20% Weight */}
             <div className="bg-gradient-to-r from-red-100 to-orange-100 rounded-lg p-6 border-2 border-red-300 fire-glow">
               <h3 className="text-xl font-bold text-red-800 mb-4 flex items-center">
-                <Zap className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-yellow-500`} />
-                Physical Performance Tests 💪
+                <Dumbbell className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-yellow-500`} />
+                Physical Performance Tests (20% Weight) 💪
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
-                  <Label htmlFor="sprint_30m" className="text-red-700 font-semibold">{t('assessment.fields.sprint30')}</Label>
+                  <Label htmlFor="sprint_30m" className="text-red-700 font-semibold">30m Sprint (seconds)</Label>
                   <Input
                     id="sprint_30m"
                     name="sprint_30m"
@@ -722,7 +735,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="yo_yo_test" className="text-red-700 font-semibold">{t('assessment.fields.yoyoTest')}</Label>
+                  <Label htmlFor="yo_yo_test" className="text-red-700 font-semibold">Yo-Yo Test (meters)</Label>
                   <Input
                     id="yo_yo_test"
                     name="yo_yo_test"
@@ -742,7 +755,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="vo2_max" className="text-red-700 font-semibold">{t('assessment.fields.vo2Max')}</Label>
+                  <Label htmlFor="vo2_max" className="text-red-700 font-semibold">VO2 Max (ml/kg/min)</Label>
                   <Input
                     id="vo2_max"
                     name="vo2_max"
@@ -763,7 +776,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="vertical_jump" className="text-red-700 font-semibold">{t('assessment.fields.verticalJump')}</Label>
+                  <Label htmlFor="vertical_jump" className="text-red-700 font-semibold">Vertical Jump (cm)</Label>
                   <Input
                     id="vertical_jump"
                     name="vertical_jump"
@@ -783,7 +796,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="body_fat" className="text-red-700 font-semibold">{t('assessment.fields.bodyFat')}</Label>
+                  <Label htmlFor="body_fat" className="text-red-700 font-semibold">Body Fat (%)</Label>
                   <Input
                     id="body_fat"
                     name="body_fat"
@@ -806,14 +819,15 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
               </div>
             </div>
 
-            {/* Technical Skills */}
+            {/* Technical Skills - 40% Weight */}
             <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-6 border-2 border-purple-400 fire-glow">
               <h3 className="text-xl font-bold text-purple-800 mb-4 flex items-center">
-                Technical Skills Assessment ⚽✨
+                <Gamepad2 className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-pink-500`} />
+                Technical Skills Assessment (40% Weight) ⚽✨
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
-                  <Label htmlFor="ball_control" className="text-purple-700 font-semibold">{t('assessment.fields.ballControl')}</Label>
+                  <Label htmlFor="ball_control" className="text-purple-700 font-semibold">Ball Control (1-5 scale)</Label>
                   <Input
                     id="ball_control"
                     name="ball_control"
@@ -833,7 +847,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="passing_accuracy" className="text-purple-700 font-semibold">{t('assessment.fields.passing')}</Label>
+                  <Label htmlFor="passing_accuracy" className="text-purple-700 font-semibold">Passing Accuracy (%)</Label>
                   <Input
                     id="passing_accuracy"
                     name="passing_accuracy"
@@ -854,7 +868,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="dribbling_success" className="text-purple-700 font-semibold">{t('assessment.fields.dribbling')}</Label>
+                  <Label htmlFor="dribbling_success" className="text-purple-700 font-semibold">Dribbling Success (%)</Label>
                   <Input
                     id="dribbling_success"
                     name="dribbling_success"
@@ -875,7 +889,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="shooting_accuracy" className="text-purple-700 font-semibold">{t('assessment.fields.shooting')}</Label>
+                  <Label htmlFor="shooting_accuracy" className="text-purple-700 font-semibold">Shooting Accuracy (%)</Label>
                   <Input
                     id="shooting_accuracy"
                     name="shooting_accuracy"
@@ -896,7 +910,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="defensive_duels" className="text-purple-700 font-semibold">{t('assessment.fields.defensive')}</Label>
+                  <Label htmlFor="defensive_duels" className="text-purple-700 font-semibold">Defensive Duels (%)</Label>
                   <Input
                     id="defensive_duels"
                     name="defensive_duels"
@@ -919,12 +933,132 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
               </div>
             </div>
 
+            {/* Tactical Awareness - 30% Weight */}
+            <div className="bg-gradient-to-r from-blue-100 to-green-100 rounded-lg p-6 border-2 border-blue-400 fire-glow">
+              <h3 className="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                <Brain className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-green-500`} />
+                Tactical Awareness Assessment (30% Weight) 🧠⚽
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <Label htmlFor="game_intelligence" className="text-blue-700 font-semibold">Game Intelligence (1-5)</Label>
+                  <Input
+                    id="game_intelligence"
+                    name="game_intelligence"
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={formData.game_intelligence}
+                    onChange={handleChange}
+                    required
+                    className={`border-blue-400 focus:border-green-500 bg-gradient-to-r from-blue-50 to-green-50 ${getFieldValidation('game_intelligence', formData.game_intelligence, formData.age) || ''}`}
+                    placeholder="1-5 scale"
+                  />
+                  <FieldExplanation 
+                    fieldName="game_intelligence" 
+                    isVisible={explanationVisibility.game_intelligence}
+                    onToggle={() => toggleExplanation('game_intelligence')}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="positioning" className="text-blue-700 font-semibold">Positioning (1-5)</Label>
+                  <Input
+                    id="positioning"
+                    name="positioning"
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={formData.positioning}
+                    onChange={handleChange}
+                    required
+                    className={`border-blue-400 focus:border-green-500 bg-gradient-to-r from-blue-50 to-green-50 ${getFieldValidation('positioning', formData.positioning, formData.age) || ''}`}
+                    placeholder="1-5 scale"
+                  />
+                  <FieldExplanation 
+                    fieldName="positioning" 
+                    isVisible={explanationVisibility.positioning}
+                    onToggle={() => toggleExplanation('positioning')}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="decision_making" className="text-blue-700 font-semibold">Decision Making (1-5)</Label>
+                  <Input
+                    id="decision_making"
+                    name="decision_making"
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={formData.decision_making}
+                    onChange={handleChange}
+                    required
+                    className={`border-blue-400 focus:border-green-500 bg-gradient-to-r from-blue-50 to-green-50 ${getFieldValidation('decision_making', formData.decision_making, formData.age) || ''}`}
+                    placeholder="1-5 scale"
+                  />
+                  <FieldExplanation 
+                    fieldName="decision_making" 
+                    isVisible={explanationVisibility.decision_making}
+                    onToggle={() => toggleExplanation('decision_making')}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Psychological Traits - 10% Weight */}
+            <div className="bg-gradient-to-r from-teal-100 to-cyan-100 rounded-lg p-6 border-2 border-teal-400 fire-glow">
+              <h3 className="text-xl font-bold text-teal-800 mb-4 flex items-center">
+                <Heart className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-cyan-500`} />
+                Psychological Traits Assessment (10% Weight) 💚🧠
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="coachability" className="text-teal-700 font-semibold">Coachability (1-5)</Label>
+                  <Input
+                    id="coachability"
+                    name="coachability"
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={formData.coachability}
+                    onChange={handleChange}
+                    required
+                    className={`border-teal-400 focus:border-cyan-500 bg-gradient-to-r from-teal-50 to-cyan-50 ${getFieldValidation('coachability', formData.coachability, formData.age) || ''}`}
+                    placeholder="1-5 scale"
+                  />
+                  <FieldExplanation 
+                    fieldName="coachability" 
+                    isVisible={explanationVisibility.coachability}
+                    onToggle={() => toggleExplanation('coachability')}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="mental_toughness" className="text-teal-700 font-semibold">Mental Toughness (1-5)</Label>
+                  <Input
+                    id="mental_toughness"
+                    name="mental_toughness"
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={formData.mental_toughness}
+                    onChange={handleChange}
+                    required
+                    className={`border-teal-400 focus:border-cyan-500 bg-gradient-to-r from-teal-50 to-cyan-50 ${getFieldValidation('mental_toughness', formData.mental_toughness, formData.age) || ''}`}
+                    placeholder="1-5 scale"
+                  />
+                  <FieldExplanation 
+                    fieldName="mental_toughness" 
+                    isVisible={explanationVisibility.mental_toughness}
+                    onToggle={() => toggleExplanation('mental_toughness')}
+                  />
+                </div>
+              </div>
+            </div>
+
             <Button 
               type="submit" 
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 hover:from-orange-700 hover:via-red-700 hover:to-yellow-700 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 fire-glow text-xl"
             >
-              {isLoading ? t('assessment.submitting') : t('assessment.submitButton')}
+              {isLoading ? 'Creating Complete Assessment...' : 'Create Fire Boy Assessment 🔥'}
             </Button>
           </form>
         </CardContent>
