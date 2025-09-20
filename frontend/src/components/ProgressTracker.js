@@ -78,7 +78,7 @@ const ProgressTracker = ({ playerData, targetGoals }) => {
       <Card className="professional-card">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-3">
-            <Target className="w-6 h-6 text-[--primary-blue]" />
+            <Target className="w-6 h-6 text-black" />
             Performance Progress Tracking
           </CardTitle>
         </CardHeader>
