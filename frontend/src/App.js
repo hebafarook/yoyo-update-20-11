@@ -941,6 +941,12 @@ const MainDashboard = () => {
           setIsStartupReport(true);
           setShowAssessmentReport(true);
           
+          // Auto-print startup report after 2 seconds
+          setTimeout(() => {
+            console.log('🖨️ Auto-printing startup assessment report...');
+            window.print();
+          }, 2000);
+          
           setTimeout(() => {
             setShowAssessmentReport(false);
             setIsStartupReport(false);
@@ -953,6 +959,14 @@ const MainDashboard = () => {
 
     checkForExistingPlayer();
   }, []);
+
+  const printAssessmentReport = () => {
+    console.log('🖨️ Printing assessment milestone report...');
+    // Add a small delay to ensure the modal is fully rendered
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
 
   const handleAssessmentCreated = async (assessment) => {
     // Load previous assessments for comparison
