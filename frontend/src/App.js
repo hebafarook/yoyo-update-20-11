@@ -1110,19 +1110,7 @@ const MainDashboard = () => {
         </TabsContent>
 
         <TabsContent value="highlights">
-          <ComingSoon 
-            title="Performance Analytics Dashboard"
-            description="Advanced analytics and performance visualization for data-driven improvement"
-            icon={BarChart3}
-            features={[
-              "Advanced performance analytics",
-              "Video analysis integration",
-              "Performance highlight generation",
-              "Comparative analysis tools"
-            ]}
-            estimatedRelease="Q3 2024"
-            priority="low"
-          />
+          <PerformanceHighlights playerData={currentPlayer} />
         </TabsContent>
 
         <TabsContent value="body">
