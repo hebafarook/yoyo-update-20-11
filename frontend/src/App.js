@@ -12,167 +12,244 @@ import { Badge } from "./components/ui/badge";
 import { Progress } from "./components/ui/progress";
 import { useSpeechSynthesis, useSpeechRecognition } from "react-speech-kit";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar } from "recharts";
-import { Activity, Target, TrendingUp, Mic, MicOff, Volume2, VolumeX, Square, Trophy, Users, Music, Bell, Coins, Gift, Zap, Crown, Star, Flame, Languages, Globe, BarChart3, Award, ArrowUp, ArrowDown, Equal, BookOpen, Lightbulb, Scale, Heart, Timer, Ruler } from "lucide-react";
+import { Activity, Target, TrendingUp, Mic, MicOff, Volume2, VolumeX, Square, Trophy, Users, Music, Bell, Coins, Gift, Zap, Crown, Star, Flame, Languages, Globe, BarChart3, Award, ArrowUp, ArrowDown, Equal, BookOpen, Lightbulb, Scale, Heart, Timer, Ruler, Info, HelpCircle } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Professional Soccer Player Standards with Coach Indicators
-const PROFESSIONAL_STANDARDS = {
-  // Elite Level (Messi, Ronaldo, Mbappe)
-  elite: {
-    sprint_40m: 4.2,
-    sprint_100m: 10.5,
-    cone_drill: 6.0,
-    ladder_drill: 5.8,
-    shuttle_run: 8.0,
-    sit_reach: 45,
-    shoulder_flexibility: 190,
-    hip_flexibility: 140,
-    juggling_count: 500,
-    dribbling_time: 8.5,
-    passing_accuracy: 95,
-    shooting_accuracy: 85,
-    // Body Mass & Physical Indicators
-    bmi: 22.5,
-    body_fat: 8,
-    muscle_mass: 48,
-    resting_heart_rate: 45,
-    vo2_max: 65,
-    playerName: "Elite (Messi/Ronaldo/Mbappe)"
+// Age-Based Professional Soccer Standards
+const AGE_BASED_STANDARDS = {
+  // Youth (14-17 years)
+  youth: {
+    sprint_40m: { elite: 5.0, pro: 5.5, semi: 6.0, amateur: 6.8 },
+    sprint_100m: { elite: 12.0, pro: 13.0, semi: 14.0, amateur: 15.5 },
+    cone_drill: { elite: 7.0, pro: 7.8, semi: 8.5, amateur: 9.5 },
+    ladder_drill: { elite: 6.8, pro: 7.5, semi: 8.2, amateur: 9.0 },
+    shuttle_run: { elite: 9.0, pro: 9.8, semi: 10.5, amateur: 11.5 },
+    sit_reach: { elite: 35, pro: 28, semi: 22, amateur: 18 },
+    shoulder_flexibility: { elite: 185, pro: 180, semi: 175, amateur: 165 },
+    hip_flexibility: { elite: 130, pro: 120, semi: 110, amateur: 100 },
+    juggling_count: { elite: 200, pro: 100, semi: 50, amateur: 25 },
+    dribbling_time: { elite: 10.0, pro: 12.0, semi: 14.0, amateur: 16.0 },
+    passing_accuracy: { elite: 88, pro: 82, semi: 75, amateur: 65 },
+    shooting_accuracy: { elite: 75, pro: 68, semi: 60, amateur: 50 },
+    bmi: { elite: 21.0, pro: 22.0, semi: 23.0, amateur: 24.5 },
+    body_fat: { elite: 10, pro: 12, semi: 15, amateur: 18 },
+    muscle_mass: { elite: 42, pro: 40, semi: 38, amateur: 35 },
+    resting_heart_rate: { elite: 50, pro: 55, semi: 60, amateur: 70 },
+    vo2_max: { elite: 58, pro: 52, semi: 48, amateur: 42 }
   },
-  // Professional Level
-  professional: {
-    sprint_40m: 4.8,
-    sprint_100m: 11.2,
-    cone_drill: 6.8,
-    ladder_drill: 6.5,
-    shuttle_run: 8.8,
-    sit_reach: 38,
-    shoulder_flexibility: 185,
-    hip_flexibility: 130,
-    juggling_count: 300,
-    dribbling_time: 10.0,
-    passing_accuracy: 88,
-    shooting_accuracy: 78,
-    // Body Mass & Physical Indicators
-    bmi: 23.5,
-    body_fat: 12,
-    muscle_mass: 45,
-    resting_heart_rate: 50,
-    vo2_max: 58,
-    playerName: "Professional Level"
+  // Young Adult (18-23 years)
+  youngAdult: {
+    sprint_40m: { elite: 4.2, pro: 4.8, semi: 5.2, amateur: 6.0 },
+    sprint_100m: { elite: 10.5, pro: 11.2, semi: 12.0, amateur: 13.5 },
+    cone_drill: { elite: 6.0, pro: 6.8, semi: 7.5, amateur: 8.5 },
+    ladder_drill: { elite: 5.8, pro: 6.5, semi: 7.2, amateur: 8.0 },
+    shuttle_run: { elite: 8.0, pro: 8.8, semi: 9.5, amateur: 10.5 },
+    sit_reach: { elite: 45, pro: 38, semi: 32, amateur: 25 },
+    shoulder_flexibility: { elite: 190, pro: 185, semi: 180, amateur: 175 },
+    hip_flexibility: { elite: 140, pro: 130, semi: 120, amateur: 110 },
+    juggling_count: { elite: 500, pro: 300, semi: 150, amateur: 50 },
+    dribbling_time: { elite: 8.5, pro: 10.0, semi: 12.0, amateur: 15.0 },
+    passing_accuracy: { elite: 95, pro: 88, semi: 80, amateur: 70 },
+    shooting_accuracy: { elite: 85, pro: 78, semi: 70, amateur: 60 },
+    bmi: { elite: 22.5, pro: 23.5, semi: 24.5, amateur: 26.0 },
+    body_fat: { elite: 8, pro: 12, semi: 15, amateur: 18 },
+    muscle_mass: { elite: 48, pro: 45, semi: 42, amateur: 38 },
+    resting_heart_rate: { elite: 45, pro: 50, semi: 55, amateur: 65 },
+    vo2_max: { elite: 65, pro: 58, semi: 52, amateur: 45 }
   },
-  // Semi-Professional Level
-  semiPro: {
-    sprint_40m: 5.2,
-    sprint_100m: 12.0,
-    cone_drill: 7.5,
-    ladder_drill: 7.2,
-    shuttle_run: 9.5,
-    sit_reach: 32,
-    shoulder_flexibility: 180,
-    hip_flexibility: 120,
-    juggling_count: 150,
-    dribbling_time: 12.0,
-    passing_accuracy: 80,
-    shooting_accuracy: 70,
-    // Body Mass & Physical Indicators
-    bmi: 24.5,
-    body_fat: 15,
-    muscle_mass: 42,
-    resting_heart_rate: 55,
-    vo2_max: 52,
-    playerName: "Semi-Professional"
+  // Adult (24-30 years)
+  adult: {
+    sprint_40m: { elite: 4.3, pro: 4.9, semi: 5.3, amateur: 6.2 },
+    sprint_100m: { elite: 10.8, pro: 11.5, semi: 12.3, amateur: 14.0 },
+    cone_drill: { elite: 6.2, pro: 7.0, semi: 7.7, amateur: 8.7 },
+    ladder_drill: { elite: 6.0, pro: 6.7, semi: 7.4, amateur: 8.2 },
+    shuttle_run: { elite: 8.2, pro: 9.0, semi: 9.7, amateur: 10.8 },
+    sit_reach: { elite: 42, pro: 35, semi: 29, amateur: 22 },
+    shoulder_flexibility: { elite: 188, pro: 183, semi: 178, amateur: 172 },
+    hip_flexibility: { elite: 135, pro: 125, semi: 115, amateur: 105 },
+    juggling_count: { elite: 450, pro: 280, semi: 130, amateur: 45 },
+    dribbling_time: { elite: 8.8, pro: 10.3, semi: 12.5, amateur: 15.5 },
+    passing_accuracy: { elite: 93, pro: 86, semi: 78, amateur: 68 },
+    shooting_accuracy: { elite: 82, pro: 75, semi: 67, amateur: 57 },
+    bmi: { elite: 23.0, pro: 24.0, semi: 25.0, amateur: 26.5 },
+    body_fat: { elite: 9, pro: 13, semi: 16, amateur: 20 },
+    muscle_mass: { elite: 46, pro: 43, semi: 40, amateur: 36 },
+    resting_heart_rate: { elite: 48, pro: 53, semi: 58, amateur: 68 },
+    vo2_max: { elite: 62, pro: 55, semi: 49, amateur: 42 }
   },
-  // Amateur Level
-  amateur: {
-    sprint_40m: 6.0,
-    sprint_100m: 13.5,
-    cone_drill: 8.5,
-    ladder_drill: 8.0,
-    shuttle_run: 10.5,
-    sit_reach: 25,
-    shoulder_flexibility: 175,
-    hip_flexibility: 110,
-    juggling_count: 50,
-    dribbling_time: 15.0,
-    passing_accuracy: 70,
-    shooting_accuracy: 60,
-    // Body Mass & Physical Indicators
-    bmi: 26.0,
-    body_fat: 18,
-    muscle_mass: 38,
-    resting_heart_rate: 65,
-    vo2_max: 45,
-    playerName: "Amateur Level"
+  // Veteran (31+ years)
+  veteran: {
+    sprint_40m: { elite: 4.6, pro: 5.2, semi: 5.8, amateur: 6.8 },
+    sprint_100m: { elite: 11.5, pro: 12.3, semi: 13.5, amateur: 15.0 },
+    cone_drill: { elite: 6.8, pro: 7.5, semi: 8.3, amateur: 9.2 },
+    ladder_drill: { elite: 6.5, pro: 7.2, semi: 8.0, amateur: 8.8 },
+    shuttle_run: { elite: 8.8, pro: 9.5, semi: 10.3, amateur: 11.5 },
+    sit_reach: { elite: 38, pro: 32, semi: 26, amateur: 20 },
+    shoulder_flexibility: { elite: 185, pro: 180, semi: 175, amateur: 168 },
+    hip_flexibility: { elite: 128, pro: 118, semi: 108, amateur: 98 },
+    juggling_count: { elite: 350, pro: 220, semi: 100, amateur: 35 },
+    dribbling_time: { elite: 9.5, pro: 11.0, semi: 13.5, amateur: 16.5 },
+    passing_accuracy: { elite: 90, pro: 83, semi: 75, amateur: 65 },
+    shooting_accuracy: { elite: 78, pro: 72, semi: 64, amateur: 54 },
+    bmi: { elite: 23.5, pro: 24.5, semi: 25.5, amateur: 27.0 },
+    body_fat: { elite: 11, pro: 15, semi: 18, amateur: 22 },
+    muscle_mass: { elite: 44, pro: 41, semi: 38, amateur: 34 },
+    resting_heart_rate: { elite: 52, pro: 57, semi: 62, amateur: 72 },
+    vo2_max: { elite: 58, pro: 51, semi: 46, amateur: 39 }
   }
 };
 
-// Coach Indicators & Benchmarks
-const COACH_INDICATORS = {
-  speed: {
-    excellent: "⚡ Elite Speed (40m < 4.5s)",
-    good: "🏃 Good Speed (40m 4.5-5.5s)", 
-    average: "🚶 Average Speed (40m 5.5-6.5s)",
-    needsWork: "⏰ Needs Work (40m > 6.5s)"
+// Assessment Field Explanations
+const ASSESSMENT_EXPLANATIONS = {
+  sprint_40m: {
+    title: "40m Sprint Test",
+    description: "Measures explosive acceleration and short-distance speed. Critical for quick bursts during matches.",
+    importance: "Essential for beating defenders, chasing loose balls, and quick reactions.",
+    tips: "Focus on proper starting position, drive phase, and maintaining form throughout the sprint."
   },
-  agility: {
-    excellent: "🎯 Elite Agility (Cone < 6.5s)",
-    good: "⚡ Good Agility (Cone 6.5-7.5s)",
-    average: "🔄 Average Agility (Cone 7.5-8.5s)", 
-    needsWork: "🏃 Needs Work (Cone > 8.5s)"
+  sprint_100m: {
+    title: "100m Sprint Test", 
+    description: "Evaluates maximum running speed and sustained acceleration over longer distance.",
+    importance: "Important for breakaway runs, covering large distances quickly, and overall pace.",
+    tips: "Work on running mechanics, stride length, and maintaining speed endurance."
   },
-  ballControl: {
-    excellent: "⚽ Master Ball Control (95%+ accuracy)",
-    good: "✨ Good Ball Control (85-94% accuracy)",
-    average: "🎯 Average Ball Control (70-84% accuracy)",
-    needsWork: "🏋️ Needs Work (<70% accuracy)"
+  cone_drill: {
+    title: "Cone Agility Drill",
+    description: "Tests ability to change direction quickly while maintaining control and balance.",
+    importance: "Crucial for dribbling, defending, and navigating tight spaces during play.",
+    tips: "Keep low center of gravity, use short quick steps, and stay balanced throughout turns."
   },
-  fitness: {
-    excellent: "💪 Elite Fitness (VO2 Max > 60)",
-    good: "🔥 Good Fitness (VO2 Max 50-60)",
-    average: "⚡ Average Fitness (VO2 Max 40-49)",
-    needsWork: "🏃 Needs Work (VO2 Max < 40)"
+  ladder_drill: {
+    title: "Speed Ladder Drill",
+    description: "Measures foot speed, coordination, and neuromuscular efficiency.",
+    importance: "Improves quick feet for ball skills, defensive positioning, and rapid movements.",
+    tips: "Stay on balls of feet, maintain rhythm, and focus on precision over pure speed."
+  },
+  shuttle_run: {
+    title: "Shuttle Run Test",
+    description: "Evaluates multi-directional speed, deceleration, and change of direction ability.",
+    importance: "Reflects match-realistic movements with stops, starts, and direction changes.",
+    tips: "Practice efficient deceleration techniques and explosive re-acceleration."
+  },
+  sit_reach: {
+    title: "Sit and Reach Flexibility",
+    description: "Measures hamstring and lower back flexibility, key for injury prevention.",
+    importance: "Prevents muscle strains, improves kicking range, and enhances overall mobility.",
+    tips: "Regular stretching routine, warm-up properly, and focus on gradual improvement."
+  },
+  shoulder_flexibility: {
+    title: "Shoulder Range of Motion",
+    description: "Tests shoulder joint mobility and flexibility for optimal upper body movement.",
+    importance: "Important for throw-ins, goalkeeper movements, and balance during play.",
+    tips: "Dynamic warm-ups, shoulder circles, and targeted stretching exercises."
+  },
+  hip_flexibility: {
+    title: "Hip Flexibility Assessment",
+    description: "Evaluates hip joint mobility crucial for kicking, running, and defensive movements.",
+    importance: "Essential for powerful shots, long passes, and injury prevention.",
+    tips: "Hip flexor stretches, dynamic leg swings, and mobility work."
+  },
+  juggling_count: {
+    title: "Ball Juggling Test",
+    description: "Measures ball control, touch, and coordination with different body parts.",
+    importance: "Fundamental skill that translates to better first touch and ball mastery.",
+    tips: "Start with consistent touches, use both feet, progress to thighs and head."
+  },
+  dribbling_time: {
+    title: "Dribbling Speed Test",
+    description: "Evaluates ability to maintain ball control while moving at speed through obstacles.",
+    importance: "Critical for beating defenders and maintaining possession under pressure.",
+    tips: "Keep ball close, use both feet, and maintain vision while dribbling."
+  },
+  passing_accuracy: {
+    title: "Passing Accuracy Test",
+    description: "Measures precision and consistency in delivering the ball to targets.",
+    importance: "Foundation of team play and maintaining possession in competitive matches.",
+    tips: "Focus on technique, follow through, and practice with both feet."
+  },
+  shooting_accuracy: {
+    title: "Shooting Accuracy Test",
+    description: "Tests ability to hit target areas consistently when shooting at goal.",
+    importance: "Directly impacts goal-scoring ability and team's offensive effectiveness.",
+    tips: "Practice placement over power, follow through, and shooting from various angles."
+  },
+  bmi: {
+    title: "Body Mass Index (BMI)",
+    description: "Ratio of weight to height, indicating overall body composition balance.",
+    importance: "Optimal BMI ensures good strength-to-weight ratio for soccer performance.",
+    tips: "Maintain through balanced diet and regular training, focusing on muscle development."
+  },
+  body_fat: {
+    title: "Body Fat Percentage",
+    description: "Proportion of body weight that is fat tissue versus lean muscle mass.",
+    importance: "Lower body fat improves speed, agility, and endurance while reducing injury risk.",
+    tips: "Combine cardiovascular training with strength work and proper nutrition."
+  },
+  muscle_mass: {
+    title: "Muscle Mass Percentage",
+    description: "Proportion of body weight consisting of skeletal muscle tissue.",
+    importance: "Higher muscle mass provides power, strength, and injury protection.",
+    tips: "Progressive resistance training, adequate protein intake, and recovery time."
+  },
+  resting_heart_rate: {
+    title: "Resting Heart Rate",
+    description: "Heart beats per minute when at complete rest, indicating cardiovascular fitness.",
+    importance: "Lower RHR suggests better cardiovascular efficiency and fitness level.",
+    tips: "Improve through consistent aerobic training and proper recovery."
+  },
+  vo2_max: {
+    title: "VO2 Max (Aerobic Capacity)",
+    description: "Maximum oxygen uptake during intense exercise, measuring cardiorespiratory fitness.",
+    importance: "Determines endurance capacity and ability to maintain high intensity throughout match.",
+    tips: "High-intensity interval training, long runs, and sport-specific conditioning."
   }
 };
 
-// Soccer Development References
-const SOCCER_REFERENCES = {
-  technicalSkills: [
-    "🎯 First Touch: Control ball within 1 meter on first contact",
-    "⚽ Passing: 90%+ accuracy within 20 meters",
-    "🏃 Dribbling: Beat 3+ defenders in confined space",
-    "🥅 Shooting: 80%+ accuracy from penalty area",
-    "🤹 Ball Juggling: 100+ touches without dropping"
-  ],
-  physicalAttributes: [
-    "⚡ Speed: 40m sprint under 5.0 seconds",
-    "🏃 Endurance: Run 12km+ during 90-minute match",
-    "💪 Strength: Body weight in leg press minimum",
-    "🤸 Agility: Change direction in under 2.5 seconds",
-    "🧘 Flexibility: Touch toes comfortably"
-  ],
-  tacticalAwareness: [
-    "👁️ Vision: Scan field every 2-3 seconds",
-    "🧠 Decision Making: Choose best option within 1.5 seconds",
-    "📍 Positioning: Maintain formation shape",
-    "🔄 Transitions: Switch play style in 5 seconds",
-    "⚽ Game Reading: Anticipate opponent moves"
-  ],
-  mentalStrength: [
-    "🎯 Focus: Maintain concentration for 90 minutes",
-    "💪 Resilience: Bounce back from mistakes quickly",
-    "👑 Leadership: Communicate effectively with teammates",
-    "🔥 Motivation: Self-driven improvement mindset",
-    "😌 Pressure Handling: Perform under crowd pressure"
-  ]
+// Exercise Explanations for Training Programs
+const EXERCISE_EXPLANATIONS = {
+  speedTraining: {
+    title: "Speed Training Exercises",
+    exercises: {
+      "Sprint Intervals": "Short bursts of maximum speed with recovery periods to improve acceleration and top speed",
+      "Acceleration Drills": "Focus on explosive starts from various positions to improve first step quickness",
+      "Hill Sprints": "Running uphill to build power and strength while improving running mechanics",
+      "Resistance Sprints": "Using parachutes or sleds to build explosive power and stride strength"
+    }
+  },
+  agilityTraining: {
+    title: "Agility & Coordination Exercises", 
+    exercises: {
+      "Cone Weaving": "Zigzag patterns through cones to improve change of direction and body control",
+      "Ladder Drills": "Quick feet patterns to enhance coordination and neuromuscular efficiency",
+      "Box Drills": "Multi-directional movements in square patterns to improve spatial awareness",
+      "Reaction Drills": "Response-based movements to improve decision-making speed"
+    }
+  },
+  ballSkills: {
+    title: "Ball Control & Technical Skills",
+    exercises: {
+      "Juggling Progression": "Building from basic juggling to advanced patterns using all body parts",
+      "Cone Dribbling": "Navigating through obstacles while maintaining close ball control",
+      "Wall Passes": "Quick combination plays against wall to improve passing accuracy and timing",
+      "Shooting Drills": "Target practice from various angles and distances to improve accuracy"
+    }
+  },
+  fitnessTraining: {
+    title: "Physical Conditioning Exercises",
+    exercises: {
+      "Interval Running": "Alternating high and low intensity periods to build cardiovascular endurance",
+      "Plyometric Jumps": "Explosive jumping exercises to develop power and muscle elasticity",
+      "Core Strengthening": "Planks, bridges, and rotational exercises for stability and injury prevention",
+      "Flexibility Routine": "Dynamic and static stretching to maintain and improve range of motion"
+    }
+  }
 };
 
-// Language Context
+// Language Context (keeping existing translations)
 const LanguageContext = createContext();
 
-// Translations
 const translations = {
   en: {
     appTitle: "🔥 Yoyo the Fire Boy ⚽",
@@ -184,40 +261,20 @@ const translations = {
     },
     highlights: {
       title: "🌟 Soccer Player Development Guide",
-      subtitle: "Essential references and benchmarks for building elite soccer players",
-      technicalSkills: "⚽ Technical Skills Mastery",
-      physicalAttributes: "💪 Physical Development Standards", 
-      tacticalAwareness: "🧠 Tactical Intelligence",
-      mentalStrength: "👑 Mental Fortitude",
-      coachTips: "👨‍🏫 Coach's Professional Tips",
-      eliteStandards: "🏆 Elite Performance Standards"
+      subtitle: "Essential references and benchmarks for building elite soccer players"
     },
     standards: {
-      title: "📊 Professional Standards & Body Composition",
-      subtitle: "Complete physical and performance benchmarks for soccer excellence",
-      bodyMass: "⚖️ Body Mass Index (BMI)",
-      bodyFat: "📉 Body Fat Percentage",
-      muscleMass: "💪 Muscle Mass Percentage", 
-      heartRate: "❤️ Resting Heart Rate (BPM)",
-      vo2Max: "🫁 VO2 Max (ml/kg/min)",
-      physicalIndicators: "🏃‍♂️ Physical Performance Indicators",
-      performanceMetrics: "⚡ Performance Metrics",
-      coachAssessment: "👨‍🏫 Coach Assessment Numbers"
-    },
-    coachIndicators: {
-      title: "👨‍🏫 Coach Performance Indicators",
-      speedCategory: "Speed Category",
-      agilityCategory: "Agility Rating",
-      ballControlCategory: "Ball Control Level",
-      fitnessCategory: "Fitness Status",
-      overallRating: "Overall Player Rating",
-      recommendedFocus: "Recommended Training Focus",
-      nextLevelTarget: "Next Level Target",
-      trainingPriority: "Training Priority Areas"
+      title: "📊 Age-Based Professional Standards",
+      subtitle: "Performance benchmarks tailored to your age group for optimal development",
+      currentLevel: "Your Current Level",
+      targetLevel: "Age-Appropriate Target",
+      ultimateGoal: "Ultimate Elite Goal",
+      ageGroup: "Age Group Standards"
     },
     assessment: {
       title: "🔥 Yoyo the Fire Boy Assessment 🔥",
       subtitle: "✨ Discover your true power and ignite the fire on the field! ✨",
+      explanations: "📖 Assessment Guide & Explanations",
       playerName: "Fire Warrior Name",
       playerNamePlaceholder: "Enter your name, champion!",
       starAge: "Star Age",
@@ -226,7 +283,7 @@ const translations = {
       positionPlaceholder: "Choose your battle position",
       positions: {
         goalkeeper: "🥅 Fortress Guardian",
-        defender: "🛡️ Defense Warrior",
+        defender: "🛡️ Defense Warrior", 
         midfielder: "⚡ Midfield Master",
         forward: "🗡️ Fire Striker",
         striker: "🔥 Net Destroyer"
@@ -255,77 +312,41 @@ const translations = {
         restingHeartRate: "❤️ Resting Heart Rate (BPM)",
         vo2Max: "🫁 VO2 Max (ml/kg/min)"
       },
-      placeholders: {
-        lightningSpeed: "Lightning speed!",
-        fasterThanWind: "Faster than wind!"
-      },
       submitButton: "🚀 Ignite the Fire and Start the Glory Journey! 🚀",
       submitting: "🔥 Creating Yoyo's Fire Profile..."
     },
-    benchmarking: {
-      title: "🏆 Professional Standards Comparison",
-      yourLevel: "Your Current Level",
-      targetLevel: "Target Level",
-      elite: "Elite (Messi/Ronaldo)",
-      professional: "Professional",
-      semiPro: "Semi-Professional", 
-      amateur: "Amateur",
-      above: "Above Standard",
-      below: "Below Standard",
-      meets: "Meets Standard",
-      trainingGoals: "🎯 Training Goals",
-      currentVsTarget: "Current vs Target Performance",
-      improvementNeeded: "Improvement Needed",
-      excellentPerformance: "Excellent Performance",
-      goodPerformance: "Good Performance"
-    },
     training: {
       title: "🔥 Fire Training Programs for Yoyo {playerName} 🔥",
-      groupTraining: "Group training with friends",
-      spotifyPlaceholder: "Spotify link for motivation (optional)",
+      benchmarkTitle: "📊 Your Performance Benchmark Analysis",
+      currentVsGoal: "Current Performance vs Age-Appropriate Goals",
+      exerciseExplanations: "💡 Exercise Explanations & Techniques",
       aiProgram: "🤖 Yoyo's Smart Fire Program",
       ronaldoTemplate: "👑 Legendary Ronaldo Template",
       generating: "🔥 Generating...",
-      tabs: {
-        content: "🔥 Fire Program Content",
-        schedule: "⚡ Motivational Weekly Schedule", 
-        milestones: "🏆 Glory Milestones"
-      },
-      days: {
-        Monday: "Monday",
-        Tuesday: "Tuesday",
-        Wednesday: "Wednesday", 
-        Thursday: "Thursday",
-        Friday: "Friday",
-        Saturday: "Saturday",
-        Sunday: "Sunday"
-      },
-      weeklySchedule: {
-        Monday: "🔥 Fire Speed Training",
-        Tuesday: "⚽ Ball Control Challenge",
-        Wednesday: "🧘‍♂️ Flexibility & Recovery Day",
-        Thursday: "✨ Yoyo's Technical Skills",
-        Friday: "⚔️ Match Simulation Battle",
-        Saturday: "💪 Weakness Challenge",
-        Sunday: "😴 Warrior's Rest Day"
-      },
-      target: "🔥 Fire Target"
+      ageGroup: "Age Group: {age} years ({category})",
+      performanceLevel: "Performance Level: {level}",
+      mainWeaknesses: "Main Areas for Improvement:",
+      mainStrengths: "Key Strengths to Maintain:",
+      trainingFocus: "Primary Training Focus:"
     },
     common: {
       selectPlayer: "Select Fire Warrior",
       tabs: {
         highlights: "🌟 Development Guide",
-        standards: "📊 Standards & Body Mass",
+        standards: "📊 Age-Based Standards",
         assessment: "🔥 Assessment",
-        training: "🚀 Training Programs", 
-        progress: "🏆 Progress Tracking"
+        training: "🚀 Training Programs"
       },
-      loading: "Loading...",
-      error: "Error occurred",
-      success: "Success!",
-      coins: "coins",
-      level: "Level",
-      age: "Age"
+      showExplanation: "Show Explanation",
+      hideExplanation: "Hide Explanation",
+      elite: "Elite",
+      professional: "Professional", 
+      semiPro: "Semi-Pro",
+      amateur: "Amateur",
+      youth: "Youth (14-17)",
+      youngAdult: "Young Adult (18-23)",
+      adult: "Adult (24-30)",
+      veteran: "Veteran (31+)"
     }
   },
   ar: {
@@ -338,40 +359,20 @@ const translations = {
     },
     highlights: {
       title: "🌟 دليل تطوير لاعب كرة القدم",
-      subtitle: "المراجع الأساسية والمعايير لبناء لاعبي كرة قدم نخبة",
-      technicalSkills: "⚽ إتقان المهارات الفنية",
-      physicalAttributes: "💪 معايير التطوير البدني",
-      tacticalAwareness: "🧠 الذكاء التكتيكي",
-      mentalStrength: "👑 القوة العقلية",
-      coachTips: "👨‍🏫 نصائح المدرب المحترف",
-      eliteStandards: "🏆 معايير الأداء النخبوي"
+      subtitle: "المراجع الأساسية والمعايير لبناء لاعبي كرة قدم نخبة"
     },
     standards: {
-      title: "📊 المعايير الاحترافية وتركيب الجسم",
-      subtitle: "المعايير البدنية والأداء الكاملة للتميز في كرة القدم",
-      bodyMass: "⚖️ مؤشر كتلة الجسم (BMI)",
-      bodyFat: "📉 نسبة الدهون في الجسم",
-      muscleMass: "💪 نسبة الكتلة العضلية",
-      heartRate: "❤️ معدل ضربات القلب أثناء الراحة",
-      vo2Max: "🫁 VO2 الأقصى (مل/كغ/دقيقة)",
-      physicalIndicators: "🏃‍♂️ مؤشرات الأداء البدني",
-      performanceMetrics: "⚡ مقاييس الأداء",
-      coachAssessment: "👨‍🏫 أرقام تقييم المدرب"
-    },
-    coachIndicators: {
-      title: "👨‍🏫 مؤشرات أداء المدرب",
-      speedCategory: "فئة السرعة",
-      agilityCategory: "تصنيف الرشاقة",
-      ballControlCategory: "مستوى التحكم بالكرة",
-      fitnessCategory: "حالة اللياقة",
-      overallRating: "التقييم العام للاعب",
-      recommendedFocus: "التركيز التدريبي الموصى به",
-      nextLevelTarget: "هدف المستوى التالي",
-      trainingPriority: "مجالات أولوية التدريب"
+      title: "📊 المعايير الاحترافية حسب العمر",
+      subtitle: "معايير الأداء المصممة لمجموعتك العمرية للتطوير الأمثل",
+      currentLevel: "مستواك الحالي",
+      targetLevel: "الهدف المناسب للعمر",
+      ultimateGoal: "الهدف النهائي النخبوي",
+      ageGroup: "معايير المجموعة العمرية"
     },
     assessment: {
       title: "🔥 تقييم يويو الفتى الناري 🔥",
       subtitle: "✨ اكتشف قوتك الحقيقية وأشعل النار في الملعب! ✨",
+      explanations: "📖 دليل التقييم والشروحات",
       playerName: "اسم المحارب الناري",
       playerNamePlaceholder: "أدخل اسمك يا بطل!",
       starAge: "عمر النجم",
@@ -409,82 +410,46 @@ const translations = {
         restingHeartRate: "❤️ معدل ضربات القلب أثناء الراحة",
         vo2Max: "🫁 VO2 الأقصى (مل/كغ/دقيقة)"
       },
-      placeholders: {
-        lightningSpeed: "سرعة البرق!",
-        fasterThanWind: "أسرع من الريح!"
-      },
       submitButton: "🚀 أشعل النار وابدأ رحلة المجد! 🚀",
       submitting: "🔥 جاري إنشاء ملف يويو الناري..."
     },
-    benchmarking: {
-      title: "🏆 مقارنة المعايير الاحترافية",
-      yourLevel: "مستواك الحالي",
-      targetLevel: "المستوى المستهدف",
-      elite: "النخبة (ميسي/رونالدو)",
-      professional: "احترافي",
-      semiPro: "شبه احترافي",
-      amateur: "هاوي",
-      above: "فوق المعيار",
-      below: "تحت المعيار",
-      meets: "يحقق المعيار",
-      trainingGoals: "🎯 أهداف التدريب",
-      currentVsTarget: "الأداء الحالي مقابل المستهدف",
-      improvementNeeded: "يحتاج تحسين",
-      excellentPerformance: "أداء ممتاز",
-      goodPerformance: "أداء جيد"
-    },
     training: {
       title: "🔥 برامج التدريب الناري ليويو {playerName} 🔥",
-      groupTraining: "تدريب جماعي مع الأصدقاء",
-      spotifyPlaceholder: "رابط Spotify للتحفيز (اختياري)",
+      benchmarkTitle: "📊 تحليل معايير الأداء الخاصة بك",
+      currentVsGoal: "الأداء الحالي مقابل الأهداف المناسبة للعمر",
+      exerciseExplanations: "💡 شروحات التمارين والتقنيات",
       aiProgram: "🤖 برنامج يويو الذكي الناري",
       ronaldoTemplate: "👑 قالب رونالدو الأسطوري",
       generating: "🔥 جاري الإنشاء...",
-      tabs: {
-        content: "🔥 محتوى البرنامج الناري",
-        schedule: "⚡ الجدول الأسبوعي المحفز",
-        milestones: "🏆 معالم المجد"
-      },
-      days: {
-        Monday: "الإثنين",
-        Tuesday: "الثلاثاء",
-        Wednesday: "الأربعاء",
-        Thursday: "الخميس", 
-        Friday: "الجمعة",
-        Saturday: "السبت",
-        Sunday: "الأحد"
-      },
-      weeklySchedule: {
-        Monday: "🔥 تدريب السرعة الناري",
-        Tuesday: "⚽ تحدي التحكم بالكرة",
-        Wednesday: "🧘‍♂️ يوم المرونة والتعافي",
-        Thursday: "✨ مهارات يويو الفنية",
-        Friday: "⚔️ معركة محاكاة المباراة",
-        Saturday: "💪 تحدي نقاط الضعف",
-        Sunday: "😴 يوم راحة المحارب"
-      },
-      target: "🔥 هدف ناري"
+      ageGroup: "المجموعة العمرية: {age} سنة ({category})",
+      performanceLevel: "مستوى الأداء: {level}",
+      mainWeaknesses: "المجالات الرئيسية للتحسين:",
+      mainStrengths: "نقاط القوة الرئيسية للمحافظة عليها:",
+      trainingFocus: "التركيز التدريبي الأساسي:"
     },
     common: {
       selectPlayer: "اختيار المحارب الناري",
       tabs: {
         highlights: "🌟 دليل التطوير",
-        standards: "📊 المعايير وكتلة الجسم",
+        standards: "📊 المعايير حسب العمر",
         assessment: "🔥 التقييم",
-        training: "🚀 برامج التدريب",
-        progress: "🏆 تتبع التقدم"
+        training: "🚀 برامج التدريب"
       },
-      loading: "جاري التحميل...",
-      error: "حدث خطأ",
-      success: "نجح!",
-      coins: "عملة",
-      level: "المستوى",
-      age: "العمر"
+      showExplanation: "إظهار الشرح",
+      hideExplanation: "إخفاء الشرح",
+      elite: "نخبة",
+      professional: "احترافي",
+      semiPro: "شبه احترافي", 
+      amateur: "هاوي",
+      youth: "شباب (14-17)",
+      youngAdult: "شاب بالغ (18-23)",
+      adult: "بالغ (24-30)",
+      veteran: "متمرس (31+)"
     }
   }
 };
 
-// Language Provider Component
+// Language Provider Component (keeping existing implementation)
 const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState('en');
   const [direction, setDirection] = useState('ltr');
@@ -495,12 +460,9 @@ const LanguageProvider = ({ children }) => {
     setLanguage(newLang);
     setDirection(newDir);
     
-    // Apply changes to document
     document.documentElement.setAttribute('dir', newDir);
     document.documentElement.setAttribute('lang', newLang);
     document.body.setAttribute('dir', newDir);
-    
-    // Force re-render by updating body class
     document.body.className = `lang-${newLang} dir-${newDir}`;
   };
 
@@ -528,7 +490,6 @@ const LanguageProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use language context
 const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {
@@ -554,164 +515,16 @@ const LanguageToggle = () => {
   );
 };
 
-// Highlights/References Component
-const HighlightsGuide = () => {
+// Age-Based Standards Component
+const AgeBasedStandards = () => {
   const { t, direction } = useLanguage();
-
-  return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-blue-800 flex items-center justify-center">
-            <BookOpen className={`${direction === 'rtl' ? 'ml-3' : 'mr-3'} w-8 h-8`} />
-            {t('highlights.title')}
-          </CardTitle>
-          <CardDescription className="text-blue-600 text-lg">
-            {t('highlights.subtitle')}
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Technical Skills */}
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300">
-          <CardHeader>
-            <CardTitle className="text-green-800 flex items-center">
-              <Target className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
-              {t('highlights.technicalSkills')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {SOCCER_REFERENCES.technicalSkills.map((skill, index) => (
-                <div key={index} className="flex items-start p-3 bg-white rounded-lg border border-green-200">
-                  <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                    {skill}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Physical Attributes */}
-        <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300">
-          <CardHeader>
-            <CardTitle className="text-orange-800 flex items-center">
-              <Zap className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
-              {t('highlights.physicalAttributes')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {SOCCER_REFERENCES.physicalAttributes.map((attribute, index) => (
-                <div key={index} className="flex items-start p-3 bg-white rounded-lg border border-orange-200">
-                  <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                    {attribute}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tactical Awareness */}
-        <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-300">
-          <CardHeader>
-            <CardTitle className="text-purple-800 flex items-center">
-              <Lightbulb className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
-              {t('highlights.tacticalAwareness')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {SOCCER_REFERENCES.tacticalAwareness.map((tactic, index) => (
-                <div key={index} className="flex items-start p-3 bg-white rounded-lg border border-purple-200">
-                  <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                    {tactic}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Mental Strength */}
-        <Card className="bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-300">
-          <CardHeader>
-            <CardTitle className="text-yellow-800 flex items-center">
-              <Crown className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
-              {t('highlights.mentalStrength')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {SOCCER_REFERENCES.mentalStrength.map((mental, index) => (
-                <div key={index} className="flex items-start p-3 bg-white rounded-lg border border-yellow-200">
-                  <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                    {mental}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Elite Standards Summary */}
-      <Card className="bg-gradient-to-r from-gold-50 to-yellow-50 border-2 border-gold-300">
-        <CardHeader>
-          <CardTitle className="text-gold-800 flex items-center">
-            <Trophy className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
-            {t('highlights.eliteStandards')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
-              <div className="text-2xl font-bold text-gold-600">4.2s</div>
-              <div className="text-sm text-gold-800">40m Sprint</div>
-            </div>
-            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
-              <div className="text-2xl font-bold text-gold-600">95%</div>
-              <div className="text-sm text-gold-800">Pass Accuracy</div>
-            </div>
-            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
-              <div className="text-2xl font-bold text-gold-600">500+</div>
-              <div className="text-sm text-gold-800">Ball Juggling</div>
-            </div>
-            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
-              <div className="text-2xl font-bold text-gold-600">65</div>
-              <div className="text-sm text-gold-800">VO2 Max</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-// Standards & Body Mass Component
-const StandardsBodyMass = () => {
-  const { t, direction } = useLanguage();
-
-  const standardsData = Object.entries(PROFESSIONAL_STANDARDS).map(([level, data]) => ({
-    level: data.playerName,
-    bmi: data.bmi,
-    bodyFat: data.body_fat,
-    muscleMass: data.muscle_mass,
-    heartRate: data.resting_heart_rate,
-    vo2Max: data.vo2_max,
-    sprint40: data.sprint_40m,
-    passing: data.passing_accuracy
-  }));
 
   return (
     <div className="space-y-6">
       <Card className="bg-gradient-to-r from-cyan-50 to-blue-50 border-2 border-cyan-300">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-cyan-800 flex items-center justify-center">
-            <Scale className={`${direction === 'rtl' ? 'ml-3' : 'mr-3'} w-8 h-8`} />
+            <BarChart3 className={`${direction === 'rtl' ? 'ml-3' : 'mr-3'} w-8 h-8`} />
             {t('standards.title')}
           </CardTitle>
           <CardDescription className="text-cyan-600 text-lg">
@@ -720,93 +533,52 @@ const StandardsBodyMass = () => {
         </CardHeader>
       </Card>
 
-      {/* Body Composition Standards Chart */}
-      <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300">
-        <CardHeader>
-          <CardTitle className="text-green-800 flex items-center">
-            <BarChart3 className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
-            {t('standards.physicalIndicators')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={standardsData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="level" angle={-45} textAnchor="end" height={100} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="bmi" fill="#10b981" name="BMI" />
-              <Bar dataKey="bodyFat" fill="#f59e0b" name="Body Fat %" />
-              <Bar dataKey="muscleMass" fill="#dc2626" name="Muscle Mass %" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Detailed Standards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {Object.entries(PROFESSIONAL_STANDARDS).map(([level, data]) => (
-          <Card key={level} className={`border-2 ${
-            level === 'elite' ? 'bg-gradient-to-br from-gold-50 to-yellow-50 border-gold-300' :
-            level === 'professional' ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300' :
-            level === 'semiPro' ? 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-300' :
-            'bg-gradient-to-br from-gray-50 to-slate-50 border-gray-300'
-          }`}>
+      {/* Age Group Standards Display */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {Object.entries(AGE_BASED_STANDARDS).map(([ageGroup, standards]) => (
+          <Card key={ageGroup} className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-300">
             <CardHeader>
-              <CardTitle className={`text-center text-lg ${
-                level === 'elite' ? 'text-gold-800' :
-                level === 'professional' ? 'text-green-800' :
-                level === 'semiPro' ? 'text-blue-800' :
-                'text-gray-800'
-              }`}>
-                <Crown className="w-5 h-5 mx-auto mb-2" />
-                {data.playerName}
+              <CardTitle className="text-gray-800 flex items-center">
+                <Award className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+                {t(`common.${ageGroup}`)}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center">
-                    <Scale className="w-4 h-4 mr-1" />
-                    BMI:
-                  </span>
-                  <Badge variant="outline">{data.bmi}</Badge>
+              <div className="space-y-4">
+                {/* Speed Standards */}
+                <div className="bg-red-50 p-3 rounded-lg">
+                  <h4 className="font-bold text-red-800 mb-2">⚡ Speed Standards</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>40m Sprint: <Badge variant="outline">{standards.sprint_40m.elite}s (Elite)</Badge></div>
+                    <div>100m Sprint: <Badge variant="outline">{standards.sprint_100m.elite}s (Elite)</Badge></div>
+                  </div> 
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center">
-                    <Activity className="w-4 h-4 mr-1" />
-                    Body Fat:
-                  </span>
-                  <Badge variant="outline">{data.body_fat}%</Badge>
+
+                {/* Agility Standards */}
+                <div className="bg-yellow-50 p-3 rounded-lg">
+                  <h4 className="font-bold text-yellow-800 mb-2">🎯 Agility Standards</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>Cone Drill: <Badge variant="outline">{standards.cone_drill.elite}s (Elite)</Badge></div>
+                    <div>Ladder Drill: <Badge variant="outline">{standards.ladder_drill.elite}s (Elite)</Badge></div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center">
-                    <Zap className="w-4 h-4 mr-1" />
-                    Muscle:
-                  </span>
-                  <Badge variant="outline">{data.muscle_mass}%</Badge>
+
+                {/* Ball Control Standards */}
+                <div className="bg-purple-50 p-3 rounded-lg">
+                  <h4 className="font-bold text-purple-800 mb-2">⚽ Ball Control Standards</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>Juggling: <Badge variant="outline">{standards.juggling_count.elite} (Elite)</Badge></div>
+                    <div>Passing: <Badge variant="outline">{standards.passing_accuracy.elite}% (Elite)</Badge></div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center">
-                    <Heart className="w-4 h-4 mr-1" />
-                    HR:
-                  </span>
-                  <Badge variant="outline">{data.resting_heart_rate} BPM</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center">
-                    <Timer className="w-4 h-4 mr-1" />
-                    VO2:
-                  </span>
-                  <Badge variant="outline">{data.vo2_max}</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center">
-                    <Ruler className="w-4 h-4 mr-1" />
-                    40m:
-                  </span>
-                  <Badge variant="outline">{data.sprint_40m}s</Badge>
+
+                {/* Fitness Standards */}
+                <div className="bg-green-50 p-3 rounded-lg">
+                  <h4 className="font-bold text-green-800 mb-2">💪 Fitness Standards</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>BMI: <Badge variant="outline">{standards.bmi.elite} (Elite)</Badge></div>
+                    <div>VO2 Max: <Badge variant="outline">{standards.vo2_max.elite} (Elite)</Badge></div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -814,55 +586,32 @@ const StandardsBodyMass = () => {
         ))}
       </div>
 
-      {/* Coach Assessment Numbers */}
-      <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-300">
+      {/* Performance Level Explanation */}
+      <Card className="bg-gradient-to-r from-gold-50 to-yellow-50 border-2 border-gold-300">
         <CardHeader>
-          <CardTitle className="text-purple-800 flex items-center">
-            <Award className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
-            {t('standards.coachAssessment')}
-          </CardTitle>
+          <CardTitle className="text-gold-800">📊 Performance Level Guide</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h4 className="font-bold text-purple-800">{t('coachIndicators.speedCategory')}</h4>
-              {Object.entries(COACH_INDICATORS.speed).map(([level, description]) => (
-                <div key={level} className="p-3 bg-white rounded-lg border border-purple-200">
-                  <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                    {description}
-                  </div>
-                </div>
-              ))}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
+              <Trophy className="w-8 h-8 mx-auto mb-2 text-gold-600" />
+              <h4 className="font-bold text-gold-800">Elite</h4>
+              <p className="text-sm text-gold-600">Professional/International level performance</p>
             </div>
-            <div className="space-y-4">
-              <h4 className="font-bold text-purple-800">{t('coachIndicators.agilityCategory')}</h4>
-              {Object.entries(COACH_INDICATORS.agility).map(([level, description]) => (
-                <div key={level} className="p-3 bg-white rounded-lg border border-purple-200">
-                  <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                    {description}
-                  </div>
-                </div>
-              ))}
+            <div className="text-center p-4 bg-white rounded-lg border border-green-200">
+              <Award className="w-8 h-8 mx-auto mb-2 text-green-600" />
+              <h4 className="font-bold text-green-800">Professional</h4>
+              <p className="text-sm text-green-600">High-level competitive standard</p>
             </div>
-            <div className="space-y-4">
-              <h4 className="font-bold text-purple-800">{t('coachIndicators.ballControlCategory')}</h4>
-              {Object.entries(COACH_INDICATORS.ballControl).map(([level, description]) => (
-                <div key={level} className="p-3 bg-white rounded-lg border border-purple-200">
-                  <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                    {description}
-                  </div>
-                </div>
-              ))}
+            <div className="text-center p-4 bg-white rounded-lg border border-blue-200">
+              <Star className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+              <h4 className="font-bold text-blue-800">Semi-Pro</h4>
+              <p className="text-sm text-blue-600">Advanced amateur/semi-professional</p>
             </div>
-            <div className="space-y-4">
-              <h4 className="font-bold text-purple-800">{t('coachIndicators.fitnessCategory')}</h4>
-              {Object.entries(COACH_INDICATORS.fitness).map(([level, description]) => (
-                <div key={level} className="p-3 bg-white rounded-lg border border-purple-200">
-                  <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                    {description}
-                  </div>
-                </div>
-              ))}
+            <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
+              <Users className="w-8 h-8 mx-auto mb-2 text-gray-600" />
+              <h4 className="font-bold text-gray-800">Amateur</h4>
+              <p className="text-sm text-gray-600">Recreational/beginner level</p>
             </div>
           </div>
         </CardContent>
@@ -871,7 +620,47 @@ const StandardsBodyMass = () => {
   );
 };
 
-// Enhanced Assessment Component with Body Mass
+// Assessment Field Explanation Component
+const FieldExplanation = ({ fieldName, isVisible, onToggle }) => {
+  const { direction } = useLanguage();
+  const explanation = ASSESSMENT_EXPLANATIONS[fieldName];
+  
+  if (!explanation) return null;
+
+  return (
+    <div className="mt-2">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={onToggle}
+        className="text-xs text-blue-600 hover:text-blue-800"
+      >
+        <HelpCircle className="w-3 h-3 mr-1" />
+        {isVisible ? 'Hide Explanation' : 'Show Explanation'}
+      </Button>
+      
+      {isVisible && (
+        <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <h5 className="font-bold text-blue-800 mb-1">{explanation.title}</h5>
+          <p className="text-sm text-blue-700 mb-2" dir={direction}>{explanation.description}</p>
+          <p className="text-xs text-blue-600 mb-1"><strong>Why it matters:</strong> {explanation.importance}</p>
+          <p className="text-xs text-green-600"><strong>Tips:</strong> {explanation.tips}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Get age category helper function
+const getAgeCategory = (age) => {
+  if (age >= 14 && age <= 17) return 'youth';
+  if (age >= 18 && age <= 23) return 'youngAdult';
+  if (age >= 24 && age <= 30) return 'adult';
+  return 'veteran';
+};
+
+// Enhanced Assessment Component
 const AssessmentForm = ({ onAssessmentCreated }) => {
   const { t, direction } = useLanguage();
   const [formData, setFormData] = useState({
@@ -890,7 +679,6 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
     dribbling_time: "",
     passing_accuracy: "",
     shooting_accuracy: "",
-    // Body composition fields
     bmi: "",
     body_fat: "",
     muscle_mass: "",
@@ -899,7 +687,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [coachIndicators, setCoachIndicators] = useState(null);
+  const [explanationVisibility, setExplanationVisibility] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -907,11 +695,6 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
     try {
       const response = await axios.post(`${API}/assessments`, formData);
       onAssessmentCreated(response.data);
-      
-      // Calculate coach indicators
-      const indicators = calculateCoachIndicators(formData);
-      setCoachIndicators(indicators);
-      
       setFormData({
         player_name: "",
         age: "",
@@ -944,52 +727,23 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const calculateCoachIndicators = (data) => {
-    const sprint40 = parseFloat(data.sprint_40m) || 0;
-    const coneDrill = parseFloat(data.cone_drill) || 0;
-    const passingAccuracy = parseFloat(data.passing_accuracy) || 0;
-    const vo2 = parseFloat(data.vo2_max) || 0;
-
-    // Speed Category
-    let speedCategory = 'needsWork';
-    if (sprint40 > 0 && sprint40 < 4.5) speedCategory = 'excellent';
-    else if (sprint40 >= 4.5 && sprint40 < 5.5) speedCategory = 'good';
-    else if (sprint40 >= 5.5 && sprint40 < 6.5) speedCategory = 'average';
-
-    // Agility Category
-    let agilityCategory = 'needsWork';
-    if (coneDrill > 0 && coneDrill < 6.5) agilityCategory = 'excellent';
-    else if (coneDrill >= 6.5 && coneDrill < 7.5) agilityCategory = 'good';
-    else if (coneDrill >= 7.5 && coneDrill < 8.5) agilityCategory = 'average';
-
-    // Ball Control Category
-    let ballControlCategory = 'needsWork';
-    if (passingAccuracy >= 95) ballControlCategory = 'excellent';
-    else if (passingAccuracy >= 85) ballControlCategory = 'good';
-    else if (passingAccuracy >= 70) ballControlCategory = 'average';
-
-    // Fitness Category
-    let fitnessCategory = 'needsWork';
-    if (vo2 > 60) fitnessCategory = 'excellent';
-    else if (vo2 >= 50) fitnessCategory = 'good';
-    else if (vo2 >= 40) fitnessCategory = 'average';
-
-    return {
-      speed: COACH_INDICATORS.speed[speedCategory],
-      agility: COACH_INDICATORS.agility[agilityCategory],
-      ballControl: COACH_INDICATORS.ballControl[ballControlCategory],
-      fitness: COACH_INDICATORS.fitness[fitnessCategory]
-    };
+  const toggleExplanation = (fieldName) => {
+    setExplanationVisibility(prev => ({
+      ...prev,
+      [fieldName]: !prev[fieldName]
+    }));
   };
 
-  const getFieldValidation = (fieldName, value) => {
-    if (!value) return null;
+  const getFieldValidation = (fieldName, value, age) => {
+    if (!value || !age) return null;
     
     const numValue = parseFloat(value);
-    const eliteStandard = PROFESSIONAL_STANDARDS.elite[fieldName];
-    const professionalStandard = PROFESSIONAL_STANDARDS.professional[fieldName];
+    const ageCategory = getAgeCategory(parseInt(age));
+    const standards = AGE_BASED_STANDARDS[ageCategory];
     
-    if (!eliteStandard) return null;
+    if (!standards || !standards[fieldName]) return null;
+    
+    const { elite, pro, semi, amateur } = standards[fieldName];
     
     // For time-based metrics (lower is better)
     const timeBasedMetrics = ['sprint_40m', 'sprint_100m', 'cone_drill', 'ladder_drill', 'shuttle_run', 'dribbling_time'];
@@ -997,61 +751,27 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
     
     let status = 'amateur';
     if (isTimeBased) {
-      if (numValue <= eliteStandard) status = 'elite';
-      else if (numValue <= professionalStandard) status = 'professional';
-      else if (numValue <= PROFESSIONAL_STANDARDS.semiPro[fieldName]) status = 'semiPro';
+      if (numValue <= elite) status = 'elite';
+      else if (numValue <= pro) status = 'professional';
+      else if (numValue <= semi) status = 'semiPro';
     } else {
-      if (numValue >= eliteStandard) status = 'elite';
-      else if (numValue >= professionalStandard) status = 'professional';
-      else if (numValue >= PROFESSIONAL_STANDARDS.semiPro[fieldName]) status = 'semiPro';
+      if (numValue >= elite) status = 'elite';
+      else if (numValue >= pro) status = 'professional';
+      else if (numValue >= semi) status = 'semiPro';
     }
     
     const colors = {
       elite: 'border-gold-400 bg-gold-50',
       professional: 'border-green-400 bg-green-50',
-      semiPro: 'border-yellow-400 bg-yellow-50',
+      semiPro: 'border-blue-400 bg-blue-50',
       amateur: 'border-orange-400 bg-orange-50'
     };
     
     return colors[status];
   };
 
-  // Show coach indicators if available
-  if (coachIndicators) {
-    return (
-      <Card className="max-w-4xl mx-auto bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-300">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-purple-800 flex items-center justify-center">
-            <Award className={`${direction === 'rtl' ? 'ml-3' : 'mr-3'} w-8 h-8`} />
-            {t('coachIndicators.title')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Object.entries(coachIndicators).map(([category, indicator]) => (
-              <div key={category} className="p-4 bg-white rounded-lg border border-purple-200">
-                <h4 className="font-bold text-purple-800 mb-2 capitalize">{category} Assessment:</h4>
-                <div className={`text-sm ${direction === 'rtl' ? 'text-right' : 'text-left'}`} dir={direction}>
-                  {indicator}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 text-center">
-            <Button 
-              onClick={() => setCoachIndicators(null)}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-            >
-              🔥 Continue to Training Programs
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="max-w-4xl mx-auto bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 border-orange-300 fire-glow">
+    <Card className="max-w-5xl mx-auto bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 border-orange-300 fire-glow">
       <CardHeader className="text-center">
         <CardTitle className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent">
           {t('assessment.title')}
@@ -1089,12 +809,19 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 id="age"
                 name="age"
                 type="number"
+                min="14"
+                max="50"
                 value={formData.age}
                 onChange={handleChange}
                 required
                 className="border-orange-400 focus:border-red-500 bg-gradient-to-r from-orange-100 to-yellow-100"
                 placeholder={t('assessment.agePlaceholder')}
               />
+              {formData.age && (
+                <Badge className="mt-1 bg-blue-100 text-blue-800">
+                  {t(`common.${getAgeCategory(parseInt(formData.age))}`)}
+                </Badge>
+              )}
             </div>
             <div>
               <Label htmlFor="position" className="text-orange-800 font-bold flex items-center">
@@ -1122,7 +849,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
               <Zap className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-yellow-500`} />
               {t('assessment.speedMetrics')}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="sprint_40m" className="text-red-700 font-semibold">{t('assessment.fields.sprint40')}</Label>
                 <Input
@@ -1130,11 +857,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="sprint_40m"
                   type="number"
                   step="0.01"
+                  min="3.5"
+                  max="15"
                   value={formData.sprint_40m}
                   onChange={handleChange}
                   required
-                  className={`border-red-400 focus:border-red-600 bg-gradient-to-r from-red-50 to-orange-50 ${getFieldValidation('sprint_40m', formData.sprint_40m) || ''}`}
-                  placeholder={t('assessment.placeholders.lightningSpeed')}
+                  className={`border-red-400 focus:border-red-600 bg-gradient-to-r from-red-50 to-orange-50 ${getFieldValidation('sprint_40m', formData.sprint_40m, formData.age) || ''}`}
+                  placeholder="e.g., 4.8"
+                />
+                <FieldExplanation 
+                  fieldName="sprint_40m" 
+                  isVisible={explanationVisibility.sprint_40m}
+                  onToggle={() => toggleExplanation('sprint_40m')}
                 />
               </div>
               <div>
@@ -1144,11 +878,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="sprint_100m"
                   type="number"
                   step="0.01"
+                  min="9"
+                  max="20"
                   value={formData.sprint_100m}
                   onChange={handleChange}
                   required
-                  className={`border-red-400 focus:border-red-600 bg-gradient-to-r from-red-50 to-orange-50 ${getFieldValidation('sprint_100m', formData.sprint_100m) || ''}`}
-                  placeholder={t('assessment.placeholders.fasterThanWind')}
+                  className={`border-red-400 focus:border-red-600 bg-gradient-to-r from-red-50 to-orange-50 ${getFieldValidation('sprint_100m', formData.sprint_100m, formData.age) || ''}`}
+                  placeholder="e.g., 11.5"
+                />
+                <FieldExplanation 
+                  fieldName="sprint_100m" 
+                  isVisible={explanationVisibility.sprint_100m}
+                  onToggle={() => toggleExplanation('sprint_100m')}
                 />
               </div>
             </div>
@@ -1168,10 +909,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="cone_drill"
                   type="number"
                   step="0.01"
+                  min="5"
+                  max="15"
                   value={formData.cone_drill}
                   onChange={handleChange}
                   required
-                  className={`border-yellow-400 focus:border-orange-500 bg-gradient-to-r from-yellow-50 to-orange-50 ${getFieldValidation('cone_drill', formData.cone_drill) || ''}`}
+                  className={`border-yellow-400 focus:border-orange-500 bg-gradient-to-r from-yellow-50 to-orange-50 ${getFieldValidation('cone_drill', formData.cone_drill, formData.age) || ''}`}
+                  placeholder="e.g., 7.2"
+                />
+                <FieldExplanation 
+                  fieldName="cone_drill" 
+                  isVisible={explanationVisibility.cone_drill}
+                  onToggle={() => toggleExplanation('cone_drill')}
                 />
               </div>
               <div>
@@ -1181,10 +930,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="ladder_drill"
                   type="number"
                   step="0.01"
+                  min="4"
+                  max="12"
                   value={formData.ladder_drill}
                   onChange={handleChange}
                   required
-                  className={`border-yellow-400 focus:border-orange-500 bg-gradient-to-r from-yellow-50 to-orange-50 ${getFieldValidation('ladder_drill', formData.ladder_drill) || ''}`}
+                  className={`border-yellow-400 focus:border-orange-500 bg-gradient-to-r from-yellow-50 to-orange-50 ${getFieldValidation('ladder_drill', formData.ladder_drill, formData.age) || ''}`}
+                  placeholder="e.g., 6.8"
+                />
+                <FieldExplanation 
+                  fieldName="ladder_drill" 
+                  isVisible={explanationVisibility.ladder_drill}
+                  onToggle={() => toggleExplanation('ladder_drill')}
                 />
               </div>
               <div>
@@ -1194,10 +951,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="shuttle_run"
                   type="number"
                   step="0.01"
+                  min="6"
+                  max="15"
                   value={formData.shuttle_run}
                   onChange={handleChange}
                   required
-                  className={`border-yellow-400 focus:border-orange-500 bg-gradient-to-r from-yellow-50 to-orange-50 ${getFieldValidation('shuttle_run', formData.shuttle_run) || ''}`}
+                  className={`border-yellow-400 focus:border-orange-500 bg-gradient-to-r from-yellow-50 to-orange-50 ${getFieldValidation('shuttle_run', formData.shuttle_run, formData.age) || ''}`}
+                  placeholder="e.g., 9.1"
+                />
+                <FieldExplanation 
+                  fieldName="shuttle_run" 
+                  isVisible={explanationVisibility.shuttle_run}
+                  onToggle={() => toggleExplanation('shuttle_run')}
                 />
               </div>
             </div>
@@ -1216,10 +981,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="sit_reach"
                   type="number"
                   step="0.1"
+                  min="10"
+                  max="60"
                   value={formData.sit_reach}
                   onChange={handleChange}
                   required
-                  className={`border-green-400 focus:border-blue-500 bg-gradient-to-r from-green-50 to-blue-50 ${getFieldValidation('sit_reach', formData.sit_reach) || ''}`}
+                  className={`border-green-400 focus:border-blue-500 bg-gradient-to-r from-green-50 to-blue-50 ${getFieldValidation('sit_reach', formData.sit_reach, formData.age) || ''}`}
+                  placeholder="e.g., 32"
+                />
+                <FieldExplanation 
+                  fieldName="sit_reach" 
+                  isVisible={explanationVisibility.sit_reach}
+                  onToggle={() => toggleExplanation('sit_reach')}
                 />
               </div>
               <div>
@@ -1228,10 +1001,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   id="shoulder_flexibility"
                   name="shoulder_flexibility"
                   type="number"
+                  min="160"
+                  max="200"
                   value={formData.shoulder_flexibility}
                   onChange={handleChange}
                   required
-                  className={`border-green-400 focus:border-blue-500 bg-gradient-to-r from-green-50 to-blue-50 ${getFieldValidation('shoulder_flexibility', formData.shoulder_flexibility) || ''}`}
+                  className={`border-green-400 focus:border-blue-500 bg-gradient-to-r from-green-50 to-blue-50 ${getFieldValidation('shoulder_flexibility', formData.shoulder_flexibility, formData.age) || ''}`}
+                  placeholder="e.g., 180"
+                />
+                <FieldExplanation 
+                  fieldName="shoulder_flexibility" 
+                  isVisible={explanationVisibility.shoulder_flexibility}
+                  onToggle={() => toggleExplanation('shoulder_flexibility')}
                 />
               </div>
               <div>
@@ -1240,10 +1021,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   id="hip_flexibility"  
                   name="hip_flexibility"
                   type="number"
+                  min="90"
+                  max="150"
                   value={formData.hip_flexibility}
                   onChange={handleChange}
                   required
-                  className={`border-green-400 focus:border-blue-500 bg-gradient-to-r from-green-50 to-blue-50 ${getFieldValidation('hip_flexibility', formData.hip_flexibility) || ''}`}
+                  className={`border-green-400 focus:border-blue-500 bg-gradient-to-r from-green-50 to-blue-50 ${getFieldValidation('hip_flexibility', formData.hip_flexibility, formData.age) || ''}`}
+                  placeholder="e.g., 125"
+                />
+                <FieldExplanation 
+                  fieldName="hip_flexibility" 
+                  isVisible={explanationVisibility.hip_flexibility}
+                  onToggle={() => toggleExplanation('hip_flexibility')}
                 />
               </div>
             </div>
@@ -1254,17 +1043,25 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
             <h3 className="text-xl font-bold text-purple-800 mb-4 flex items-center">
               {t('assessment.ballHandling')}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="juggling_count" className="text-purple-700 font-semibold">{t('assessment.fields.juggling')}</Label>
                 <Input
                   id="juggling_count"
                   name="juggling_count"
                   type="number"
+                  min="5"
+                  max="1000"
                   value={formData.juggling_count}
                   onChange={handleChange}
                   required
-                  className={`border-purple-400 focus:border-pink-500 bg-gradient-to-r from-purple-50 to-pink-50 ${getFieldValidation('juggling_count', formData.juggling_count) || ''}`}
+                  className={`border-purple-400 focus:border-pink-500 bg-gradient-to-r from-purple-50 to-pink-50 ${getFieldValidation('juggling_count', formData.juggling_count, formData.age) || ''}`}
+                  placeholder="e.g., 85"
+                />
+                <FieldExplanation 
+                  fieldName="juggling_count" 
+                  isVisible={explanationVisibility.juggling_count}
+                  onToggle={() => toggleExplanation('juggling_count')}
                 />
               </div>
               <div>
@@ -1274,10 +1071,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="dribbling_time"
                   type="number"
                   step="0.01"
+                  min="6"
+                  max="25"
                   value={formData.dribbling_time}
                   onChange={handleChange}
                   required
-                  className={`border-purple-400 focus:border-pink-500 bg-gradient-to-r from-purple-50 to-pink-50 ${getFieldValidation('dribbling_time', formData.dribbling_time) || ''}`}
+                  className={`border-purple-400 focus:border-pink-500 bg-gradient-to-r from-purple-50 to-pink-50 ${getFieldValidation('dribbling_time', formData.dribbling_time, formData.age) || ''}`}
+                  placeholder="e.g., 12.3"
+                />
+                <FieldExplanation 
+                  fieldName="dribbling_time" 
+                  isVisible={explanationVisibility.dribbling_time}
+                  onToggle={() => toggleExplanation('dribbling_time')}
                 />
               </div>
               <div>
@@ -1287,10 +1092,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="passing_accuracy"
                   type="number"
                   step="0.1"
+                  min="40"
+                  max="100"
                   value={formData.passing_accuracy}
                   onChange={handleChange}
                   required
-                  className={`border-purple-400 focus:border-pink-500 bg-gradient-to-r from-purple-50 to-pink-50 ${getFieldValidation('passing_accuracy', formData.passing_accuracy) || ''}`}
+                  className={`border-purple-400 focus:border-pink-500 bg-gradient-to-r from-purple-50 to-pink-50 ${getFieldValidation('passing_accuracy', formData.passing_accuracy, formData.age) || ''}`}
+                  placeholder="e.g., 78.5"
+                />
+                <FieldExplanation 
+                  fieldName="passing_accuracy" 
+                  isVisible={explanationVisibility.passing_accuracy}
+                  onToggle={() => toggleExplanation('passing_accuracy')}
                 />
               </div>
               <div>
@@ -1300,10 +1113,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="shooting_accuracy"
                   type="number"
                   step="0.1"
+                  min="30"
+                  max="100"
                   value={formData.shooting_accuracy}
                   onChange={handleChange}
                   required
-                  className={`border-purple-400 focus:border-pink-500 bg-gradient-to-r from-purple-50 to-pink-50 ${getFieldValidation('shooting_accuracy', formData.shooting_accuracy) || ''}`}
+                  className={`border-purple-400 focus:border-pink-500 bg-gradient-to-r from-purple-50 to-pink-50 ${getFieldValidation('shooting_accuracy', formData.shooting_accuracy, formData.age) || ''}`}
+                  placeholder="e.g., 65.2"
+                />
+                <FieldExplanation 
+                  fieldName="shooting_accuracy" 
+                  isVisible={explanationVisibility.shooting_accuracy}
+                  onToggle={() => toggleExplanation('shooting_accuracy')}
                 />
               </div>
             </div>
@@ -1323,9 +1144,17 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="bmi"
                   type="number"
                   step="0.1"
+                  min="18"
+                  max="35"
                   value={formData.bmi}
                   onChange={handleChange}
-                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('bmi', formData.bmi) || ''}`}
+                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('bmi', formData.bmi, formData.age) || ''}`}
+                  placeholder="e.g., 23.2"
+                />
+                <FieldExplanation 
+                  fieldName="bmi" 
+                  isVisible={explanationVisibility.bmi}
+                  onToggle={() => toggleExplanation('bmi')}
                 />
               </div>
               <div>
@@ -1335,9 +1164,17 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="body_fat"
                   type="number"
                   step="0.1"
+                  min="5"
+                  max="35"
                   value={formData.body_fat}
                   onChange={handleChange}
-                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('body_fat', formData.body_fat) || ''}`}
+                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('body_fat', formData.body_fat, formData.age) || ''}`}
+                  placeholder="e.g., 12.5"
+                />
+                <FieldExplanation 
+                  fieldName="body_fat" 
+                  isVisible={explanationVisibility.body_fat}
+                  onToggle={() => toggleExplanation('body_fat')}
                 />
               </div>
               <div>
@@ -1347,9 +1184,17 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="muscle_mass"
                   type="number"
                   step="0.1"
+                  min="25"
+                  max="60"
                   value={formData.muscle_mass}
                   onChange={handleChange}
-                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('muscle_mass', formData.muscle_mass) || ''}`}
+                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('muscle_mass', formData.muscle_mass, formData.age) || ''}`}
+                  placeholder="e.g., 42.8"
+                />
+                <FieldExplanation 
+                  fieldName="muscle_mass" 
+                  isVisible={explanationVisibility.muscle_mass}
+                  onToggle={() => toggleExplanation('muscle_mass')}
                 />
               </div>
               <div>
@@ -1358,9 +1203,17 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   id="resting_heart_rate"
                   name="resting_heart_rate"
                   type="number"
+                  min="35"
+                  max="90"
                   value={formData.resting_heart_rate}
                   onChange={handleChange}
-                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('resting_heart_rate', formData.resting_heart_rate) || ''}`}
+                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('resting_heart_rate', formData.resting_heart_rate, formData.age) || ''}`}
+                  placeholder="e.g., 55"
+                />
+                <FieldExplanation 
+                  fieldName="resting_heart_rate" 
+                  isVisible={explanationVisibility.resting_heart_rate}
+                  onToggle={() => toggleExplanation('resting_heart_rate')}
                 />
               </div>
               <div>
@@ -1370,9 +1223,17 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                   name="vo2_max"
                   type="number"
                   step="0.1"
+                  min="30"
+                  max="80"
                   value={formData.vo2_max}
                   onChange={handleChange}
-                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('vo2_max', formData.vo2_max) || ''}`}
+                  className={`border-cyan-400 focus:border-blue-500 bg-gradient-to-r from-cyan-50 to-blue-50 ${getFieldValidation('vo2_max', formData.vo2_max, formData.age) || ''}`}
+                  placeholder="e.g., 58.3"
+                />
+                <FieldExplanation 
+                  fieldName="vo2_max" 
+                  isVisible={explanationVisibility.vo2_max}
+                  onToggle={() => toggleExplanation('vo2_max')}
                 />
               </div>
             </div>
@@ -1391,8 +1252,8 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
   );
 };
 
-// Training Program Component (simplified for space)
-const TrainingProgram = ({ playerId, playerName }) => {
+// Enhanced Training Program Component with Benchmarking
+const TrainingProgram = ({ playerId, playerName, playerData }) => {
   const { t, formatText, direction } = useLanguage();
   const [programs, setPrograms] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -1424,10 +1285,230 @@ const TrainingProgram = ({ playerId, playerName }) => {
     setIsGenerating(false);
   };
 
+  // Performance Analysis
+  const analyzePerformance = (playerData) => {
+    if (!playerData || !playerData.age) return null;
+    
+    const age = parseInt(playerData.age);
+    const ageCategory = getAgeCategory(age);
+    const standards = AGE_BASED_STANDARDS[ageCategory];
+    
+    const metrics = [
+      'sprint_40m', 'sprint_100m', 'cone_drill', 'ladder_drill', 'shuttle_run',
+      'sit_reach', 'shoulder_flexibility', 'hip_flexibility', 'juggling_count',
+      'dribbling_time', 'passing_accuracy', 'shooting_accuracy'
+    ];
+    
+    const weaknesses = [];
+    const strengths = [];
+    
+    metrics.forEach(metric => {
+      const playerValue = parseFloat(playerData[metric]);
+      if (!playerValue || !standards[metric]) return;
+      
+      const { elite, pro, semi, amateur } = standards[metric];
+      const timeBasedMetrics = ['sprint_40m', 'sprint_100m', 'cone_drill', 'ladder_drill', 'shuttle_run', 'dribbling_time'];
+      const isTimeBased = timeBasedMetrics.includes(metric);
+      
+      let level = 'amateur';
+      if (isTimeBased) {
+        if (playerValue <= elite) level = 'elite';
+        else if (playerValue <= pro) level = 'professional';
+        else if (playerValue <= semi) level = 'semiPro';
+      } else {
+        if (playerValue >= elite) level = 'elite';
+        else if (playerValue >= pro) level = 'professional';
+        else if (playerValue >= semi) level = 'semiPro';
+      }
+      
+      if (level === 'amateur') {
+        weaknesses.push({
+          metric,
+          current: playerValue,
+          target: isTimeBased ? semi : semi,
+          improvement: isTimeBased ? (playerValue - semi).toFixed(2) : (semi - playerValue).toFixed(2)
+        });
+      } else if (level === 'elite' || level === 'professional') {
+        strengths.push({
+          metric,
+          current: playerValue,
+          level
+        });
+      }
+    });
+    
+    return { weaknesses, strengths, ageCategory, age };
+  };
+
+  const performanceAnalysis = analyzePerformance(playerData);
+
   return (
     <div className="space-y-6">
+      {/* Performance Benchmark Analysis */}
+      {performanceAnalysis && (
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300">
+          <CardHeader>
+            <CardTitle className="text-blue-800 flex items-center">
+              <BarChart3 className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+              {t('training.benchmarkTitle')}
+            </CardTitle>
+            <CardDescription>
+              {formatText(t('training.ageGroup'), { 
+                age: performanceAnalysis.age, 
+                category: t(`common.${performanceAnalysis.ageCategory}`)
+              })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Weaknesses */}
+              {performanceAnalysis.weaknesses.length > 0 && (
+                <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                  <h4 className="font-bold text-red-800 mb-3 flex items-center">
+                    <ArrowUp className="w-4 h-4 mr-2" />
+                    {t('training.mainWeaknesses')}
+                  </h4>
+                  <div className="space-y-2">
+                    {performanceAnalysis.weaknesses.slice(0, 3).map((weakness) => (
+                      <div key={weakness.metric} className="bg-white p-2 rounded border">
+                        <div className="font-semibold text-red-700 capitalize">
+                          {weakness.metric.replace(/_/g, ' ')}
+                        </div>
+                        <div className="text-sm text-red-600">
+                          Current: {weakness.current} → Target: {weakness.target}
+                          <Badge className="ml-2 bg-red-100 text-red-800">
+                            Needs {weakness.improvement} improvement
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Strengths */}
+              {performanceAnalysis.strengths.length > 0 && (
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h4 className="font-bold text-green-800 mb-3 flex items-center">
+                    <Trophy className="w-4 h-4 mr-2" />
+                    {t('training.mainStrengths')}
+                  </h4>
+                  <div className="space-y-2">
+                    {performanceAnalysis.strengths.slice(0, 3).map((strength) => (
+                      <div key={strength.metric} className="bg-white p-2 rounded border">
+                        <div className="font-semibold text-green-700 capitalize">
+                          {strength.metric.replace(/_/g, ' ')}
+                        </div>
+                        <div className="text-sm text-green-600">
+                          Current: {strength.current}
+                          <Badge className={`ml-2 ${strength.level === 'elite' ? 'bg-gold-100 text-gold-800' : 'bg-green-100 text-green-800'}`}>
+                            {t(`common.${strength.level}`)} Level
+                          </Badge>
+                        </div>
+                      </div>  
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Training Focus Recommendation */}
+      {performanceAnalysis && (
+        <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-300">
+          <CardHeader>
+            <CardTitle className="text-orange-800 flex items-center">
+              <Target className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+              {t('training.trainingFocus')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Speed Focus */}
+              {performanceAnalysis.weaknesses.some(w => ['sprint_40m', 'sprint_100m'].includes(w.metric)) && (
+                <div className="bg-red-100 p-3 rounded-lg">
+                  <h5 className="font-bold text-red-800 mb-2">⚡ Speed Development Priority</h5>
+                  <ul className="text-sm text-red-700 space-y-1">
+                    <li>• Sprint interval training 3x/week</li>
+                    <li>• Acceleration drills from various starts</li>
+                    <li>• Hill sprints for power development</li>
+                  </ul>
+                </div>
+              )}
+              
+              {/* Agility Focus */}
+              {performanceAnalysis.weaknesses.some(w => ['cone_drill', 'ladder_drill', 'shuttle_run'].includes(w.metric)) && (
+                <div className="bg-yellow-100 p-3 rounded-lg">
+                  <h5 className="font-bold text-yellow-800 mb-2">🎯 Agility Enhancement Priority</h5>
+                  <ul className="text-sm text-yellow-700 space-y-1">
+                    <li>• Cone weaving patterns daily</li>
+                    <li>• Ladder drill progressions</li>
+                    <li>• Multi-directional plyometrics</li>
+                  </ul>
+                </div>
+              )}
+              
+              {/* Ball Skills Focus */}
+              {performanceAnalysis.weaknesses.some(w => ['juggling_count', 'dribbling_time', 'passing_accuracy', 'shooting_accuracy'].includes(w.metric)) && (
+                <div className="bg-purple-100 p-3 rounded-lg">
+                  <h5 className="font-bold text-purple-800 mb-2">⚽ Technical Skills Priority</h5>
+                  <ul className="text-sm text-purple-700 space-y-1">
+                    <li>• Daily juggling progression (15+ min)</li>
+                    <li>• Cone dribbling circuits</li>
+                    <li>• Passing accuracy drills</li>
+                    <li>• Target shooting practice</li>
+                  </ul>
+                </div>
+              )}
+              
+              {/* Fitness Focus */}
+              {performanceAnalysis.weaknesses.some(w => ['vo2_max', 'resting_heart_rate'].includes(w.metric)) && (
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <h5 className="font-bold text-green-800 mb-2">💪 Fitness Development Priority</h5>
+                  <ul className="text-sm text-green-700 space-y-1">
+                    <li>• Interval running 3x/week</li>
+                    <li>• Long endurance runs</li>
+                    <li>• High-intensity circuit training</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Exercise Explanations */}
+      <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300">
+        <CardHeader>
+          <CardTitle className="text-indigo-800 flex items-center">
+            <Lightbulb className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+            {t('training.exerciseExplanations')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {Object.entries(EXERCISE_EXPLANATIONS).map(([category, categoryData]) => (
+              <div key={category} className="bg-white p-4 rounded-lg border border-indigo-200">
+                <h4 className="font-bold text-indigo-800 mb-3">{categoryData.title}</h4>
+                <div className="space-y-2">
+                  {Object.entries(categoryData.exercises).map(([exercise, explanation]) => (
+                    <div key={exercise} className="border-l-2 border-indigo-200 pl-3">
+                      <div className="font-semibold text-indigo-700">{exercise}</div>
+                      <div className="text-sm text-indigo-600" dir={direction}>{explanation}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Program Generation */}
       <div className="text-center">
-        <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent mb-4">
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-yellow-600 bg-clip-text text-transparent mb-6">
           {formatText(t('training.title'), { playerName })}
         </h2>
         
@@ -1449,6 +1530,7 @@ const TrainingProgram = ({ playerId, playerName }) => {
         </div>
       </div>
 
+      {/* Generated Programs */}
       <div className="grid gap-6">
         {programs.map((program) => (
           <Card key={program.id} className="bg-gradient-to-br from-white to-orange-50 border-2 border-orange-200 fire-glow">
@@ -1457,6 +1539,9 @@ const TrainingProgram = ({ playerId, playerName }) => {
                 <Flame className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
                 {program.program_type === "AI_Generated" ? "🤖 AI Smart Program" : "👑 Ronaldo Template"}
               </CardTitle>
+              <CardDescription>
+                Created: {new Date(program.created_at).toLocaleDateString()}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-lg border border-orange-200 max-h-96 overflow-y-auto">
@@ -1468,6 +1553,57 @@ const TrainingProgram = ({ playerId, playerName }) => {
           </Card>
         ))}
       </div>
+    </div>
+  );
+};
+
+// Highlights Guide Component (simplified for space)
+const HighlightsGuide = () => {
+  const { t, direction } = useLanguage();
+
+  return (
+    <div className="space-y-6">
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold text-blue-800 flex items-center justify-center">
+            <BookOpen className={`${direction === 'rtl' ? 'ml-3' : 'mr-3'} w-8 h-8`} />
+            {t('highlights.title')}
+          </CardTitle>
+          <CardDescription className="text-blue-600 text-lg">
+            {t('highlights.subtitle')}
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      {/* Elite Performance Standards */}
+      <Card className="bg-gradient-to-r from-gold-50 to-yellow-50 border-2 border-gold-300">
+        <CardHeader>
+          <CardTitle className="text-gold-800 flex items-center">
+            <Trophy className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'} w-5 h-5`} />
+            Elite Performance Benchmarks
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
+              <div className="text-2xl font-bold text-gold-600">4.2s</div>
+              <div className="text-sm text-gold-800">40m Sprint (Elite)</div>
+            </div>
+            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
+              <div className="text-2xl font-bold text-gold-600">95%</div>
+              <div className="text-sm text-gold-800">Pass Accuracy (Elite)</div>
+            </div>
+            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
+              <div className="text-2xl font-bold text-gold-600">500+</div>
+              <div className="text-sm text-gold-800">Ball Juggling (Elite)</div>
+            </div>
+            <div className="text-center p-4 bg-white rounded-lg border border-gold-200">
+              <div className="text-2xl font-bold text-gold-600">65</div>
+              <div className="text-sm text-gold-800">VO2 Max (Elite)</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -1553,11 +1689,10 @@ const Dashboard = () => {
                       {assessment.player_name}
                     </span>
                     <span className="text-sm opacity-75 flex items-center">
-                      <span>{assessment.position} • {t('common.age')} {assessment.age}</span>
-                      {assessment.total_coins > 0 && (
-                        <Badge className={`bg-yellow-100 text-yellow-800 ${direction === 'rtl' ? 'mr-2' : 'ml-2'}`}>
-                          <Coins className="w-3 h-3 ml-1" />
-                          {assessment.total_coins}
+                      <span>{assessment.position} • Age {assessment.age}</span>
+                      {assessment.age && (
+                        <Badge className={`bg-blue-100 text-blue-800 ${direction === 'rtl' ? 'mr-2' : 'ml-2'}`}>
+                          {t(`common.${getAgeCategory(assessment.age)}`)}
                         </Badge>
                       )}
                     </span>
@@ -1590,7 +1725,7 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="standards">
-            <StandardsBodyMass />
+            <AgeBasedStandards />
           </TabsContent>
 
           <TabsContent value="assessment">
@@ -1601,7 +1736,8 @@ const Dashboard = () => {
             {selectedPlayer && (
               <TrainingProgram 
                 playerId={selectedPlayer.id} 
-                playerName={selectedPlayer.player_name} 
+                playerName={selectedPlayer.player_name}
+                playerData={selectedPlayer}
               />
             )}
           </TabsContent>
