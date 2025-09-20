@@ -139,7 +139,8 @@ class VO2EdgeCaseTester:
             "Save VO2 Benchmark - Extreme Values",
             "POST",
             "vo2-benchmarks",
-            200
+            200,
+            data=extreme_data
         )
 
 def main():
