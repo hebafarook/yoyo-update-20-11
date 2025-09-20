@@ -26,28 +26,43 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Models - Updated for Youth Handbook Standards
+# Models - Complete Youth Handbook Assessment Framework
 class PlayerAssessment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     player_name: str
     age: int
     position: str
-    # Physical performance metrics (from Youth Handbook)
+    
+    # PHYSICAL PERFORMANCE METRICS (20% weight)
     sprint_30m: float  # seconds - 30m sprint test
     yo_yo_test: int  # meters - Yo-Yo Intermittent Recovery Test  
-    vo2_max: float  # ml/kg/min - Aerobic capacity
-    vertical_jump: int  # cm - Vertical jump test
+    vo2_max: float  # ml/kg/min - Maximum oxygen uptake
+    vertical_jump: int  # cm - Countermovement jump height
     body_fat: float  # percentage - Body fat percentage
-    # Technical skills metrics (from Youth Handbook)
-    ball_control: int  # 1-5 scale - Overall ball control assessment
-    passing_accuracy: float  # percentage - Passing accuracy under pressure
-    dribbling_success: float  # percentage - 1v1 dribbling success rate
-    shooting_accuracy: float  # percentage - Shooting accuracy test
-    defensive_duels: float  # percentage - Defensive duels won
+    
+    # TECHNICAL SKILLS METRICS (40% weight)
+    ball_control: int  # 1-5 scale - First touch and ball manipulation under pressure
+    passing_accuracy: float  # percentage - Successful passes to target under pressure
+    dribbling_success: float  # percentage - Successful 1v1 dribbling attempts
+    shooting_accuracy: float  # percentage - Shots on target from various positions
+    defensive_duels: float  # percentage - Defensive actions won
+    
+    # TACTICAL AWARENESS METRICS (30% weight)
+    game_intelligence: int  # 1-5 scale - Reading game situations and anticipation
+    positioning: int  # 1-5 scale - Off-ball movement and spatial awareness
+    decision_making: int  # 1-5 scale - Speed and quality of decisions under pressure
+    
+    # PSYCHOLOGICAL TRAITS METRICS (10% weight)
+    coachability: int  # 1-5 scale - Ability to receive feedback and implement changes
+    mental_toughness: int  # 1-5 scale - Composure and resilience under pressure
+    
     # Assessment metadata
     assessment_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     retest_scheduled: Optional[datetime] = None
     previous_assessment_id: Optional[str] = None  # For tracking progress between retests
+    overall_score: Optional[float] = None  # Calculated weighted score
+    category_scores: Optional[Dict[str, float]] = None  # Physical, Technical, Tactical, Psychological scores
+    
     # Gamification
     total_coins: int = Field(default=0)
     level: int = Field(default=1)
@@ -69,6 +84,28 @@ class AssessmentCreate(BaseModel):
     dribbling_success: float
     shooting_accuracy: float
     defensive_duels: float
+    # Tactical metrics
+    game_intelligence: int
+    positioning: int
+    decision_making: int
+    # Psychological metrics
+    coachability: int
+    mental_toughness: int
+
+class RetestSchedule(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    player_id: str
+    original_assessment_id: str
+    retest_date: datetime
+    retest_type: str  # "4_week", "8_week", "seasonal", "custom"
+    status: str = Field(default="scheduled")  # "scheduled", "completed", "cancelled"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class RetestScheduleCreate(BaseModel):
+    player_id: str
+    original_assessment_id: str
+    retest_date: datetime
+    retest_type: str = "4_week"
 
 class TrainingProgram(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
