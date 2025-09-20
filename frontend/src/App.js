@@ -917,6 +917,9 @@ const MainDashboard = () => {
   const { t, direction, toggleLanguage } = useLanguage();
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [activeTab, setActiveTab] = useState("assessment");
+  const [showAssessmentReport, setShowAssessmentReport] = useState(false);
+  const [previousAssessments, setPreviousAssessments] = useState([]);
+  const [isStartupReport, setIsStartupReport] = useState(false);
 
   const handleAssessmentCreated = (assessment) => {
     setCurrentPlayer(assessment);
