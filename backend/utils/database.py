@@ -1,5 +1,17 @@
 from datetime import datetime, date, time, timezone
 from typing import Dict, Any
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+
+# MongoDB connection
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+database_name = os.environ.get('DB_NAME', 'soccer_training_db')
+client = AsyncIOMotorClient(mongo_url)
+db = client[database_name]
+
+def get_database():
+    """Get database connection"""
+    return db
 
 def prepare_for_mongo(data: Dict[str, Any]) -> Dict[str, Any]:
     """Prepare data for MongoDB storage by converting Python objects to serializable formats"""
