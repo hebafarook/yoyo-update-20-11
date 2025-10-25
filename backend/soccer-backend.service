@@ -1,0 +1,32 @@
+[Unit]
+Description=Elite Soccer Player AI Coach Backend
+After=network.target mongodb.service
+Requires=mongodb.service
+
+[Service]
+Type=notify
+User=appuser
+Group=appuser
+WorkingDirectory=/app/backend
+EnvironmentFile=/app/backend/.env
+ExecStartPre=/bin/bash -c 'until python -c "import pymongo; pymongo.MongoClient(\"$MONGO_URL\").admin.command(\"ping\")" 2>/dev/null; do echo "Waiting for MongoDB..."; sleep 2; done'
+ExecStart=/app/backend/venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8001 --workers 4
+Restart=always
+RestartSec=3
+KillMode=mixed
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+# Security
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/app/backend
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
