@@ -21,6 +21,9 @@ import TrainingDashboard from "./components/TrainingDashboard";
 import PerformanceHighlights from "./components/PerformanceHighlights";
 import PhysicalPerformanceMonitor from "./components/PhysicalPerformanceMonitor";
 import AssessmentReport from "./components/AssessmentReport";
+import AuthModal from "./components/AuthModal";
+import SavedReports from "./components/SavedReports";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
