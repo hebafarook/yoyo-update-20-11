@@ -1654,15 +1654,37 @@ async def log_daily_progress(progress: DailyProgressCreate):
 async def get_daily_progress(player_id: str, days: int = 30):
     """Get daily progress history for a player"""
     try:
-        start_date = datetime.now(timezone.utc) - timedelta(days=days)
+        # Get all entries for the player first, then filter by date in Python
+        # This handles the string vs datetime comparison issue
         progress_entries = await db.daily_progress.find(
-            {
-                "player_id": player_id,
-                "date": {"$gte": start_date}
-            }
+            {"player_id": player_id}
         ).sort("date", -1).to_list(1000)
         
-        return [DailyProgress(**parse_from_mongo(entry)) for entry in progress_entries]
+        # Filter by date in Python after parsing
+        start_date = datetime.now(timezone.utc) - timedelta(days=days)
+        filtered_entries = []
+        
+        for entry in progress_entries:
+            # Parse the entry and convert date string to datetime
+            parsed_entry = parse_from_mongo(entry)
+            
+            # Handle date field conversion (not just _at fields)
+            if 'date' in parsed_entry and isinstance(parsed_entry['date'], str):
+                try:
+                    parsed_entry['date'] = datetime.fromisoformat(parsed_entry['date'])
+                except:
+                    # If date parsing fails, include the entry anyway
+                    pass
+            
+            # Filter by date if we have a valid datetime
+            if isinstance(parsed_entry.get('date'), datetime):
+                if parsed_entry['date'] >= start_date:
+                    filtered_entries.append(parsed_entry)
+            else:
+                # Include entries with invalid dates
+                filtered_entries.append(parsed_entry)
+        
+        return [DailyProgress(**entry) for entry in filtered_entries]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
