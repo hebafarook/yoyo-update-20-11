@@ -245,6 +245,61 @@ class DailyProgressCreate(BaseModel):
     daily_notes: Optional[str] = None
     total_time_spent: Optional[int] = None
 
+# ============ USER PROFILE & AUTH MODELS ============
+class User(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    username: str
+    email: str
+    full_name: str
+    hashed_password: str
+    is_active: bool = True
+    is_coach: bool = False
+    profile_picture: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_login: Optional[datetime] = None
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    full_name: str
+    password: str
+    is_coach: Optional[bool] = False
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class SavedReport(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    player_name: str
+    assessment_id: str
+    report_data: Dict[str, Any]  # Complete report data
+    report_type: str  # "startup", "milestone", "manual"
+    saved_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    title: Optional[str] = None
+    notes: Optional[str] = None
+
+class SavedReportCreate(BaseModel):
+    user_id: str
+    player_name: str
+    assessment_id: str
+    report_data: Dict[str, Any]
+    report_type: str = "manual"
+    title: Optional[str] = None
+    notes: Optional[str] = None
+
+class UserProfile(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    players_managed: List[str] = Field(default_factory=list)  # List of player names
+    saved_reports: List[str] = Field(default_factory=list)  # List of saved report IDs
+    preferences: Dict[str, Any] = Field(default_factory=dict)
+    coaching_level: Optional[str] = None
+    organization: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class TrainingProgramCreate(BaseModel):
     player_id: str
     program_type: str
