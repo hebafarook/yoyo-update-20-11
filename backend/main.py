@@ -51,6 +51,7 @@ from routes.assessment_routes import router as assessment_router
 from routes.training_routes import router as training_router
 from routes.vo2_routes import router as vo2_router
 from routes.progress_routes import router as progress_router
+from routes.auth_routes import router as auth_router
 from utils.database import prepare_for_mongo, parse_from_mongo
 from utils.llm_integration import generate_training_program
 
