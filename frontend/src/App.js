@@ -1125,6 +1125,15 @@ const MainDashboard = () => {
             <Activity className="w-4 h-4" />
             {t('nav.body')}
           </button>
+          {isAuthenticated && (
+            <button 
+              onClick={() => setActiveTab("reports")}
+              className={`tab-trigger ${activeTab === "reports" ? "active" : ""}`}
+            >
+              <FileText className="w-4 h-4" />
+              My Reports
+            </button>
+          )}
         </div>
 
         <TabsContent value="assessment">
