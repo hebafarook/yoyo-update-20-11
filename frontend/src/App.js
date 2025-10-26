@@ -1250,6 +1250,10 @@ const MainDashboard = () => {
         <TabsContent value="body">
           <PhysicalPerformanceMonitor playerData={currentPlayer} />
         </TabsContent>
+
+        <TabsContent value="reports">
+          <SavedReports />
+        </TabsContent>
       </Tabs>
     </div>
   );
