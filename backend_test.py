@@ -1182,6 +1182,35 @@ def main():
     print("\n⚠️  Testing Edge Cases and Error Handling...")
     test_results.append(tester.test_periodized_program_edge_cases())
     
+    # NEW ASSESSMENT BENCHMARK SYSTEM TESTS (HIGH PRIORITY)
+    print("\n🔥 Testing NEW Assessment Benchmark System...")
+    print("   This system allows saving assessment data as benchmarks for progress tracking")
+    
+    # Authentication setup
+    test_results.append(tester.test_user_registration())
+    
+    # Core benchmark functionality
+    test_results.append(tester.test_save_first_benchmark_baseline())
+    test_results.append(tester.test_save_second_benchmark_regular())
+    test_results.append(tester.test_save_third_benchmark_progression())
+    
+    # Retrieval and filtering
+    test_results.append(tester.test_get_all_benchmarks())
+    test_results.append(tester.test_get_benchmarks_filtered_by_player())
+    test_results.append(tester.test_get_baseline_benchmark())
+    test_results.append(tester.test_get_specific_benchmark())
+    
+    # Progress analysis
+    test_results.append(tester.test_get_player_progress_analysis())
+    
+    # Deletion and protection
+    test_results.append(tester.test_try_delete_baseline_benchmark())
+    test_results.append(tester.test_delete_regular_benchmark())
+    
+    # Error handling and security
+    test_results.append(tester.test_benchmark_error_handling())
+    test_results.append(tester.test_unauthorized_access())
+    
     # Print final results
     print("\n" + "=" * 60)
     print("📊 FINAL TEST RESULTS")
