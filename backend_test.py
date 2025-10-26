@@ -652,6 +652,7 @@ class SoccerTrainingAPITester:
         if success and 'access_token' in response:
             self.access_token = response['access_token']
             self.user_id = response['user']['id']
+            self.test_username = user_data['username']
             print(f"   Access Token: {self.access_token[:20]}...")
             print(f"   User ID: {self.user_id}")
         
