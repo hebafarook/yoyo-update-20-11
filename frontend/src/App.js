@@ -901,7 +901,7 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
 };
 
 // Main App
-const App = () => {
+const MainApp = () => {
   return (
     <LanguageProvider>
       <BrowserRouter>
