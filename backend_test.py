@@ -621,6 +621,510 @@ class SoccerTrainingAPITester:
         
         return success1 and success2 and success3
 
+    # ========== NEW ASSESSMENT BENCHMARK SYSTEM TESTS ==========
+    
+    def test_user_registration(self):
+        """Test user registration for authentication"""
+        user_data = {
+            "username": "testcoach_benchmark",
+            "email": "testcoach@benchmark.com",
+            "full_name": "Test Coach Benchmark",
+            "password": "securepassword123",
+            "is_coach": True
+        }
+        
+        success, response = self.run_test(
+            "Register Test User for Benchmarks",
+            "POST",
+            "auth/register",
+            200,
+            data=user_data
+        )
+        
+        if success and 'access_token' in response:
+            self.access_token = response['access_token']
+            self.user_id = response['user']['id']
+            print(f"   Access Token: {self.access_token[:20]}...")
+            print(f"   User ID: {self.user_id}")
+        
+        return success
+
+    def test_user_login(self):
+        """Test user login"""
+        login_data = {
+            "username": "testcoach_benchmark",
+            "password": "securepassword123"
+        }
+        
+        success, response = self.run_test(
+            "Login Test User",
+            "POST",
+            "auth/login",
+            200,
+            data=login_data
+        )
+        
+        if success and 'access_token' in response:
+            self.access_token = response['access_token']
+            self.user_id = response['user']['id']
+            print(f"   Access Token: {self.access_token[:20]}...")
+        
+        return success
+
+    def test_save_first_benchmark_baseline(self):
+        """Test saving first assessment benchmark (should auto-detect as baseline)"""
+        if not hasattr(self, 'access_token') or not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        benchmark_data = {
+            "user_id": self.user_id,
+            "player_name": "Lionel Martinez",
+            "assessment_id": "test-assessment-001",
+            "age": 16,
+            "position": "Midfielder",
+            "sprint_30m": 4.2,
+            "yo_yo_test": 2400,
+            "vo2_max": 55.0,
+            "vertical_jump": 50,
+            "body_fat": 12.0,
+            "ball_control": 4,
+            "passing_accuracy": 85.0,
+            "dribbling_success": 75.0,
+            "shooting_accuracy": 70.0,
+            "defensive_duels": 65.0,
+            "game_intelligence": 4,
+            "positioning": 4,
+            "decision_making": 4,
+            "coachability": 5,
+            "mental_toughness": 4,
+            "overall_score": 78.5,
+            "performance_level": "Advanced",
+            "benchmark_type": "regular",
+            "notes": "First benchmark test"
+        }
+        
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Save First Benchmark (Baseline Auto-Detection)",
+            "POST",
+            "auth/save-benchmark",
+            200,
+            data=benchmark_data,
+            headers=headers
+        )
+        
+        if success:
+            self.first_benchmark_id = response.get('id')
+            print(f"   Benchmark ID: {self.first_benchmark_id}")
+            print(f"   Is Baseline: {response.get('is_baseline')}")
+            print(f"   Benchmark Type: {response.get('benchmark_type')}")
+            
+            # Verify it's marked as baseline
+            if response.get('is_baseline') != True:
+                print("❌ ERROR: First benchmark should be auto-detected as baseline")
+                return False
+            if response.get('benchmark_type') != "baseline":
+                print("❌ ERROR: First benchmark type should be 'baseline'")
+                return False
+        
+        return success
+
+    def test_save_second_benchmark_regular(self):
+        """Test saving second assessment benchmark (should be regular with improvement calculation)"""
+        if not hasattr(self, 'access_token') or not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        benchmark_data = {
+            "user_id": self.user_id,
+            "player_name": "Lionel Martinez",
+            "assessment_id": "test-assessment-002",
+            "age": 16,
+            "position": "Midfielder",
+            "sprint_30m": 4.0,  # Improved
+            "yo_yo_test": 2500,  # Improved
+            "vo2_max": 57.0,  # Improved
+            "vertical_jump": 52,  # Improved
+            "body_fat": 11.5,  # Improved
+            "ball_control": 4,
+            "passing_accuracy": 87.0,  # Improved
+            "dribbling_success": 78.0,  # Improved
+            "shooting_accuracy": 72.0,  # Improved
+            "defensive_duels": 68.0,  # Improved
+            "game_intelligence": 4,
+            "positioning": 4,
+            "decision_making": 4,
+            "coachability": 5,
+            "mental_toughness": 4,
+            "overall_score": 81.2,  # Improved
+            "performance_level": "Advanced",
+            "benchmark_type": "regular",
+            "notes": "Second benchmark showing improvement"
+        }
+        
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Save Second Benchmark (Regular with Improvement)",
+            "POST",
+            "auth/save-benchmark",
+            200,
+            data=benchmark_data,
+            headers=headers
+        )
+        
+        if success:
+            self.second_benchmark_id = response.get('id')
+            print(f"   Benchmark ID: {self.second_benchmark_id}")
+            print(f"   Is Baseline: {response.get('is_baseline')}")
+            print(f"   Has Improvement Data: {response.get('improvement_from_baseline') is not None}")
+            
+            # Verify it's NOT baseline and has improvement data
+            if response.get('is_baseline') != False:
+                print("❌ ERROR: Second benchmark should NOT be baseline")
+                return False
+            if response.get('improvement_from_baseline') is None:
+                print("❌ ERROR: Second benchmark should have improvement_from_baseline data")
+                return False
+        
+        return success
+
+    def test_save_third_benchmark_progression(self):
+        """Test saving third assessment benchmark to verify progression tracking"""
+        if not hasattr(self, 'access_token') or not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        benchmark_data = {
+            "user_id": self.user_id,
+            "player_name": "Lionel Martinez",
+            "assessment_id": "test-assessment-003",
+            "age": 16,
+            "position": "Midfielder",
+            "sprint_30m": 3.9,  # Further improved
+            "yo_yo_test": 2600,  # Further improved
+            "vo2_max": 58.5,  # Further improved
+            "vertical_jump": 54,  # Further improved
+            "body_fat": 11.0,  # Further improved
+            "ball_control": 5,  # Improved
+            "passing_accuracy": 89.0,  # Further improved
+            "dribbling_success": 80.0,  # Further improved
+            "shooting_accuracy": 75.0,  # Further improved
+            "defensive_duels": 70.0,  # Further improved
+            "game_intelligence": 5,  # Improved
+            "positioning": 5,  # Improved
+            "decision_making": 4,
+            "coachability": 5,
+            "mental_toughness": 5,  # Improved
+            "overall_score": 84.8,  # Further improved
+            "performance_level": "Elite",
+            "benchmark_type": "milestone",
+            "notes": "Third benchmark showing continued progression"
+        }
+        
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Save Third Benchmark (Progression Tracking)",
+            "POST",
+            "auth/save-benchmark",
+            200,
+            data=benchmark_data,
+            headers=headers
+        )
+        
+        if success:
+            self.third_benchmark_id = response.get('id')
+            print(f"   Benchmark ID: {self.third_benchmark_id}")
+            print(f"   Benchmark Type: {response.get('benchmark_type')}")
+            print(f"   Overall Score: {response.get('overall_score')}")
+        
+        return success
+
+    def test_get_all_benchmarks(self):
+        """Test retrieving all benchmarks for user (should be sorted by date, newest first)"""
+        if not hasattr(self, 'access_token') or not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Get All User Benchmarks",
+            "GET",
+            "auth/benchmarks",
+            200,
+            headers=headers
+        )
+        
+        if success:
+            print(f"   Total Benchmarks: {len(response)}")
+            if len(response) >= 3:
+                print(f"   First (newest): {response[0].get('benchmark_type')} - {response[0].get('overall_score')}")
+                print(f"   Last (oldest): {response[-1].get('benchmark_type')} - {response[-1].get('overall_score')}")
+                
+                # Verify sorting (newest first)
+                dates = [b.get('benchmark_date') for b in response]
+                if dates != sorted(dates, reverse=True):
+                    print("⚠️  WARNING: Benchmarks may not be sorted by date (newest first)")
+        
+        return success
+
+    def test_get_benchmarks_filtered_by_player(self):
+        """Test retrieving benchmarks filtered by player name"""
+        if not hasattr(self, 'access_token') or not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Get Benchmarks Filtered by Player",
+            "GET",
+            "auth/benchmarks?player_name=Lionel Martinez",
+            200,
+            headers=headers
+        )
+        
+        if success:
+            print(f"   Filtered Benchmarks: {len(response)}")
+            # Verify all returned benchmarks are for the correct player
+            for benchmark in response:
+                if benchmark.get('player_name') != 'Lionel Martinez':
+                    print(f"❌ ERROR: Found benchmark for wrong player: {benchmark.get('player_name')}")
+                    return False
+        
+        return success
+
+    def test_get_baseline_benchmark(self):
+        """Test retrieving baseline benchmark for specific player"""
+        if not hasattr(self, 'access_token') or not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Get Baseline Benchmark for Player",
+            "GET",
+            "auth/benchmarks/baseline?player_name=Lionel Martinez",
+            200,
+            headers=headers
+        )
+        
+        if success:
+            print(f"   Baseline ID: {response.get('id')}")
+            print(f"   Is Baseline: {response.get('is_baseline')}")
+            print(f"   Benchmark Type: {response.get('benchmark_type')}")
+            
+            # Verify it's actually the baseline
+            if response.get('is_baseline') != True:
+                print("❌ ERROR: Retrieved benchmark is not marked as baseline")
+                return False
+        
+        return success
+
+    def test_get_specific_benchmark(self):
+        """Test retrieving specific benchmark by ID"""
+        if not hasattr(self, 'access_token') or not self.access_token or not hasattr(self, 'second_benchmark_id'):
+            print("❌ Skipping - No access token or benchmark ID available")
+            return False
+            
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Get Specific Benchmark by ID",
+            "GET",
+            f"auth/benchmarks/{self.second_benchmark_id}",
+            200,
+            headers=headers
+        )
+        
+        if success:
+            print(f"   Retrieved Benchmark ID: {response.get('id')}")
+            print(f"   Player Name: {response.get('player_name')}")
+            print(f"   Overall Score: {response.get('overall_score')}")
+        
+        return success
+
+    def test_get_player_progress_analysis(self):
+        """Test getting comprehensive progress analysis for player"""
+        if not hasattr(self, 'access_token') or not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Get Player Progress Analysis",
+            "GET",
+            "auth/benchmarks/progress/Lionel Martinez",
+            200,
+            headers=headers
+        )
+        
+        if success:
+            print(f"   Player: {response.get('player_name')}")
+            print(f"   Total Benchmarks: {response.get('total_benchmarks')}")
+            print(f"   Baseline Score: {response.get('baseline_score')}")
+            print(f"   Latest Score: {response.get('latest_score')}")
+            print(f"   Overall Improvement: {response.get('overall_improvement')}%")
+            print(f"   Timeline Entries: {len(response.get('improvement_timeline', []))}")
+        
+        return success
+
+    def test_try_delete_baseline_benchmark(self):
+        """Test trying to delete baseline benchmark (should fail with 400 error)"""
+        if not hasattr(self, 'access_token') or not self.access_token or not hasattr(self, 'first_benchmark_id'):
+            print("❌ Skipping - No access token or baseline benchmark ID available")
+            return False
+            
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Try to Delete Baseline Benchmark (Should Fail)",
+            "DELETE",
+            f"auth/benchmarks/{self.first_benchmark_id}",
+            400,  # Should return 400 Bad Request
+            headers=headers
+        )
+        
+        if success:
+            print(f"   Correctly prevented baseline deletion: {response.get('detail', 'No error message')}")
+        
+        return success
+
+    def test_delete_regular_benchmark(self):
+        """Test deleting regular benchmark (should succeed)"""
+        if not hasattr(self, 'access_token') or not self.access_token or not hasattr(self, 'third_benchmark_id'):
+            print("❌ Skipping - No access token or regular benchmark ID available")
+            return False
+            
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        success, response = self.run_test_with_auth(
+            "Delete Regular Benchmark (Should Succeed)",
+            "DELETE",
+            f"auth/benchmarks/{self.third_benchmark_id}",
+            200,
+            headers=headers
+        )
+        
+        if success:
+            print(f"   Successfully deleted benchmark: {response.get('message', 'No message')}")
+        
+        return success
+
+    def test_benchmark_error_handling(self):
+        """Test error handling for benchmark endpoints"""
+        if not hasattr(self, 'access_token') or not self.access_token:
+            print("❌ Skipping - No access token available")
+            return False
+            
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        
+        # Test with invalid benchmark ID
+        success1, _ = self.run_test_with_auth(
+            "Get Non-existent Benchmark",
+            "GET",
+            "auth/benchmarks/invalid-benchmark-id",
+            404,
+            headers=headers
+        )
+        
+        # Test baseline for non-existent player
+        success2, _ = self.run_test_with_auth(
+            "Get Baseline for Non-existent Player",
+            "GET",
+            "auth/benchmarks/baseline?player_name=NonExistentPlayer",
+            404,
+            headers=headers
+        )
+        
+        # Test progress for non-existent player
+        success3, _ = self.run_test_with_auth(
+            "Get Progress for Non-existent Player",
+            "GET",
+            "auth/benchmarks/progress/NonExistentPlayer",
+            404,
+            headers=headers
+        )
+        
+        return success1 and success2 and success3
+
+    def test_unauthorized_access(self):
+        """Test accessing benchmark endpoints without authentication"""
+        # Test without authorization header
+        success1, _ = self.run_test(
+            "Access Benchmarks Without Auth (Should Fail)",
+            "GET",
+            "auth/benchmarks",
+            401  # Should return 401 Unauthorized
+        )
+        
+        # Test with invalid token
+        invalid_headers = {'Authorization': 'Bearer invalid-token-here'}
+        success2, _ = self.run_test_with_auth(
+            "Access Benchmarks with Invalid Token (Should Fail)",
+            "GET",
+            "auth/benchmarks",
+            401,
+            headers=invalid_headers
+        )
+        
+        return success1 and success2
+
+    def run_test_with_auth(self, name, method, endpoint, expected_status, data=None, params=None, headers=None):
+        """Run a single API test with authentication headers"""
+        url = f"{self.api_url}/{endpoint}"
+        if not headers:
+            headers = {}
+        headers['Content-Type'] = 'application/json'
+
+        self.tests_run += 1
+        print(f"\n🔍 Testing {name}...")
+        print(f"   URL: {url}")
+        
+        try:
+            if method == 'GET':
+                response = requests.get(url, headers=headers, params=params)
+            elif method == 'POST':
+                response = requests.post(url, json=data, headers=headers)
+            elif method == 'PUT':
+                response = requests.put(url, json=data, headers=headers)
+            elif method == 'DELETE':
+                response = requests.delete(url, headers=headers)
+
+            success = response.status_code == expected_status
+            if success:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+                try:
+                    response_data = response.json()
+                    if isinstance(response_data, dict) and len(str(response_data)) < 500:
+                        print(f"   Response: {response_data}")
+                    elif isinstance(response_data, list):
+                        print(f"   Response: List with {len(response_data)} items")
+                    else:
+                        print(f"   Response: Large data object received")
+                except:
+                    print(f"   Response: Non-JSON response")
+            else:
+                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
+                try:
+                    error_data = response.json()
+                    print(f"   Error: {error_data}")
+                except:
+                    print(f"   Error: {response.text}")
+
+            return success, response.json() if response.content else {}
+
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
+            return False, {}
+
 def main():
     print("🚀 Starting Soccer Pro Training Tracker API Tests")
     print("=" * 60)
