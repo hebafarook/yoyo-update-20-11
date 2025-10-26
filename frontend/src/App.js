@@ -923,6 +923,8 @@ const MainDashboard = () => {
   const [showAssessmentReport, setShowAssessmentReport] = useState(false);
   const [previousAssessments, setPreviousAssessments] = useState([]);
   const [isStartupReport, setIsStartupReport] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
 
   // Check for existing player on startup and show report
   useEffect(() => {
