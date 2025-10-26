@@ -918,6 +918,7 @@ const App = () => {
 // MainDashboard component with professional styling
 const MainDashboard = () => {
   const { t, direction, toggleLanguage } = useLanguage();
+  const { isAuthenticated, user, logout } = useAuth();
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [activeTab, setActiveTab] = useState("assessment");
   const [showAssessmentReport, setShowAssessmentReport] = useState(false);
