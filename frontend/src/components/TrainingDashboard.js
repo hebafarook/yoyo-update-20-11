@@ -79,12 +79,14 @@ const TrainingDashboard = ({ playerId }) => {
       
       // Mark as completed
       const completion = {
+        player_id: playerId,
         exercise_id: exercise.id,
         routine_id: currentRoutine.routine.id,
         completed: true,
         feedback: feedback.notes,
         difficulty_rating: feedback.difficulty,
         performance_rating: feedback.performance,
+        notes: feedback.notes,
         time_taken: Math.floor(timeSpent / 60) // Convert to minutes
       };
       
@@ -97,6 +99,7 @@ const TrainingDashboard = ({ playerId }) => {
       
     } catch (error) {
       console.error('Error completing exercise:', error);
+      alert('Error completing exercise. Please try again.');
     }
   };
 
