@@ -464,14 +464,18 @@ DETAILED METRICS:
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-4 print:hidden">
+      <div className="flex gap-3 print:hidden">
         <Button onClick={printReport} className="flex-1">
           <Printer className="w-4 h-4 mr-2" />
           Print Report
         </Button>
         <Button onClick={downloadReport} variant="outline" className="flex-1">
           <Download className="w-4 h-4 mr-2" />
-          Download Report
+          Download
+        </Button>
+        <Button onClick={saveToProfile} variant="outline" className="flex-1 bg-green-50 text-green-700 hover:bg-green-100">
+          <Bookmark className="w-4 h-4 mr-2" />
+          Save to Profile
         </Button>
       </div>
 
