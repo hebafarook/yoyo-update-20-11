@@ -659,8 +659,12 @@ class SoccerTrainingAPITester:
 
     def test_user_login(self):
         """Test user login"""
+        if not hasattr(self, 'test_username'):
+            print("❌ Skipping - No test username available")
+            return False
+            
         login_data = {
-            "username": "testcoach_benchmark",
+            "username": self.test_username,
             "password": "securepassword123"
         }
         
