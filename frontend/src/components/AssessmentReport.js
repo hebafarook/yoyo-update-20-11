@@ -539,6 +539,10 @@ DETAILED METRICS:
           <Bookmark className="w-4 h-4 mr-2" />
           Save to Profile
         </Button>
+        <Button onClick={saveBenchmarkToProfile} variant="outline" className="flex-1 bg-blue-50 text-blue-700 hover:bg-blue-100">
+          <Target className="w-4 h-4 mr-2" />
+          Save as Benchmark
+        </Button>
       </div>
 
       {/* Performance Scores */}
