@@ -333,4 +333,18 @@ async def delete_saved_report(report_id: str, current_user: dict = Depends(verif
             )
         
         # Update user profile
-        await db.user_profiles.update_one(\n            {\"user_id\": current_user[\"user_id\"]},\n            {\"$pull\": {\"saved_reports\": report_id}}\n        )\n        \n        return {\"message\": \"Report deleted successfully\"}\n        \n    except HTTPException:\n        raise\n    except Exception as e:\n        logger.error(f\"Error deleting saved report: {e}\")\n        raise HTTPException(\n            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,\n            detail=\"Failed to delete report\"\n        )"
+        await db.user_profiles.update_one(
+            {"user_id": current_user["user_id"]},
+            {"$pull": {"saved_reports": report_id}}
+        )
+        
+        return {"message": "Report deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting saved report: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete report"
+        )"
