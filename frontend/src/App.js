@@ -1298,8 +1298,24 @@ const MainDashboard = () => {
           <SavedReports />
         </TabsContent>
       </Tabs>
+      
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode={authMode}
+      />
     </div>
   );
 };
+
+// Main App component with AuthProvider
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
+  );
+}
 
 export default App;
