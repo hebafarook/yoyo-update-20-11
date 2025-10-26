@@ -60,6 +60,7 @@ api_router.include_router(assessment_router, prefix="/assessments", tags=["asses
 api_router.include_router(training_router, prefix="/training", tags=["training"])
 api_router.include_router(vo2_router, prefix="/vo2", tags=["vo2-benchmarks"])
 api_router.include_router(progress_router, prefix="/progress", tags=["progress"])
+api_router.include_router(auth_router, prefix="/auth", tags=["authentication"])
 
 # Health check endpoint
 @app.get("/health")
