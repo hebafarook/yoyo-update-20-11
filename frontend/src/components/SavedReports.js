@@ -301,20 +301,33 @@ const SavedReports = () => {
             
             <div className="p-6">
               {/* Report Metadata */}
-              <div className="bg-blue-50 p-4 rounded-lg mb-6 print:hidden">
+              <div className="bg-blue-50 p-4 rounded-lg mb-6 print:hidden border-2 border-blue-200">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-blue-900">Report Information</h4>
+                  <Badge className="bg-green-100 text-green-800">
+                    <User className="w-3 h-3 mr-1" />
+                    Private Report
+                  </Badge>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <div className="text-sm text-gray-600">Player</div>
+                    <div className="text-sm text-gray-600">Player Name</div>
                     <div className="font-semibold">{selectedReport.player_name}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Report Owner</div>
-                    <div className="font-semibold">{user?.full_name}</div>
+                    <div className="text-sm text-gray-600">Report Owner (You)</div>
+                    <div className="font-semibold text-blue-600">{user?.full_name}</div>
+                    <div className="text-xs text-gray-500">@{user?.username}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-600">Report ID</div>
-                    <div className="font-mono text-xs">{selectedReport.id}</div>
+                    <div className="font-mono text-xs text-gray-700">{selectedReport.id.substring(0, 16)}...</div>
                   </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-blue-200">
+                  <p className="text-xs text-gray-600">
+                    🔒 This report is private and only visible to you. Only you can view, download, or delete this report.
+                  </p>
                 </div>
               </div>
 
