@@ -113,7 +113,11 @@ async def register_user(user_data: UserCreate):
                 "username": user.username,
                 "email": user.email,
                 "full_name": user.full_name,
-                "is_coach": user.is_coach
+                "role": user.role,
+                "is_coach": user.is_coach,
+                "player_id": user.player_id,
+                "age": user.age,
+                "position": user.position
             }
         }
         
