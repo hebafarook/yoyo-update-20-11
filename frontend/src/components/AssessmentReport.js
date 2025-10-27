@@ -855,6 +855,146 @@ DETAILED METRICS:
         </CardContent>
       </Card>
 
+      {/* Suggested Program Duration */}
+      {reportData.programDuration && (
+        <Card className="professional-card border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-purple-600" />
+              Suggested Training Program Duration
+            </CardTitle>
+            <p className="text-sm text-gray-600 mt-2">
+              Personalized program timeline to reach {reportData.programDuration.targetLevel} based on current performance gaps
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-3xl font-bold text-purple-600">{reportData.programDuration.totalWeeks}</div>
+                <div className="text-sm text-gray-600">Total Weeks</div>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-3xl font-bold text-blue-600">{reportData.programDuration.phases.length}</div>
+                <div className="text-sm text-gray-600">Training Phases</div>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-3xl font-bold text-orange-600">{reportData.programDuration.averageGap}%</div>
+                <div className="text-sm text-gray-600">Performance Gap</div>
+              </div>
+            </div>
+
+            {/* Training Phases */}
+            <div>
+              <h4 className="font-semibold mb-3 flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                Training Phases Breakdown
+              </h4>
+              <div className="space-y-3">
+                {reportData.programDuration.phases.map((phase, idx) => (
+                  <div key={idx} className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-l-purple-500">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h5 className="font-bold text-lg">{phase.name}</h5>
+                        <p className="text-sm text-gray-600">{phase.objectives}</p>
+                      </div>
+                      <Badge className="bg-purple-100 text-purple-800">
+                        {phase.weeks} weeks
+                      </Badge>
+                    </div>
+                    <div className="flex gap-2 flex-wrap mt-2">
+                      {phase.focus.map((item, i) => (
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {item}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Training Frequency Options */}
+            <div>
+              <h4 className="font-semibold mb-3 flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Training Frequency Options (Days per Week)
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {reportData.programDuration.trainingOptions.map((option, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`p-4 rounded-lg border-2 ${
+                      idx === reportData.programDuration.recommendedOption 
+                        ? 'border-green-500 bg-green-50' 
+                        : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    {idx === reportData.programDuration.recommendedOption && (
+                      <Badge className="bg-green-600 mb-2">Recommended</Badge>
+                    )}
+                    <div className="text-2xl font-bold text-center mb-2">
+                      {option.daysPerWeek} Days/Week
+                    </div>
+                    <div className="text-sm text-center text-gray-600 mb-3">
+                      {option.schedule}
+                    </div>
+                    <div className="text-xs text-center mb-3 px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                      {option.intensity}
+                    </div>
+                    <div className="border-t pt-3 space-y-2">
+                      <div className="text-sm">
+                        <strong>Total Training Days:</strong> {option.totalDays}
+                      </div>
+                      {option.phases.map((p, i) => (
+                        <div key={i} className="text-xs text-gray-600">
+                          {p.name}: {p.trainingDays} days
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Category Gaps */}
+            <div className="bg-white p-4 rounded-lg">
+              <h4 className="font-semibold mb-3">Performance Gaps by Category</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="text-center">
+                  <div className="text-xl font-bold text-red-600">
+                    {Math.round(reportData.programDuration.categoryGaps.physical)}%
+                  </div>
+                  <div className="text-xs text-gray-600">Physical</div>
+                  <Progress value={100 - reportData.programDuration.categoryGaps.physical} className="h-2 mt-1" />
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-blue-600">
+                    {Math.round(reportData.programDuration.categoryGaps.technical)}%
+                  </div>
+                  <div className="text-xs text-gray-600">Technical</div>
+                  <Progress value={100 - reportData.programDuration.categoryGaps.technical} className="h-2 mt-1" />
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-green-600">
+                    {Math.round(reportData.programDuration.categoryGaps.tactical)}%
+                  </div>
+                  <div className="text-xs text-gray-600">Tactical</div>
+                  <Progress value={100 - reportData.programDuration.categoryGaps.tactical} className="h-2 mt-1" />
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-purple-600">
+                    {Math.round(reportData.programDuration.categoryGaps.psychological)}%
+                  </div>
+                  <div className="text-xs text-gray-600">Mental</div>
+                  <Progress value={100 - reportData.programDuration.categoryGaps.psychological} className="h-2 mt-1" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Next Steps */}
       <Card className="professional-card">
         <CardHeader>
