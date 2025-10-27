@@ -160,7 +160,7 @@ async def login_user(login_data: UserLogin):
         # Create access token
         access_token = create_access_token(user.id, user.username)
         
-        logger.info(f"User logged in: {user.username}")
+        logger.info(f"User logged in: {user.username} (role: {user.role})")
         return {
             "message": "Login successful",
             "access_token": access_token,
@@ -169,7 +169,11 @@ async def login_user(login_data: UserLogin):
                 "username": user.username,
                 "email": user.email,
                 "full_name": user.full_name,
-                "is_coach": user.is_coach
+                "role": user.role,
+                "is_coach": user.is_coach,
+                "player_id": user.player_id,
+                "age": user.age,
+                "position": user.position
             }
         }
         
