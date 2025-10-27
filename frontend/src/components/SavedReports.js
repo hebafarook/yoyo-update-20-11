@@ -175,7 +175,26 @@ const SavedReports = () => {
                       <span>{new Date(report.saved_at).toLocaleDateString()}</span>
                     </div>
                     {report.notes && (
-                      <p className="text-sm text-gray-600 line-clamp-2">{report.notes}</p>
+                      <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                        {report.notes}
+                      </div>
+                    )}
+                    {/* Display key metrics from report */}
+                    {report.report_data?.reportData?.scores && (
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t">
+                        <div className="text-center p-2 bg-blue-50 rounded">
+                          <div className="text-xs text-gray-600">Overall</div>
+                          <div className="text-lg font-bold text-blue-600">
+                            {report.report_data.reportData.scores.overall}
+                          </div>
+                        </div>
+                        <div className="text-center p-2 bg-green-50 rounded">
+                          <div className="text-xs text-gray-600">Level</div>
+                          <div className="text-xs font-semibold text-green-600">
+                            {report.report_data.reportData.performanceLevel?.level || 'N/A'}
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
 
@@ -186,7 +205,7 @@ const SavedReports = () => {
                       className="flex-1"
                     >
                       <Eye className="w-4 h-4 mr-1" />
-                      View
+                      View Full Report
                     </Button>
                     <Button 
                       onClick={() => handleDeleteReport(report.id)}
