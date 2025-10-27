@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 # ============ CORE ASSESSMENT MODELS ============
 class PlayerAssessment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: Optional[str] = None  # User who created this assessment
     player_name: str
     age: int
     position: str
@@ -40,6 +41,7 @@ class PlayerAssessment(BaseModel):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class AssessmentCreate(BaseModel):
+    user_id: Optional[str] = None  # User creating this assessment
     player_name: str
     age: int
     position: str
