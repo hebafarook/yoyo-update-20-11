@@ -117,6 +117,9 @@ const AuthModal = ({ isOpen, onClose, defaultMode = 'login' }) => {
       full_name: '',
       password: '',
       confirmPassword: '',
+      role: 'parent',
+      age: '',
+      position: '',
       is_coach: false
     });
   };
