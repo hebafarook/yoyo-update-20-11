@@ -33,19 +33,37 @@ const HomePage = ({ onNavigate }) => {
     try {
       setLoading(true);
       
-      // Load saved reports count
-      const { getSavedReports, getBenchmarks } = await import('../contexts/AuthContext');
+      if (!user || !user.id) {
+        setLoading(false);
+        return;
+      }
       
-      // This is a simplified approach - in production, create a dedicated dashboard API
+      // Load user's assessments
+      const assessmentsRes = await axios.get(`${API}/assessments?user_id=${user.id}`);
+      const userAssessments = assessmentsRes.data || [];
+      
+      // Get unique players
+      const uniquePlayers = [...new Set(userAssessments.map(a => a.player_name))];
+      
+      // Load saved reports and benchmarks using auth context
+      const authContext = await import('../contexts/AuthContext');
+      const { useAuth: getAuthContext } = authContext;
+      
+      setStats({
+        totalReports: 0, // Will be loaded from auth context
+        totalBenchmarks: 0, // Will be loaded from auth context
+        recentAssessments: userAssessments.slice(0, 5),
+        activePlayers: uniquePlayers.length
+      });
+      
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
       setStats({
         totalReports: 0,
         totalBenchmarks: 0,
         recentAssessments: [],
         activePlayers: 0
       });
-      
-    } catch (error) {
-      console.error('Error loading dashboard stats:', error);
     } finally {
       setLoading(false);
     }
