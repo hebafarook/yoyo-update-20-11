@@ -236,19 +236,79 @@ const AuthModal = ({ isOpen, onClose, defaultMode = 'login' }) => {
                   />
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    id="is_coach"
-                    name="is_coach"
-                    type="checkbox"
-                    checked={formData.is_coach}
-                    onChange={handleInputChange}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <Label htmlFor="is_coach" className="text-sm">
-                    I am a coach or training professional
-                  </Label>
+                <div>
+                  <Label htmlFor="role">I am a...</Label>
+                  <Select value={formData.role} onValueChange={handleRoleChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="parent">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          Parent/Guardian
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="coach">
+                        <div className="flex items-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          Coach/Professional
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="player">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          Player (Self-Assessment)
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.role === 'coach' && 'Manage multiple players and create training programs'}
+                    {formData.role === 'parent' && 'Track your child\'s performance and progress'}
+                    {formData.role === 'player' && 'Create self-assessments and track your own development'}
+                  </p>
                 </div>
+
+                {/* Player-specific fields */}
+                {formData.role === 'player' && (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="age">Age *</Label>
+                        <Input
+                          id="age"
+                          name="age"
+                          type="number"
+                          required
+                          min="12"
+                          max="25"
+                          value={formData.age}
+                          onChange={handleInputChange}
+                          placeholder="Age"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="position">Position *</Label>
+                        <Select value={formData.position} onValueChange={(value) => setFormData(prev => ({...prev, position: value}))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Position" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Goalkeeper">Goalkeeper</SelectItem>
+                            <SelectItem value="Defender">Defender</SelectItem>
+                            <SelectItem value="Midfielder">Midfielder</SelectItem>
+                            <SelectItem value="Forward">Forward</SelectItem>
+                            <SelectItem value="Winger">Winger</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 border border-blue-200 p-3 rounded-md text-sm text-blue-800">
+                      As a player, your assessments will be visible to your assigned coaches and parents.
+                    </div>
+                  </>
+                )}
               </>
             )}
 
