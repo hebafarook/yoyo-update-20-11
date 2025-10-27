@@ -230,17 +230,28 @@ const SavedReports = () => {
       {showReportModal && selectedReport && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-6xl max-h-[90vh] overflow-y-auto w-full">
-            <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold">{selectedReport.title}</h2>
+            <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
+              <div>
+                <h2 className="text-xl font-bold">{selectedReport.title}</h2>
+                <div className="flex gap-2 mt-1">
+                  <Badge className={getReportTypeColor(selectedReport.report_type)}>
+                    {selectedReport.report_type}
+                  </Badge>
+                  <span className="text-sm text-gray-600">
+                    Saved: {new Date(selectedReport.saved_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
               <div className="flex gap-2">
                 <Button
                   onClick={() => {
                     window.print();
                   }}
                   variant="outline"
+                  size="sm"
                 >
                   <Download className="w-4 h-4 mr-2" />
-                  Print Report
+                  Print
                 </Button>
                 <Button
                   onClick={() => {
@@ -248,18 +259,49 @@ const SavedReports = () => {
                     setSelectedReport(null);
                   }}
                   variant="outline"
+                  size="sm"
                 >
                   Close
                 </Button>
               </div>
             </div>
+            
             <div className="p-6">
-              <AssessmentReport
-                playerData={selectedReport.report_data.playerData}
-                previousAssessments={selectedReport.report_data.previousAssessments || []}
-                showComparison={true}
-                isStartupReport={selectedReport.report_type === 'startup'}
-              />
+              {/* Report Metadata */}
+              <div className="bg-blue-50 p-4 rounded-lg mb-6 print:hidden">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <div className="text-sm text-gray-600">Player</div>
+                    <div className="font-semibold">{selectedReport.player_name}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600">Report Owner</div>
+                    <div className="font-semibold">{user?.full_name}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600">Report ID</div>
+                    <div className="font-mono text-xs">{selectedReport.id}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Full Assessment Report */}
+              {selectedReport.report_data?.playerData ? (
+                <AssessmentReport
+                  playerData={selectedReport.report_data.playerData}
+                  previousAssessments={selectedReport.report_data.previousAssessments || []}
+                  showComparison={true}
+                  isStartupReport={selectedReport.report_type === 'startup'}
+                />
+              ) : (
+                <div className="text-center p-12">
+                  <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-xl font-semibold mb-2">Report Data Not Available</h3>
+                  <p className="text-gray-600">
+                    The complete report data could not be loaded. This report may be corrupted or incomplete.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
