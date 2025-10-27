@@ -1142,11 +1142,11 @@ const MainDashboard = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="tab-list">
           <button 
-            onClick={() => setActiveTab("home")}
-            className={`tab-trigger ${activeTab === "home" ? "active" : ""}`}
+            onClick={() => setActiveTab("dashboard")}
+            className={`tab-trigger ${activeTab === "dashboard" ? "active" : ""}`}
           >
             <Target className="w-4 h-4" />
-            Home
+            Dashboard
           </button>
           <button 
             onClick={() => setActiveTab("assessment")}
@@ -1194,7 +1194,7 @@ const MainDashboard = () => {
           )}
         </div>
 
-        <TabsContent value="home">
+        <TabsContent value="dashboard">
           <HomePage onNavigate={handleNavigate} />
         </TabsContent>
 
