@@ -102,8 +102,8 @@ const SavedReports = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-[--text-navy]">Player Performance Center</h2>
-          <p className="text-[--text-gray]">Manage saved reports and track assessment benchmarks</p>
+          <h2 className="text-2xl font-bold text-[--text-navy]">My Performance Center</h2>
+          <p className="text-[--text-gray]">Your personal assessment reports and benchmarks</p>
         </div>
         {activeTab === 'reports' && (
           <Button onClick={loadSavedReports} variant="outline">
@@ -114,17 +114,23 @@ const SavedReports = () => {
       </div>
 
       {/* User Info */}
-      <Card className="professional-card">
+      <Card className="professional-card border-2 border-blue-200 bg-blue-50">
         <CardContent className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">{user?.full_name}</h3>
+                <p className="text-sm text-gray-600">
+                  {user?.is_coach ? 'Coach/Professional' : 'Player/Parent'} • {savedReports.length} personal reports
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold">{user?.full_name}</h3>
-              <p className="text-sm text-gray-600">
-                {user?.is_coach ? 'Coach/Professional' : 'Player/Parent'} • {savedReports.length} saved reports
-              </p>
+            <div className="text-right">
+              <div className="text-xs text-gray-600">Account</div>
+              <div className="font-mono text-sm text-blue-600">{user?.username}</div>
             </div>
           </div>
         </CardContent>
