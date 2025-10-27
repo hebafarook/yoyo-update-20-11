@@ -80,6 +80,23 @@ const SavedReports = () => {
     );
   }
 
+  if (!isAuthenticated) {
+    return (
+      <Card className="max-w-2xl mx-auto mt-12">
+        <CardContent className="p-12 text-center">
+          <User className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+          <h3 className="text-2xl font-semibold mb-2">Authentication Required</h3>
+          <p className="text-gray-600 mb-4">
+            Please login to view your personal assessment reports and benchmarks.
+          </p>
+          <p className="text-sm text-gray-500">
+            Your reports are private and only visible to you.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
