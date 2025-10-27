@@ -183,6 +183,129 @@ const AssessmentReport = ({ playerData, previousAssessments = [], showComparison
     return recommendations.slice(0, 5); // Limit to top 5 recommendations
   };
 
+  const calculateProgramDuration = (analysis, performanceLevel, playerData) => {
+    // Calculate gaps from excellence for each category
+    const categoryGaps = {
+      physical: calculateCategoryGap('physical', playerData),
+      technical: calculateCategoryGap('technical', playerData),
+      tactical: calculateCategoryGap('tactical', playerData),
+      psychological: calculateCategoryGap('psychological', playerData)
+    };
+
+    // Average gap percentage
+    const avgGap = (categoryGaps.physical + categoryGaps.technical + categoryGaps.tactical + categoryGaps.psychological) / 4;
+    
+    // Determine program length based on gap
+    let totalWeeks = 8; // minimum
+    if (avgGap > 40) totalWeeks = 16;
+    else if (avgGap > 25) totalWeeks = 12;
+    else if (avgGap > 15) totalWeeks = 10;
+
+    // Define phases
+    const phases = [];
+    
+    if (avgGap > 30) {
+      // Need foundation phase for significant gaps
+      phases.push({
+        name: 'Foundation Phase',
+        weeks: Math.ceil(totalWeeks * 0.35),
+        focus: ['Physical conditioning', 'Basic technique', 'Movement patterns'],
+        objectives: 'Build fitness base and correct fundamental movements'
+      });
+    }
+
+    phases.push({
+      name: 'Development Phase',
+      weeks: Math.ceil(totalWeeks * (avgGap > 30 ? 0.40 : 0.50)),
+      focus: ['Skill refinement', 'Tactical training', 'Progressive overload'],
+      objectives: 'Improve weak areas and integrate skills'
+    });
+
+    phases.push({
+      name: 'Peak Performance Phase',
+      weeks: Math.floor(totalWeeks * (avgGap > 30 ? 0.25 : 0.50)),
+      focus: ['Match scenarios', 'High intensity', 'Competition prep'],
+      objectives: 'Maximize performance and game readiness'
+    });
+
+    // Calculate training days for different frequencies
+    const trainingOptions = [
+      {
+        daysPerWeek: 3,
+        totalDays: totalWeeks * 3,
+        schedule: 'Mon/Wed/Fri or Tue/Thu/Sat',
+        intensity: 'Moderate - Good for beginners',
+        phases: phases.map(p => ({ ...p, trainingDays: p.weeks * 3 }))
+      },
+      {
+        daysPerWeek: 4,
+        totalDays: totalWeeks * 4,
+        schedule: 'Mon/Tue/Thu/Sat',
+        intensity: 'High - Recommended for development',
+        phases: phases.map(p => ({ ...p, trainingDays: p.weeks * 4 }))
+      },
+      {
+        daysPerWeek: 5,
+        totalDays: totalWeeks * 5,
+        schedule: 'Mon-Fri',
+        intensity: 'Maximum - For elite progression',
+        phases: phases.map(p => ({ ...p, trainingDays: p.weeks * 5 }))
+      }
+    ];
+
+    // Recommended option based on current level
+    let recommendedOption = 1; // 4 days default
+    if (performanceLevel.score < 40) recommendedOption = 0; // 3 days for beginners
+    else if (performanceLevel.score >= 70) recommendedOption = 2; // 5 days for advanced
+
+    return {
+      totalWeeks,
+      averageGap: Math.round(avgGap),
+      categoryGaps,
+      phases,
+      trainingOptions,
+      recommendedOption,
+      targetLevel: getNextPerformanceLevel(performanceLevel.score)
+    };
+  };
+
+  const calculateCategoryGap = (category, playerData) => {
+    const ageCategory = getAgeCategory(playerData.age);
+    const standards = YOUTH_HANDBOOK_STANDARDS[ageCategory];
+    
+    const metrics = {
+      physical: ['sprint_30m', 'yo_yo_test', 'vo2_max', 'vertical_jump', 'body_fat'],
+      technical: ['ball_control', 'passing_accuracy', 'dribbling_success', 'shooting_accuracy', 'defensive_duels'],
+      tactical: ['game_intelligence', 'positioning', 'decision_making'],
+      psychological: ['coachability', 'mental_toughness']
+    };
+    
+    const categoryMetrics = metrics[category];
+    let totalGap = 0;
+    let validMetrics = 0;
+    
+    categoryMetrics.forEach(metric => {
+      const value = playerData[metric];
+      if (value !== undefined && value !== null) {
+        const performance = evaluatePerformance(value, metric, playerData.age);
+        const performanceScore = getPerformanceScore(performance);
+        const gap = 5 - performanceScore; // Gap from excellence (5)
+        totalGap += gap;
+        validMetrics++;
+      }
+    });
+    
+    const avgGap = validMetrics > 0 ? totalGap / validMetrics : 0;
+    return (avgGap / 5) * 100; // Convert to percentage
+  };
+
+  const getNextPerformanceLevel = (currentScore) => {
+    if (currentScore < 40) return 'Intermediate Level';
+    if (currentScore < 60) return 'Advanced Level';
+    if (currentScore < 80) return 'Elite Level';
+    return 'Professional Level';
+  };
+
   const extractRawMetrics = (data) => {
     return {
       physical: {
