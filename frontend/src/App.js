@@ -281,14 +281,80 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      if (!isAuthenticated || !user) {
+        alert("Please login to save your assessment data.");
+        setIsLoading(false);
+        return;
+      }
+
       // Add user_id if authenticated
       const assessmentData = {
         ...formData,
-        user_id: isAuthenticated && user ? user.id : null
+        user_id: user.id
       };
       
+      console.log('Creating assessment with data:', assessmentData);
       const response = await axios.post(`${API}/assessments`, assessmentData);
-      onAssessmentCreated(response.data);
+      console.log('Assessment created successfully:', response.data);
+      
+      const createdAssessment = response.data;
+      
+      // Calculate overall score for the assessment
+      const ageCategory = getAgeCategory(parseInt(formData.age));
+      const overallScore = calculateOverallScore(formData, ageCategory);
+      const performanceLevel = getPerformanceLevel(overallScore);
+      
+      // Automatically save as benchmark
+      try {
+        const benchmarkData = {
+          user_id: user.id,
+          player_name: formData.player_name,
+          assessment_id: createdAssessment.id,
+          age: parseInt(formData.age),
+          position: formData.position,
+          // Physical metrics
+          sprint_30m: parseFloat(formData.sprint_30m),
+          yo_yo_test: parseInt(formData.yo_yo_test),
+          vo2_max: parseFloat(formData.vo2_max),
+          vertical_jump: parseInt(formData.vertical_jump),
+          body_fat: parseFloat(formData.body_fat),
+          // Technical metrics
+          ball_control: parseInt(formData.ball_control),
+          passing_accuracy: parseFloat(formData.passing_accuracy),
+          dribbling_success: parseFloat(formData.dribbling_success),
+          shooting_accuracy: parseFloat(formData.shooting_accuracy),
+          defensive_duels: parseFloat(formData.defensive_duels),
+          // Tactical metrics
+          game_intelligence: parseInt(formData.game_intelligence),
+          positioning: parseInt(formData.positioning),
+          decision_making: parseInt(formData.decision_making),
+          // Psychological metrics
+          coachability: parseInt(formData.coachability),
+          mental_toughness: parseInt(formData.mental_toughness),
+          // Calculated metrics
+          overall_score: overallScore,
+          performance_level: performanceLevel,
+          benchmark_type: 'regular',
+          notes: `Assessment created on ${new Date().toLocaleDateString()}`
+        };
+        
+        console.log('Saving as benchmark:', benchmarkData);
+        const benchmarkResponse = await axios.post(`${API}/auth/save-benchmark`, benchmarkData);
+        console.log('Benchmark saved:', benchmarkResponse.data);
+        
+        if (benchmarkResponse.data.is_baseline) {
+          alert('✅ Assessment saved successfully!\n\n🎯 This is your BASELINE benchmark - all future progress will be compared to this assessment.\n\nYour data is securely saved and ready for training program generation.');
+        } else {
+          alert('✅ Assessment saved successfully!\n\n📊 Saved as benchmark for progress tracking.\n\nYour data is securely saved and you can view your progress in the Reports tab.');
+        }
+      } catch (benchmarkError) {
+        console.error('Error saving benchmark:', benchmarkError);
+        // Still notify success even if benchmark fails
+        alert('✅ Assessment saved successfully!\n\nNote: Benchmark save had an issue, but your assessment data is safe.');
+      }
+      
+      // Notify parent component
+      onAssessmentCreated(createdAssessment);
       
       // Create periodized training program for the player
       await createPeriodizedProgram(formData.player_name);
@@ -314,11 +380,67 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
         coachability: "",
         mental_toughness: ""
       });
+      
     } catch (error) {
       console.error("Error creating assessment:", error);
-      alert("Error creating assessment. Please try again.");
+      const errorMessage = error.response?.data?.detail || error.message || 'Unknown error';
+      alert(`❌ Error saving assessment: ${errorMessage}\n\nPlease make sure you're logged in and all fields are filled correctly.`);
     }
     setIsLoading(false);
+  };
+
+  // Helper function to calculate overall score
+  const calculateOverallScore = (data, ageCategory) => {
+    // This is a simplified calculation - you can adjust weights
+    const scores = [];
+    
+    // Physical (20%)
+    const physicalMetrics = ['sprint_30m', 'yo_yo_test', 'vo2_max', 'vertical_jump', 'body_fat'];
+    physicalMetrics.forEach(metric => {
+      if (data[metric]) {
+        const perf = evaluatePerformance(parseFloat(data[metric]), metric, ageCategory);
+        scores.push(getPerformanceScore(perf) * 4); // Scale to 20
+      }
+    });
+    
+    // Technical (40%)
+    const technicalMetrics = ['ball_control', 'passing_accuracy', 'dribbling_success', 'shooting_accuracy', 'defensive_duels'];
+    technicalMetrics.forEach(metric => {
+      if (data[metric]) {
+        scores.push(parseFloat(data[metric]) / 100 * 40); // Scale to 40
+      }
+    });
+    
+    // Tactical (30%)
+    const tacticalMetrics = ['game_intelligence', 'positioning', 'decision_making'];
+    tacticalMetrics.forEach(metric => {
+      if (data[metric]) {
+        scores.push(parseInt(data[metric]) * 6); // Scale to 30
+      }
+    });
+    
+    // Psychological (10%)
+    const psychMetrics = ['coachability', 'mental_toughness'];
+    psychMetrics.forEach(metric => {
+      if (data[metric]) {
+        scores.push(parseInt(data[metric]) * 2); // Scale to 10
+      }
+    });
+    
+    return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 50;
+  };
+
+  const getPerformanceScore = (performance) => {
+    const scores = { excellent: 5, good: 4, average: 3, 'below average': 2, poor: 1 };
+    return scores[performance] || 3;
+  };
+
+  const getPerformanceLevel = (score) => {
+    if (score >= 80) return 'Elite';
+    if (score >= 70) return 'Advanced';
+    if (score >= 60) return 'Intermediate';
+    if (score >= 40) return 'Developing';
+    return 'Beginner';
   };
 
   const handleChange = (e) => {
