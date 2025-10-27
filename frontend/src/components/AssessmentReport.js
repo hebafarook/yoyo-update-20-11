@@ -958,21 +958,29 @@ DETAILED METRICS:
             <div>
               <h4 className="font-semibold mb-3 flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                Training Frequency Options (Days per Week)
+                Training Frequency Options (Select to Generate Program)
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {reportData.programDuration.trainingOptions.map((option, idx) => (
                   <div 
                     key={idx} 
-                    className={`p-4 rounded-lg border-2 ${
-                      idx === reportData.programDuration.recommendedOption 
+                    onClick={() => setSelectedTrainingFrequency(option.daysPerWeek)}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-lg ${
+                      selectedTrainingFrequency === option.daysPerWeek
+                        ? 'border-blue-600 bg-blue-50 shadow-lg transform scale-105'
+                        : idx === reportData.programDuration.recommendedOption 
                         ? 'border-green-500 bg-green-50' 
-                        : 'border-gray-200 bg-white'
+                        : 'border-gray-200 bg-white hover:border-blue-300'
                     }`}
                   >
-                    {idx === reportData.programDuration.recommendedOption && (
-                      <Badge className="bg-green-600 mb-2">Recommended</Badge>
-                    )}
+                    <div className="flex justify-between items-start mb-2">
+                      {idx === reportData.programDuration.recommendedOption && (
+                        <Badge className="bg-green-600">Recommended</Badge>
+                      )}
+                      {selectedTrainingFrequency === option.daysPerWeek && (
+                        <Badge className="bg-blue-600 ml-auto">Selected ✓</Badge>
+                      )}
+                    </div>
                     <div className="text-2xl font-bold text-center mb-2">
                       {option.daysPerWeek} Days/Week
                     </div>
@@ -995,6 +1003,38 @@ DETAILED METRICS:
                   </div>
                 ))}
               </div>
+              
+              {/* Generate Program Button */}
+              {selectedTrainingFrequency && (
+                <div className="mt-6 p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h5 className="font-bold text-lg mb-1">Ready to Start Your Training?</h5>
+                      <p className="text-sm text-blue-100">
+                        You've selected {selectedTrainingFrequency} days per week training. 
+                        Click to generate your personalized {reportData.programDuration.totalWeeks}-week program!
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={() => generateProgram(selectedTrainingFrequency)}
+                      disabled={isGeneratingProgram}
+                      className="bg-white text-blue-600 hover:bg-blue-50 font-bold px-6 py-3 ml-4"
+                    >
+                      {isGeneratingProgram ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Target className="w-5 h-5 mr-2" />
+                          Generate My Program
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Category Gaps */}
