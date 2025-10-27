@@ -514,6 +514,44 @@ const AssessmentReport = ({ playerData, previousAssessments = [], showComparison
     }
   };
 
+  const generateProgram = async (trainingFrequency) => {
+    if (!reportData || !playerData) return;
+
+    try {
+      setIsGeneratingProgram(true);
+      
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+      const API = `${BACKEND_URL}/api`;
+      
+      // Import axios
+      const axios = (await import('axios')).default;
+      
+      const programData = {
+        player_id: playerData.player_name,
+        age: playerData.age,
+        position: playerData.position,
+        current_level: reportData.performanceLevel.level,
+        training_frequency: trainingFrequency, // 3, 4, or 5 days per week
+        duration_weeks: reportData.programDuration.totalWeeks,
+        focus_areas: reportData.analysis.weaknesses.slice(0, 3)
+      };
+      
+      console.log('Generating program with data:', programData);
+      
+      const response = await axios.post(`${API}/periodized-programs`, programData);
+      
+      console.log('Program generated successfully:', response.data);
+      
+      alert(`Training program generated successfully! ${trainingFrequency} days per week for ${reportData.programDuration.totalWeeks} weeks. Go to the Training tab to view your personalized program.`);
+      
+    } catch (error) {
+      console.error('Error generating program:', error);
+      alert(`Failed to generate program: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setIsGeneratingProgram(false);
+    }
+  };
+
   const generateTextReport = (report, comparison) => {
     let text = `
 SOCCER PLAYER ASSESSMENT REPORT
