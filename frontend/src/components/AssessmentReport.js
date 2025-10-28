@@ -20,6 +20,9 @@ const AssessmentReport = ({ playerData, previousAssessments = [], showComparison
   const [comparisonData, setComparisonData] = useState(null);
   const [selectedTrainingFrequency, setSelectedTrainingFrequency] = useState(null);
   const [isGeneratingProgram, setIsGeneratingProgram] = useState(false);
+  
+  // Use auth hook at component level
+  const { saveReport, saveBenchmark, isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     if (playerData) {
