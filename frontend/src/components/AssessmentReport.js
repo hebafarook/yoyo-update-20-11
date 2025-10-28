@@ -109,9 +109,10 @@ const AssessmentReport = ({ playerData, previousAssessments = [], showComparison
       excellent: 5,
       good: 4,
       average: 3,
-      poor: 2
+      'below average': 2,
+      poor: 1
     };
-    return scores[performance] || 2;
+    return scores[performance] || 3; // Default to average if unknown
   };
 
   const getPerformanceLevel = (overallScore) => {
