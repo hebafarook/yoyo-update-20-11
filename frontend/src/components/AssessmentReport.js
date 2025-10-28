@@ -425,10 +425,6 @@ const AssessmentReport = ({ playerData, previousAssessments = [], showComparison
     if (!reportData || !playerData) return;
 
     try {
-      // Import useAuth hook
-      const { useAuth } = await import('../contexts/AuthContext');
-      const { saveReport, isAuthenticated } = useAuth();
-
       if (!isAuthenticated) {
         alert('Please login to save reports to your profile');
         return;
