@@ -460,10 +460,6 @@ const AssessmentReport = ({ playerData, previousAssessments = [], showComparison
     if (!reportData || !playerData) return;
 
     try {
-      // Import useAuth hook
-      const { useAuth } = await import('../contexts/AuthContext');
-      const { saveBenchmark, isAuthenticated, user } = useAuth();
-
       if (!isAuthenticated || !user) {
         alert('Please login to save benchmarks to your profile');
         return;
