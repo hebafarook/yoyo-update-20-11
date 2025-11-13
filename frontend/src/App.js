@@ -1,19 +1,67 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
-import { Input } from "./components/ui/input";
 import { Label } from "./components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+import { Tabs, TabsContent } from "./components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
-import { Badge } from "./components/ui/badge";
-import { Progress } from "./components/ui/progress";
-import { useSpeechSynthesis, useSpeechRecognition } from "react-speech-kit";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar } from "recharts";
-import { Activity, Target, TrendingUp, Mic, MicOff, Volume2, VolumeX, Square, Trophy, Users, Music, Bell, Coins, Gift, Zap, Crown, Star, Flame, Languages, Globe, BarChart3, Award, ArrowRight, BookOpen, Lightbulb, Scale, Heart, Timer, Ruler, Info, HelpCircle, RefreshCw, Calendar, CheckCircle, Brain, Eye, Dumbbell, Gamepad2, Sparkles, Clock, Shield, Headphones, Camera, MessageSquare, Settings, FileText, LogIn, UserPlus, LogOut } from "lucide-react";
-import { YOUTH_HANDBOOK_STANDARDS, ASSESSMENT_EXPLANATIONS, evaluatePerformance, getAgeCategory, calculateOverallScore } from "./AssessmentStandards";
+import { 
+  Activity,
+  Target,
+  TrendingUp,
+  Mic,
+  Trophy,
+  Users,
+  Music,
+  Bell,
+  Coins,
+  Gift,
+  Zap,
+  Crown,
+  Star,
+  Flame,
+  Languages,
+  Globe,
+  BarChart3,
+  Award,
+  ArrowRight,
+  BookOpen,
+  Lightbulb,
+  Scale,
+  Heart,
+  Timer,
+  Ruler,
+  Info,
+  HelpCircle,
+  RefreshCw,
+  Calendar,
+  CheckCircle,
+  Brain,
+  Eye,
+  Dumbbell,
+  Gamepad2,
+  Sparkles,
+  Clock,
+  Shield,
+  Headphones,
+  Camera,
+  MessageSquare,
+  Settings,
+  FileText,
+  LogIn,
+  UserPlus,
+  LogOut
+} from "lucide-react";
+
+import {
+  YOUTH_HANDBOOK_STANDARDS,
+  ASSESSMENT_EXPLANATIONS,
+  evaluatePerformance,
+  getAgeCategory
+} from "./AssessmentStandards";
+
 import ProgressTracker from "./components/ProgressTracker";
 import ComingSoon from "./components/ComingSoon";
 import VO2MaxCalculator from "./components/VO2MaxCalculator";
@@ -26,10 +74,11 @@ import SavedReports from "./components/SavedReports";
 import HomePage from "./components/HomePage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
+// -------------------- CONFIG --------------------
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Daily Progressive Training Structure
+// -------------------- DAILY STRUCTURE --------------------
 const DAILY_PROGRESSIVE_STRUCTURE = {
   week1: {
     theme: "Foundation Building",
@@ -81,129 +130,140 @@ const DAILY_PROGRESSIVE_STRUCTURE = {
   }
 };
 
-// Language Context
+// -------------------- LANGUAGE CONTEXT --------------------
 const LanguageContext = createContext();
 
 const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+    throw new Error("useLanguage must be used within a LanguageProvider");
   }
   return context;
 };
 
 const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('en');
-  const [direction, setDirection] = useState('ltr');
+  const [language, setLanguage] = useState("en");
+  const [direction, setDirection] = useState("ltr");
 
   const translations = {
     en: {
-      'app.title': 'Yo-Yo Elite Soccer Player AI Coach',
-      'app.subtitle': 'Professional Training & Assessment Platform',
-      'app.description': 'Advanced AI-powered coaching system for developing elite soccer players through comprehensive assessment, personalized training programs, and performance tracking.',
-      'nav.assessment': 'Assessment',
-      'nav.training': 'Training Programs',
-      'nav.progress': 'Progress Tracking',
-      'nav.voice': 'Voice Notes',
-      'nav.trophies': 'Achievements',
-      'nav.group': 'Team Management',
-      'nav.highlights': 'Performance Analytics',
-      'nav.body': 'Physical Metrics',
-      'assessment.title': 'Professional Player Assessment',
-      'assessment.subtitle': 'Comprehensive evaluation based on elite standards',
-      'common.excellent': 'Excellent',
-      'common.good': 'Good',
-      'common.average': 'Average',
-      'common.poor': 'Needs Improvement'
+      "app.title": "Yo-Yo Elite Soccer Player AI Coach",
+      "app.subtitle": "Professional Training & Assessment Platform",
+      "app.description":
+        "Advanced AI-powered coaching system for developing elite soccer players through comprehensive assessment, personalized training programs, and performance tracking.",
+      "nav.home": "Overview",
+      "nav.assessment": "Assessment",
+      "nav.training": "Training Programs",
+      "nav.progress": "Progress Tracking",
+      "nav.voice": "Voice Notes",
+      "nav.trophies": "Achievements",
+      "nav.group": "Team Management",
+      "nav.highlights": "Performance Analytics",
+      "nav.body": "Physical Metrics",
+      "assessment.title": "Professional Player Assessment",
+      "assessment.subtitle": "Comprehensive evaluation based on elite standards",
+      "common.excellent": "Excellent",
+      "common.good": "Good",
+      "common.average": "Average",
+      "common.poor": "Needs Improvement"
     },
     ar: {
-      'app.title': 'مدرب الذكي يو-يو للاعبين كرة القدم النخبة',
-      'app.subtitle': 'منصة التدريب والتقييم المهنية',
-      'app.description': 'نظام تدريب متقدم مدعوم بالذكاء الاصطناعي لتطوير لاعبي كرة القدم النخبة من خلال التقييم الشامل وبرامج التدريب الشخصية وتتبع الأداء.',
-      'nav.assessment': 'التقييم',
-      'nav.training': 'برامج التدريب',
-      'nav.progress': 'تتبع التقدم',
-      'nav.voice': 'الملاحظات الصوتية',
-      'nav.trophies': 'الإنجازات',
-      'nav.group': 'إدارة الفريق',
-      'nav.highlights': 'تحليل الأداء',
-      'nav.body': 'المقاييس البدنية',
-      'assessment.title': 'تقييم اللاعب المحترف',
-      'assessment.subtitle': 'تقييم شامل على أساس المعايير النخبة',
-      'common.excellent': 'ممتاز',
-      'common.good': 'جيد',
-      'common.average': 'متوسط',
-      'common.poor': 'يحتاج تحسين'
+      "app.title": "مدرب الذكي يو-يو للاعبين كرة القدم النخبة",
+      "app.subtitle": "منصة التدريب والتقييم المهنية",
+      "app.description":
+        "نظام تدريب متقدم مدعوم بالذكاء الاصطناعي لتطوير لاعبي كرة القدم النخبة من خلال التقييم الشامل وبرامج التدريب الشخصية وتتبع الأداء.",
+      "nav.home": "الرئيسية",
+      "nav.assessment": "التقييم",
+      "nav.training": "برامج التدريب",
+      "nav.progress": "تتبع التقدم",
+      "nav.voice": "الملاحظات الصوتية",
+      "nav.trophies": "الإنجازات",
+      "nav.group": "إدارة الفريق",
+      "nav.highlights": "تحليل الأداء",
+      "nav.body": "المقاييس البدنية",
+      "assessment.title": "تقييم اللاعب المحترف",
+      "assessment.subtitle": "تقييم شامل على أساس المعايير النخبة",
+      "common.excellent": "ممتاز",
+      "common.good": "جيد",
+      "common.average": "متوسط",
+      "common.poor": "يحتاج تحسين"
     }
   };
 
-  const t = (key) => {
-    return translations[language][key] || key;
-  };
+  const t = (key) => translations[language][key] || key;
 
   const formatText = (template, params) => {
     let result = template;
-    Object.keys(params).forEach(key => {
+    Object.keys(params).forEach((key) => {
       result = result.replace(`{${key}}`, params[key]);
     });
     return result;
   };
 
   const toggleLanguage = () => {
-    const newLang = language === 'en' ? 'ar' : 'en';
+    const newLang = language === "en" ? "ar" : "en";
     setLanguage(newLang);
-    setDirection(newLang === 'ar' ? 'rtl' : 'ltr');
+    setDirection(newLang === "ar" ? "rtl" : "ltr");
     document.documentElement.lang = newLang;
-    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
   };
 
   return (
-    <LanguageContext.Provider value={{ 
-      language, 
-      direction, 
-      t, 
-      formatText, 
-      toggleLanguage 
-    }}>
+    <LanguageContext.Provider value={{ language, direction, t, formatText, toggleLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
-// Standards Legend Component
+// -------------------- STANDARDS LEGEND --------------------
 const StandardsLegend = () => {
-  const { t, direction } = useLanguage();
-  
+  const { t } = useLanguage();
   return (
     <div className="mb-8">
       <Card className="professional-card">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-3">
-            <Crown className="w-6 h-6" style={{color: 'var(--primary-black)'}} />
-            <span style={{color: 'var(--text-black)'}}>Performance Standards Guide</span>
+            <Crown className="w-6 h-6" style={{ color: "var(--primary-black)" }} />
+            <span style={{ color: "var(--text-black)" }}>Performance Standards Guide</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 professional-card">
-              <Crown className="w-8 h-8 mx-auto mb-3" style={{color: 'var(--navy-primary)'}} />
-              <h4 className="font-semibold text-lg mb-1" style={{color: 'var(--navy-primary)'}}>{t('common.excellent')}</h4>
-              <p className="text-sm" style={{color: 'var(--text-gray)'}}>Elite/International Level</p>
+              <Crown className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--navy-primary)" }} />
+              <h4 className="font-semibold text-lg mb-1" style={{ color: "var(--navy-primary)" }}>
+                {t("common.excellent")}
+              </h4>
+              <p className="text-sm" style={{ color: "var(--text-gray)" }}>
+                Elite/International Level
+              </p>
             </div>
             <div className="text-center p-4 professional-card">
-              <Award className="w-8 h-8 mx-auto mb-3" style={{color: 'var(--navy-secondary)'}} />
-              <h4 className="font-semibold text-lg mb-1" style={{color: 'var(--navy-primary)'}}>{t('common.good')}</h4>
-              <p className="text-sm" style={{color: 'var(--text-gray)'}}>High Competitive Standard</p>
+              <Award className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--navy-secondary)" }} />
+              <h4 className="font-semibold text-lg mb-1" style={{ color: "var(--navy-primary)" }}>
+                {t("common.good")}
+              </h4>
+              <p className="text-sm" style={{ color: "var(--text-gray)" }}>
+                High Competitive Standard
+              </p>
             </div>
             <div className="text-center p-4 professional-card">
-              <Star className="w-8 h-8 mx-auto mb-3" style={{color: 'var(--text-light)'}} />
-              <h4 className="font-semibold text-lg mb-1" style={{color: 'var(--navy-primary)'}}>{t('common.average')}</h4>
-              <p className="text-sm" style={{color: 'var(--text-gray)'}}>Solid Club Level</p>
+              <Star className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--text-light)" }} />
+              <h4 className="font-semibold text-lg mb-1" style={{ color: "var(--navy-primary)" }}>
+                {t("common.average")}
+              </h4>
+              <p className="text-sm" style={{ color: "var(--text-gray)" }}>
+                Solid Club Level
+              </p>
             </div>
             <div className="text-center p-4 professional-card">
-              <Target className="w-8 h-8 mx-auto mb-3" style={{color: 'var(--text-muted)'}} />
-              <h4 className="font-semibold text-lg mb-1" style={{color: 'var(--navy-primary)'}}>{t('common.poor')}</h4>
-              <p className="text-sm" style={{color: 'var(--text-gray)'}}>Development Required</p>
+              <Target className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--text-muted)" }} />
+              <h4 className="font-semibold text-lg mb-1" style={{ color: "var(--navy-primary)" }}>
+                {t("common.poor")}
+              </h4>
+              <p className="text-sm" style={{ color: "var(--text-gray)" }}>
+                Development Required
+              </p>
             </div>
           </div>
         </CardContent>
@@ -212,32 +272,35 @@ const StandardsLegend = () => {
   );
 };
 
-// Assessment Field Explanation Component
+// -------------------- FIELD EXPLANATION --------------------
 const FieldExplanation = ({ fieldName, isVisible, onToggle }) => {
   const { direction } = useLanguage();
   const explanation = ASSESSMENT_EXPLANATIONS[fieldName];
-  
   if (!explanation) return null;
 
   return (
     <div className="mt-3">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="btn-secondary text-sm py-2 px-3"
-      >
+      <button type="button" onClick={onToggle} className="btn-secondary text-sm py-2 px-3">
         <HelpCircle className="w-4 h-4" />
-        {isVisible ? 'Hide Details' : 'Show Details'}
+        {isVisible ? "Hide Details" : "Show Details"}
       </button>
-      
+
       {isVisible && (
         <div className="mt-3 p-4 professional-card border border-black">
           <h5 className="font-semibold text-lg mb-2 text-black">{explanation.title}</h5>
-          <p className="text-sm mb-3" dir={direction}>{explanation.description}</p>
+          <p className="text-sm mb-3" dir={direction}>
+            {explanation.description}
+          </p>
           <div className="space-y-2 text-sm">
-            <p><strong className="text-black">Importance:</strong> {explanation.importance}</p>
-            <p><strong className="text-black">Tips:</strong> {explanation.tips}</p>
-            <p><strong className="text-black">Scoring:</strong> {explanation.scoring}</p>
+            <p>
+              <strong className="text-black">Importance:</strong> {explanation.importance}
+            </p>
+            <p>
+              <strong className="text-black">Tips:</strong> {explanation.tips}
+            </p>
+            <p>
+              <strong className="text-black">Scoring:</strong> {explanation.scoring}
+            </p>
           </div>
         </div>
       )}
@@ -245,37 +308,91 @@ const FieldExplanation = ({ fieldName, isVisible, onToggle }) => {
   );
 };
 
-// Enhanced Assessment Component
+// -------------------- ASSESSMENT FORM --------------------
 const AssessmentForm = ({ onAssessmentCreated }) => {
-  const { t, direction } = useLanguage();
+  const { t } = useLanguage();
   const { user, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     player_name: "",
     age: "",
     position: "",
-    // Physical metrics
     sprint_30m: "",
     yo_yo_test: "",
     vo2_max: "",
     vertical_jump: "",
     body_fat: "",
-    // Technical metrics
     ball_control: "",
     passing_accuracy: "",
     dribbling_success: "",
     shooting_accuracy: "",
     defensive_duels: "",
-    // Tactical metrics
     game_intelligence: "",
     positioning: "",
     decision_making: "",
-    // Psychological metrics
     coachability: "",
     mental_toughness: ""
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [explanationVisibility, setExplanationVisibility] = useState({});
+
+  const getPerformanceScore = (performance) => {
+    const scores = { excellent: 5, good: 4, average: 3, "below average": 2, poor: 1 };
+    return scores[performance] || 3;
+  };
+
+  const getPerformanceLevel = (score) => {
+    if (score >= 80) return "Elite";
+    if (score >= 70) return "Advanced";
+    if (score >= 60) return "Intermediate";
+    if (score >= 40) return "Developing";
+    return "Beginner";
+  };
+
+  const calculateOverallScoreLocal = (data, ageCategory) => {
+    const scores = [];
+
+    // Physical
+    const physicalMetrics = ["sprint_30m", "yo_yo_test", "vo2_max", "vertical_jump", "body_fat"];
+    physicalMetrics.forEach((metric) => {
+      if (data[metric]) {
+        const perf = evaluatePerformance(parseFloat(data[metric]), metric, ageCategory);
+        scores.push(getPerformanceScore(perf) * 4);
+      }
+    });
+
+    // Technical
+    const technicalMetrics = [
+      "ball_control",
+      "passing_accuracy",
+      "dribbling_success",
+      "shooting_accuracy",
+      "defensive_duels"
+    ];
+    technicalMetrics.forEach((metric) => {
+      if (data[metric]) {
+        scores.push((parseFloat(data[metric]) / 100) * 40);
+      }
+    });
+
+    // Tactical
+    const tacticalMetrics = ["game_intelligence", "positioning", "decision_making"];
+    tacticalMetrics.forEach((metric) => {
+      if (data[metric]) {
+        scores.push(parseInt(data[metric]) * 6);
+      }
+    });
+
+    // Psychological
+    const psychMetrics = ["coachability", "mental_toughness"];
+    psychMetrics.forEach((metric) => {
+      if (data[metric]) {
+        scores.push(parseInt(data[metric]) * 2);
+      }
+    });
+
+    return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 50;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -287,24 +404,18 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
         return;
       }
 
-      // Add user_id if authenticated
       const assessmentData = {
         ...formData,
         user_id: user.id
       };
-      
-      console.log('Creating assessment with data:', assessmentData);
+
       const response = await axios.post(`${API}/assessments`, assessmentData);
-      console.log('Assessment created successfully:', response.data);
-      
       const createdAssessment = response.data;
-      
-      // Calculate overall score for the assessment
+
       const ageCategory = getAgeCategory(parseInt(formData.age));
-      const overallScore = calculateOverallScore(formData, ageCategory);
+      const overallScore = calculateOverallScoreLocal(formData, ageCategory);
       const performanceLevel = getPerformanceLevel(overallScore);
-      
-      // Automatically save as benchmark
+
       try {
         const benchmarkData = {
           user_id: user.id,
@@ -312,54 +423,49 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
           assessment_id: createdAssessment.id,
           age: parseInt(formData.age),
           position: formData.position,
-          // Physical metrics
           sprint_30m: parseFloat(formData.sprint_30m),
           yo_yo_test: parseInt(formData.yo_yo_test),
           vo2_max: parseFloat(formData.vo2_max),
           vertical_jump: parseInt(formData.vertical_jump),
           body_fat: parseFloat(formData.body_fat),
-          // Technical metrics
           ball_control: parseInt(formData.ball_control),
           passing_accuracy: parseFloat(formData.passing_accuracy),
           dribbling_success: parseFloat(formData.dribbling_success),
           shooting_accuracy: parseFloat(formData.shooting_accuracy),
           defensive_duels: parseFloat(formData.defensive_duels),
-          // Tactical metrics
           game_intelligence: parseInt(formData.game_intelligence),
           positioning: parseInt(formData.positioning),
           decision_making: parseInt(formData.decision_making),
-          // Psychological metrics
           coachability: parseInt(formData.coachability),
           mental_toughness: parseInt(formData.mental_toughness),
-          // Calculated metrics
           overall_score: overallScore,
           performance_level: performanceLevel,
-          benchmark_type: 'regular',
+          benchmark_type: "regular",
           notes: `Assessment created on ${new Date().toLocaleDateString()}`
         };
-        
-        console.log('Saving as benchmark:', benchmarkData);
+
         const benchmarkResponse = await axios.post(`${API}/auth/save-benchmark`, benchmarkData);
-        console.log('Benchmark saved:', benchmarkResponse.data);
-        
+
         if (benchmarkResponse.data.is_baseline) {
-          alert('✅ Assessment saved successfully!\n\n🎯 This is your BASELINE benchmark - all future progress will be compared to this assessment.\n\nYour data is securely saved and ready for training program generation.');
+          alert(
+            "✅ Assessment saved successfully!\n\n🎯 This is your BASELINE benchmark - all future progress will be compared to this assessment.\n\nYour data is securely saved and ready for training program generation."
+          );
         } else {
-          alert('✅ Assessment saved successfully!\n\n📊 Saved as benchmark for progress tracking.\n\nYour data is securely saved and you can view your progress in the Reports tab.');
+          alert(
+            "✅ Assessment saved successfully!\n\n📊 Saved as benchmark for progress tracking.\n\nYour data is securely saved and you can view your progress in the Reports tab."
+          );
         }
       } catch (benchmarkError) {
-        console.error('Error saving benchmark:', benchmarkError);
-        // Still notify success even if benchmark fails
-        alert('✅ Assessment saved successfully!\n\nNote: Benchmark save had an issue, but your assessment data is safe.');
+        console.error("Error saving benchmark:", benchmarkError);
+        alert(
+          "✅ Assessment saved successfully!\n\nNote: Benchmark save had an issue, but your assessment data is safe."
+        );
       }
-      
-      // Notify parent component
+
       onAssessmentCreated(createdAssessment);
-      
-      // Create periodized training program for the player
+
       await createPeriodizedProgram(formData.player_name);
-      
-      // Reset form
+
       setFormData({
         player_name: "",
         age: "",
@@ -380,123 +486,61 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
         coachability: "",
         mental_toughness: ""
       });
-      
     } catch (error) {
       console.error("Error creating assessment:", error);
-      const errorMessage = error.response?.data?.detail || error.message || 'Unknown error';
-      alert(`❌ Error saving assessment: ${errorMessage}\n\nPlease make sure you're logged in and all fields are filled correctly.`);
+      const errorMessage = error.response?.data?.detail || error.message || "Unknown error";
+      alert(
+        `❌ Error saving assessment: ${errorMessage}\n\nPlease make sure you're logged in and all fields are filled correctly.`
+      );
     }
     setIsLoading(false);
   };
 
-  // Helper function to calculate overall score
-  const calculateOverallScore = (data, ageCategory) => {
-    // This is a simplified calculation - you can adjust weights
-    const scores = [];
-    
-    // Physical (20%)
-    const physicalMetrics = ['sprint_30m', 'yo_yo_test', 'vo2_max', 'vertical_jump', 'body_fat'];
-    physicalMetrics.forEach(metric => {
-      if (data[metric]) {
-        const perf = evaluatePerformance(parseFloat(data[metric]), metric, ageCategory);
-        scores.push(getPerformanceScore(perf) * 4); // Scale to 20
-      }
-    });
-    
-    // Technical (40%)
-    const technicalMetrics = ['ball_control', 'passing_accuracy', 'dribbling_success', 'shooting_accuracy', 'defensive_duels'];
-    technicalMetrics.forEach(metric => {
-      if (data[metric]) {
-        scores.push(parseFloat(data[metric]) / 100 * 40); // Scale to 40
-      }
-    });
-    
-    // Tactical (30%)
-    const tacticalMetrics = ['game_intelligence', 'positioning', 'decision_making'];
-    tacticalMetrics.forEach(metric => {
-      if (data[metric]) {
-        scores.push(parseInt(data[metric]) * 6); // Scale to 30
-      }
-    });
-    
-    // Psychological (10%)
-    const psychMetrics = ['coachability', 'mental_toughness'];
-    psychMetrics.forEach(metric => {
-      if (data[metric]) {
-        scores.push(parseInt(data[metric]) * 2); // Scale to 10
-      }
-    });
-    
-    return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 50;
-  };
-
-  const getPerformanceScore = (performance) => {
-    const scores = { excellent: 5, good: 4, average: 3, 'below average': 2, poor: 1 };
-    return scores[performance] || 3;
-  };
-
-  const getPerformanceLevel = (score) => {
-    if (score >= 80) return 'Elite';
-    if (score >= 70) return 'Advanced';
-    if (score >= 60) return 'Intermediate';
-    if (score >= 40) return 'Developing';
-    return 'Beginner';
-  };
-
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const toggleExplanation = (fieldName) => {
-    setExplanationVisibility(prev => ({
+    setExplanationVisibility((prev) => ({
       ...prev,
       [fieldName]: !prev[fieldName]
     }));
   };
 
   const getFieldValidation = (fieldName, value, age) => {
-    if (!value || !age) return 'input-field';
-    
+    if (!value || !age) return "input-field";
     const numValue = parseFloat(value);
     const ageCategory = getAgeCategory(parseInt(age));
     const performance = evaluatePerformance(numValue, fieldName, ageCategory);
-    
-    if (!performance) return 'input-field';
-    
+    if (!performance) return "input-field";
+
     const validationClasses = {
-      excellent: 'input-field border-[--secondary-gold] bg-[--light-bg]',
-      good: 'input-field border-[--success] bg-[--light-bg]',
-      average: 'input-field border-[--text-muted] bg-[--light-bg]',
-      poor: 'input-field border-[--error] bg-[--light-bg]'
+      excellent: "input-field border-[--secondary-gold] bg-[--light-bg]",
+      good: "input-field border-[--success] bg-[--light-bg]",
+      average: "input-field border-[--text-muted] bg-[--light-bg]",
+      poor: "input-field border-[--error] bg-[--light-bg]"
     };
-    
-    return validationClasses[performance];
+    return validationClasses[performance] || "input-field";
   };
 
-  // VO2 Max Calculator handlers
-  const handleVO2MaxCalculation = (calculatedValue) => {
-    setFormData(prev => ({
-      ...prev,
-      vo2_max: calculatedValue.toString()
-    }));
+  const handleVO2MaxCalculation = (val) => {
+    setFormData((prev) => ({ ...prev, vo2_max: val.toString() }));
   };
 
   const handleSaveBenchmark = async (benchmark) => {
     try {
       const benchmarkData = {
-        player_id: formData.player_name || "unknown", // Use player name as ID for now
+        player_id: formData.player_name || "unknown",
         vo2_max: benchmark.vo2Max,
         calculation_inputs: benchmark.inputs,
         calculation_method: "ACSM",
         notes: benchmark.notes,
         fitness_level: benchmark.fitness_level
       };
-
       const response = await axios.post(`${API}/vo2-benchmarks`, benchmarkData);
-      console.log('Benchmark saved:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error saving benchmark:', error);
+      console.error("Error saving benchmark:", error);
       throw error;
     }
   };
@@ -506,7 +550,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
       const programData = {
         player_id: playerId,
         program_name: `Elite Development Program - ${playerId}`,
-        total_duration_weeks: 14, // Foundation (4) + Development (6) + Peak (4)
+        total_duration_weeks: 14,
         program_objectives: [
           "Develop technical skills under pressure",
           "Improve physical conditioning and speed",
@@ -516,13 +560,10 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
         ],
         assessment_interval_weeks: 4
       };
-
       const response = await axios.post(`${API}/periodized-programs`, programData);
-      console.log('Periodized program created:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error creating periodized program:', error);
-      // Don't throw error - program creation is optional
+      console.error("Error creating periodized program:", error);
       return null;
     }
   };
@@ -530,22 +571,23 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
   return (
     <div className="max-w-5xl mx-auto">
       <StandardsLegend />
-      
       <Card className="professional-card">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold mb-3">
-            {t('assessment.title')}
-          </CardTitle>
-          <CardDescription className="text-lg" style={{color: 'var(--text-gray-dark)'}}>
-            {t('assessment.subtitle')}
+          <CardTitle className="text-3xl font-bold mb-3">{t("assessment.title")}</CardTitle>
+          <CardDescription className="text-lg" style={{ color: "var(--text-gray-dark)" }}>
+            {t("assessment.subtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Basic Information */}
+            {/* BASIC INFO */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <Label htmlFor="player_name" className="text-base font-medium mb-2 block" style={{color: 'var(--text-black)'}}>
+                <Label
+                  htmlFor="player_name"
+                  className="text-base font-medium mb-2 block"
+                  style={{ color: "var(--text-black)" }}
+                >
                   Player Name
                 </Label>
                 <input
@@ -559,7 +601,11 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="age" className="text-base font-medium mb-2 block" style={{color: 'var(--text-black)'}}>
+                <Label
+                  htmlFor="age"
+                  className="text-base font-medium mb-2 block"
+                  style={{ color: "var(--text-black)" }}
+                >
                   Age
                 </Label>
                 <input
@@ -581,10 +627,17 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 )}
               </div>
               <div>
-                <Label htmlFor="position" className="text-base font-medium mb-2 block" style={{color: 'var(--text-black)'}}>
+                <Label
+                  htmlFor="position"
+                  className="text-base font-medium mb-2 block"
+                  style={{ color: "var(--text-black)" }}
+                >
                   Position
                 </Label>
-                <Select onValueChange={(value) => setFormData({...formData, position: value})}>
+                <Select
+                  value={formData.position}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, position: value }))}
+                >
                   <SelectTrigger className="input-field">
                     <SelectValue placeholder="Select position" />
                   </SelectTrigger>
@@ -599,55 +652,52 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
               </div>
             </div>
 
-            {/* Physical Performance - 20% Weight */}
+            {/* PHYSICAL */}
             <div className="assessment-section">
               <h3>
                 <Dumbbell className="w-6 h-6" />
                 Physical Performance Tests
                 <span className="weight-badge">20% Weight</span>
               </h3>
-              
-              {/* Non-VO2 Max Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                {['sprint_30m', 'yo_yo_test', 'vertical_jump', 'body_fat'].map((field) => (
+                {["sprint_30m", "yo_yo_test", "vertical_jump", "body_fat"].map((field) => (
                   <div key={field}>
                     <Label className="text-base font-medium mb-2 block">
-                      {field === 'sprint_30m' && '30m Sprint (seconds)'}
-                      {field === 'yo_yo_test' && 'Yo-Yo Test (meters)'}
-                      {field === 'vertical_jump' && 'Vertical Jump (cm)'}
-                      {field === 'body_fat' && 'Body Fat (%)'}
+                      {field === "sprint_30m" && "30m Sprint (seconds)"}
+                      {field === "yo_yo_test" && "Yo-Yo Test (meters)"}
+                      {field === "vertical_jump" && "Vertical Jump (cm)"}
+                      {field === "body_fat" && "Body Fat (%)"}
                     </Label>
                     <input
                       name={field}
                       type="number"
-                      step={field === 'sprint_30m' || field === 'body_fat' ? '0.1' : '1'}
+                      step={field === "sprint_30m" || field === "body_fat" ? "0.1" : "1"}
                       value={formData[field]}
                       onChange={handleChange}
                       required
                       className={getFieldValidation(field, formData[field], formData.age)}
                       placeholder={
-                        field === 'sprint_30m' ? 'e.g., 4.2' :
-                        field === 'yo_yo_test' ? 'e.g., 1600' :
-                        field === 'vertical_jump' ? 'e.g., 55' :
-                        'e.g., 12.5'
+                        field === "sprint_30m"
+                          ? "e.g., 4.2"
+                          : field === "yo_yo_test"
+                          ? "e.g., 1600"
+                          : field === "vertical_jump"
+                          ? "e.g., 55"
+                          : "e.g., 12.5"
                       }
                     />
-                    <FieldExplanation 
-                      fieldName={field} 
-                      isVisible={explanationVisibility[field]}
+                    <FieldExplanation
+                      fieldName={field}
+                      isVisible={!!explanationVisibility[field]}
                       onToggle={() => toggleExplanation(field)}
                     />
                   </div>
                 ))}
               </div>
 
-              {/* VO2 Max Special Section with Calculator */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Manual VO2 Max Input */}
                 <div>
-                  <Label className="text-base font-medium mb-2 block">
-                    VO2 Max (ml/kg/min)
-                  </Label>
+                  <Label className="text-base font-medium mb-2 block">VO2 Max (ml/kg/min)</Label>
                   <input
                     name="vo2_max"
                     type="number"
@@ -655,29 +705,27 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                     value={formData.vo2_max}
                     onChange={handleChange}
                     required
-                    className={getFieldValidation('vo2_max', formData.vo2_max, formData.age)}
+                    className={getFieldValidation("vo2_max", formData.vo2_max, formData.age)}
                     placeholder="e.g., 58.5"
                   />
-                  <FieldExplanation 
-                    fieldName="vo2_max" 
-                    isVisible={explanationVisibility.vo2_max}
-                    onToggle={() => toggleExplanation('vo2_max')}
+                  <FieldExplanation
+                    fieldName="vo2_max"
+                    isVisible={!!explanationVisibility.vo2_max}
+                    onToggle={() => toggleExplanation("vo2_max")}
                   />
                 </div>
-
-                {/* VO2 Max Calculator */}
                 <div>
                   <VO2MaxCalculator
                     onCalculate={handleVO2MaxCalculation}
                     currentAge={formData.age}
-                    currentGender="male" // You can make this dynamic based on form data
+                    currentGender="male"
                     onSaveBenchmark={handleSaveBenchmark}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Technical Skills - 40% Weight */}
+            {/* TECHNICAL */}
             <div className="assessment-section">
               <h3>
                 <Gamepad2 className="w-6 h-6" />
@@ -685,32 +733,36 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 <span className="weight-badge">40% Weight</span>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {['ball_control', 'passing_accuracy', 'dribbling_success', 'shooting_accuracy', 'defensive_duels'].map((field) => (
+                {[
+                  "ball_control",
+                  "passing_accuracy",
+                  "dribbling_success",
+                  "shooting_accuracy",
+                  "defensive_duels"
+                ].map((field) => (
                   <div key={field}>
                     <Label className="text-base font-medium mb-2 block">
-                      {field === 'ball_control' && 'Ball Control (1-5 scale)'}
-                      {field === 'passing_accuracy' && 'Passing Accuracy (%)'}
-                      {field === 'dribbling_success' && 'Dribbling Success (%)'}
-                      {field === 'shooting_accuracy' && 'Shooting Accuracy (%)'}
-                      {field === 'defensive_duels' && 'Defensive Duels (%)'}
+                      {field === "ball_control" && "Ball Control (1-5 scale)"}
+                      {field === "passing_accuracy" && "Passing Accuracy (%)"}
+                      {field === "dribbling_success" && "Dribbling Success (%)"}
+                      {field === "shooting_accuracy" && "Shooting Accuracy (%)"}
+                      {field === "defensive_duels" && "Defensive Duels (%)"}
                     </Label>
                     <input
                       name={field}
                       type="number"
-                      step={field === 'ball_control' ? '1' : '0.1'}
-                      min={field === 'ball_control' ? '1' : '0'}
-                      max={field === 'ball_control' ? '5' : '100'}
+                      step={field === "ball_control" ? "1" : "0.1"}
+                      min={field === "ball_control" ? "1" : "0"}
+                      max={field === "ball_control" ? "5" : "100"}
                       value={formData[field]}
                       onChange={handleChange}
                       required
                       className={getFieldValidation(field, formData[field], formData.age)}
-                      placeholder={
-                        field === 'ball_control' ? '1-5 scale' : 'Percentage (0-100)'
-                      }
+                      placeholder={field === "ball_control" ? "1-5 scale" : "Percentage (0-100)"}
                     />
-                    <FieldExplanation 
-                      fieldName={field} 
-                      isVisible={explanationVisibility[field]}
+                    <FieldExplanation
+                      fieldName={field}
+                      isVisible={!!explanationVisibility[field]}
                       onToggle={() => toggleExplanation(field)}
                     />
                   </div>
@@ -718,7 +770,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
               </div>
             </div>
 
-            {/* Tactical Awareness - 30% Weight */}
+            {/* TACTICAL */}
             <div className="assessment-section">
               <h3>
                 <Brain className="w-6 h-6" />
@@ -726,12 +778,12 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 <span className="weight-badge">30% Weight</span>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {['game_intelligence', 'positioning', 'decision_making'].map((field) => (
+                {["game_intelligence", "positioning", "decision_making"].map((field) => (
                   <div key={field}>
                     <Label className="text-base font-medium mb-2 block">
-                      {field === 'game_intelligence' && 'Game Intelligence (1-5)'}
-                      {field === 'positioning' && 'Positioning (1-5)'}
-                      {field === 'decision_making' && 'Decision Making (1-5)'}
+                      {field === "game_intelligence" && "Game Intelligence (1-5)"}
+                      {field === "positioning" && "Positioning (1-5)"}
+                      {field === "decision_making" && "Decision Making (1-5)"}
                     </Label>
                     <input
                       name={field}
@@ -744,9 +796,9 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                       className={getFieldValidation(field, formData[field], formData.age)}
                       placeholder="1-5 scale"
                     />
-                    <FieldExplanation 
-                      fieldName={field} 
-                      isVisible={explanationVisibility[field]}
+                    <FieldExplanation
+                      fieldName={field}
+                      isVisible={!!explanationVisibility[field]}
                       onToggle={() => toggleExplanation(field)}
                     />
                   </div>
@@ -754,7 +806,7 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
               </div>
             </div>
 
-            {/* Psychological Traits - 10% Weight */}
+            {/* PSYCHOLOGICAL */}
             <div className="assessment-section">
               <h3>
                 <Heart className="w-6 h-6" />
@@ -762,11 +814,11 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                 <span className="weight-badge">10% Weight</span>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {['coachability', 'mental_toughness'].map((field) => (
+                {["coachability", "mental_toughness"].map((field) => (
                   <div key={field}>
                     <Label className="text-base font-medium mb-2 block">
-                      {field === 'coachability' && 'Coachability (1-5)'}
-                      {field === 'mental_toughness' && 'Mental Toughness (1-5)'}
+                      {field === "coachability" && "Coachability (1-5)"}
+                      {field === "mental_toughness" && "Mental Toughness (1-5)"}
                     </Label>
                     <input
                       name={field}
@@ -779,9 +831,9 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
                       className={getFieldValidation(field, formData[field], formData.age)}
                       placeholder="1-5 scale"
                     />
-                    <FieldExplanation 
-                      fieldName={field} 
-                      isVisible={explanationVisibility[field]}
+                    <FieldExplanation
+                      fieldName={field}
+                      isVisible={!!explanationVisibility[field]}
                       onToggle={() => toggleExplanation(field)}
                     />
                   </div>
@@ -789,12 +841,12 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
               </div>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isLoading}
-              className={`btn-primary w-full py-4 text-lg font-semibold ${isLoading ? 'loading' : ''}`}
+              className={`btn-primary w-full py-4 text-lg font-semibold ${isLoading ? "loading" : ""}`}
             >
-              {isLoading ? 'Creating Assessment...' : 'Create Professional Assessment'}
+              {isLoading ? "Creating Assessment..." : "Create Professional Assessment"}
             </button>
           </form>
         </CardContent>
@@ -803,13 +855,11 @@ const AssessmentForm = ({ onAssessmentCreated }) => {
   );
 };
 
-// Daily Progressive Program Component
+// -------------------- DAILY PROGRESSIVE PROGRAM --------------------
 const DailyProgressiveProgram = ({ weekNumber, playerData }) => {
-  const { direction } = useLanguage();
   const weekStructure = DAILY_PROGRESSIVE_STRUCTURE[`week${weekNumber}`];
-  
   if (!weekStructure) return null;
-  
+
   return (
     <Card className="professional-card mb-6">
       <CardHeader>
@@ -822,16 +872,23 @@ const DailyProgressiveProgram = ({ weekNumber, playerData }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(weekStructure.daily_focus).map(([day, details]) => (
             <div key={day} className="professional-card p-4">
-              <h4 className="font-semibold text-lg capitalize mb-2 text-[--primary-blue]">{day}</h4>
+              <h4 className="font-semibold text-lg capitalize mb-2 text-[--primary-blue]">
+                {day}
+              </h4>
               <div className="space-y-2">
                 <p className="text-sm font-medium">{details.focus}</p>
                 <div className="flex justify-between items-center">
-                  <span className={`badge-${
-                    details.intensity === 'Very High' ? 'excellent' :
-                    details.intensity === 'High' ? 'good' :
-                    details.intensity === 'Medium' ? 'average' :
-                    'poor'
-                  }`}>
+                  <span
+                    className={`badge-${
+                      details.intensity === "Very High"
+                        ? "excellent"
+                        : details.intensity === "High"
+                        ? "good"
+                        : details.intensity === "Medium"
+                        ? "average"
+                        : "poor"
+                    }`}
+                  >
                     {details.intensity}
                   </span>
                   <span className="text-sm text-[--text-muted] flex items-center gap-1">
@@ -848,26 +905,24 @@ const DailyProgressiveProgram = ({ weekNumber, playerData }) => {
   );
 };
 
-// Enhanced Training Program Component
+// -------------------- TRAINING PROGRAM (WRAPPER) --------------------
 const TrainingProgram = ({ playerId, playerName, playerData }) => {
-  const { direction } = useLanguage();
   const [programs, setPrograms] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showDailyProgression, setShowDailyProgression] = useState(false);
   const [selectedWeek, setSelectedWeek] = useState(1);
 
   useEffect(() => {
-    fetchPrograms();
+    const fetchPrograms = async () => {
+      try {
+        const response = await axios.get(`${API}/training-programs/${playerId}`);
+        setPrograms(response.data);
+      } catch (error) {
+        console.error("Error fetching programs:", error);
+      }
+    };
+    if (playerId) fetchPrograms();
   }, [playerId]);
-
-  const fetchPrograms = async () => {
-    try {
-      const response = await axios.get(`${API}/training-programs/${playerId}`);
-      setPrograms(response.data);
-    } catch (error) {
-      console.error("Error fetching programs:", error);
-    }
-  };
 
   const generateProgram = async (programType) => {
     setIsGenerating(true);
@@ -876,7 +931,7 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
         player_id: playerId,
         program_type: programType
       });
-      setPrograms([response.data, ...programs]);
+      setPrograms((prev) => [response.data, ...prev]);
     } catch (error) {
       console.error("Error generating program:", error);
     }
@@ -888,11 +943,11 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
       await axios.post(`${API}/notifications`, {
         player_id: playerId,
         title: "Assessment Retest Scheduled",
-        message: "Your training cycle is complete. Time for reassessment to track improvements!",
+        message:
+          "Your training cycle is complete. Time for reassessment to track improvements!",
         notification_type: "retest",
         scheduled_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       });
-      
       alert("Retest scheduled for next week!");
     } catch (error) {
       console.error("Error scheduling retest:", error);
@@ -901,12 +956,8 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
 
   return (
     <div className="space-y-6">
-      {/* Progress Tracker */}
-      {playerData && (
-        <ProgressTracker playerData={playerData} />
-      )}
+      {playerData && <ProgressTracker playerData={playerData} />}
 
-      {/* Daily Progressive Training Display */}
       <Card className="professional-card">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -918,7 +969,7 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
               onClick={() => setShowDailyProgression(!showDailyProgression)}
               className="btn-secondary"
             >
-              {showDailyProgression ? 'Hide' : 'Show'} Daily Plan
+              {showDailyProgression ? "Hide" : "Show"} Daily Plan
             </button>
           </CardTitle>
         </CardHeader>
@@ -926,7 +977,10 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
           <CardContent>
             <div className="mb-4">
               <Label className="text-base font-medium mb-2 block">Select Week:</Label>
-              <Select value={selectedWeek.toString()} onValueChange={(value) => setSelectedWeek(parseInt(value))}>
+              <Select
+                value={selectedWeek.toString()}
+                onValueChange={(value) => setSelectedWeek(parseInt(value, 10))}
+              >
                 <SelectTrigger className="input-field w-64">
                   <SelectValue />
                 </SelectTrigger>
@@ -943,35 +997,30 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
         )}
       </Card>
 
-      {/* Training Program Generation */}
       <div className="flex flex-wrap gap-4 mb-6">
-        <button 
-          onClick={() => generateProgram("AI_Generated")} 
+        <button
+          onClick={() => generateProgram("AI_Generated")}
           disabled={isGenerating}
-          className={`btn-primary ${isGenerating ? 'loading' : ''}`}
+          className={`btn-primary ${isGenerating ? "loading" : ""}`}
         >
           <Zap className="w-4 h-4" />
           Generate AI Program
         </button>
-        <button 
-          onClick={() => generateProgram("Ronaldo_Template")} 
+        <button
+          onClick={() => generateProgram("Ronaldo_Template")}
           disabled={isGenerating}
-          className={`btn-secondary ${isGenerating ? 'loading' : ''}`}
+          className={`btn-secondary ${isGenerating ? "loading" : ""}`}
         >
           <Crown className="w-4 h-4" />
           Elite Template
         </button>
-        <button 
-          onClick={scheduleRetest}
-          className="btn-secondary"
-        >
+        <button onClick={scheduleRetest} className="btn-secondary">
           <RefreshCw className="w-4 h-4" />
           Schedule Retest
         </button>
       </div>
 
-      {/* Generated Programs */}
-      {programs.map(program => (
+      {programs.map((program) => (
         <Card key={program.id} className="professional-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
@@ -983,37 +1032,44 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="prose max-w-none text-[--text-secondary]" dir={direction}>
-              <div className="whitespace-pre-wrap">
-                {program.program_content}
-              </div>
+            <div className="prose max-w-none text-[--text-secondary]">
+              <div className="whitespace-pre-wrap">{program.program_content}</div>
             </div>
-            
-            {/* Weekly Schedule */}
+
             {program.weekly_schedule && Object.keys(program.weekly_schedule).length > 0 && (
               <div className="mt-6">
-                <h4 className="text-lg font-semibold text-[--primary-blue] mb-3">Weekly Structure</h4>
+                <h4 className="text-lg font-semibold text-[--primary-blue] mb-3">
+                  Weekly Structure
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {Object.entries(program.weekly_schedule).map(([day, activity]) => (
                     <div key={day} className="professional-card p-3">
                       <div className="font-medium text-[--primary-blue] capitalize">{day}</div>
-                      <div className="text-sm text-[--text-secondary]" dir={direction}>{activity}</div>
+                      <div className="text-sm text-[--text-secondary]">{activity}</div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-            
-            {/* Milestones */}
+
             {program.milestones && program.milestones.length > 0 && (
               <div className="mt-6">
-                <h4 className="text-lg font-semibold text-[--secondary-gold] mb-3">Milestones & Rewards</h4>
+                <h4 className="text-lg font-semibold text-[--secondary-gold] mb-3">
+                  Milestones & Rewards
+                </h4>
                 <div className="space-y-2">
                   {program.milestones.map((milestone, index) => (
-                    <div key={index} className="professional-card p-3 flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="professional-card p-3 flex items-center justify-between"
+                    >
                       <div>
-                        <span className="font-medium text-[--primary-blue]">Week {milestone.week}:</span>
-                        <span className="text-[--text-secondary] ml-2" dir={direction}>{milestone.target}</span>
+                        <span className="font-medium text-[--primary-blue]">
+                          Week {milestone.week}:
+                        </span>
+                        <span className="text-[--text-secondary] ml-2">
+                          {milestone.target}
+                        </span>
                       </div>
                       <span className="badge-excellent flex items-center gap-1">
                         <Coins className="w-4 h-4" />
@@ -1031,22 +1087,7 @@ const TrainingProgram = ({ playerId, playerName, playerData }) => {
   );
 };
 
-// Main App
-const MainApp = () => {
-  return (
-    <LanguageProvider>
-      <BrowserRouter>
-        <div className="min-h-screen">
-          <Routes>
-            <Route path="/" element={<MainDashboard />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </LanguageProvider>
-  );
-};
-
-// MainDashboard component with professional styling
+// -------------------- MAIN DASHBOARD --------------------
 const MainDashboard = () => {
   const { t, direction, toggleLanguage } = useLanguage();
   const { isAuthenticated, user, logout } = useAuth();
@@ -1056,117 +1097,81 @@ const MainDashboard = () => {
   const [previousAssessments, setPreviousAssessments] = useState([]);
   const [isStartupReport, setIsStartupReport] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState('login');
+  const [authMode, setAuthMode] = useState("login");
 
-  // Redirect to assessment page after login
   useEffect(() => {
-    if (isAuthenticated && activeTab === 'home') {
-      setActiveTab('assessment');
+    if (isAuthenticated && activeTab === "home") {
+      setActiveTab("assessment");
     }
   }, [isAuthenticated]);
 
-  // Check for existing player on startup - ONLY load user's own assessments
   useEffect(() => {
     const checkForExistingPlayer = async () => {
       if (!isAuthenticated || !user) return;
-      
       try {
-        // For player role, load their own assessment
-        if (user.role === 'player' && user.player_id) {
-          const response = await axios.get(`${API}/assessments?user_id=${user.id}`);
-          const playerAssessments = response.data.filter(a => a.player_name === user.player_id);
-          
-          if (playerAssessments && playerAssessments.length > 0) {
-            const latestAssessment = playerAssessments.sort((a, b) => 
-              new Date(b.created_at) - new Date(a.created_at)
-            )[0];
-            
-            await loadPreviousAssessments(latestAssessment.player_name);
-            setCurrentPlayer(latestAssessment);
-          }
-        } else {
-          // For coaches/parents, load assessments they created
-          const response = await axios.get(`${API}/assessments?user_id=${user.id}`);
-          if (response.data && response.data.length > 0) {
-            const latestAssessment = response.data.sort((a, b) => 
-              new Date(b.created_at) - new Date(a.created_at)
-            )[0];
-            
-            await loadPreviousAssessments(latestAssessment.player_name);
-            setCurrentPlayer(latestAssessment);
-          }
+        const response = await axios.get(`${API}/assessments?user_id=${user.id}`);
+        if (response.data && response.data.length > 0) {
+          const latestAssessment = response.data.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          )[0];
+          await loadPreviousAssessments(latestAssessment.player_name);
+          setCurrentPlayer(latestAssessment);
         }
       } catch (error) {
-        console.error('Error checking for existing player:', error);
+        console.error("Error checking for existing player:", error);
       }
     };
-
     checkForExistingPlayer();
   }, [isAuthenticated, user]);
 
   const handleAssessmentCreated = async (assessment) => {
-    // Load previous assessments for comparison
     await loadPreviousAssessments(assessment.player_name);
-    
     setCurrentPlayer(assessment);
     setIsStartupReport(false);
     setShowAssessmentReport(true);
-    
-    // Auto-hide report after 20 seconds (no auto-print)
-    setTimeout(() => {
-      setShowAssessmentReport(false);
-    }, 20000);
+    setTimeout(() => setShowAssessmentReport(false), 20000);
   };
 
   const loadPreviousAssessments = async (playerName) => {
     if (!isAuthenticated || !user) return;
-    
     try {
-      // ONLY load assessments created by this user
       const response = await axios.get(`${API}/assessments?user_id=${user.id}`);
       const playerAssessments = response.data
-        .filter(assessment => assessment.player_name === playerName)
+        .filter((a) => a.player_name === playerName)
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(1); // Exclude the current (latest) assessment
-      
+        .slice(1);
       setPreviousAssessments(playerAssessments);
     } catch (error) {
-      console.error('Error loading previous assessments:', error);
+      console.error("Error loading previous assessments:", error);
       setPreviousAssessments([]);
     }
   };
 
   const handleNavigate = (tab) => {
     setActiveTab(tab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Assessment Report Modal */}
+    <div className="container mx-auto px-4 py-8 max-w-7xl" dir={direction}>
       {showAssessmentReport && currentPlayer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-6xl max-h-[90vh] overflow-y-auto w-full">
             <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
               <h2 className="text-xl font-bold">
-                {isStartupReport ? 'Program Startup Report' : 'Assessment Milestone Report'}
+                {isStartupReport ? "Program Startup Report" : "Assessment Milestone Report"}
               </h2>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   onClick={() => {
                     setShowAssessmentReport(false);
-                    if (!isStartupReport) {
-                      setActiveTab("training");
-                    }
+                    if (!isStartupReport) setActiveTab("training");
                   }}
                 >
                   Continue to Training
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAssessmentReport(false)}
-                >
+                <Button variant="outline" onClick={() => setShowAssessmentReport(false)}>
                   Close
                 </Button>
               </div>
@@ -1183,17 +1188,13 @@ const MainDashboard = () => {
         </div>
       )}
 
-      {/* Professional Header */}
       <div className="app-header">
         <div className="flex justify-between items-start w-full">
-          <button
-            onClick={toggleLanguage}
-            className="language-toggle"
-          >
+          <button onClick={toggleLanguage} className="language-toggle">
             <Languages className="w-4 h-4 mr-2" />
-            {direction === 'rtl' ? 'English' : 'العربية'}
+            {direction === "rtl" ? "English" : "العربية"}
           </button>
-          
+
           <div className="flex gap-2">
             {currentPlayer && (
               <Button
@@ -1209,12 +1210,12 @@ const MainDashboard = () => {
                 View Assessment Report
               </Button>
             )}
-            
+
             {!isAuthenticated ? (
               <>
                 <Button
                   onClick={() => {
-                    setAuthMode('login');
+                    setAuthMode("login");
                     setShowAuthModal(true);
                   }}
                   variant="outline"
@@ -1226,7 +1227,7 @@ const MainDashboard = () => {
                 </Button>
                 <Button
                   onClick={() => {
-                    setAuthMode('register');
+                    setAuthMode("register");
                     setShowAuthModal(true);
                   }}
                   size="sm"
@@ -1252,74 +1253,71 @@ const MainDashboard = () => {
             )}
           </div>
         </div>
-        
-        <h1 className="app-title">
-          {t('app.title')}
-        </h1>
-        <p className="app-subtitle">{t('app.subtitle')}</p>
-        <p className="app-description">{t('app.description')}</p>
+
+        <h1 className="app-title">{t("app.title")}</h1>
+        <p className="app-subtitle">{t("app.subtitle")}</p>
+        <p className="app-description">{t("app.description")}</p>
       </div>
 
-      {/* Professional Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="tab-list">
-          <button 
+          <button
             onClick={() => setActiveTab("home")}
             className={`tab-trigger ${activeTab === "home" ? "active" : ""}`}
           >
             <Target className="w-4 h-4" />
-            {t('nav.home')}
+            {t("nav.home")}
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("assessment")}
             className={`tab-trigger ${activeTab === "assessment" ? "active" : ""}`}
           >
             <BarChart3 className="w-4 h-4" />
-            {t('nav.assessment')}
+            {t("nav.assessment")}
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("training")}
             className={`tab-trigger ${activeTab === "training" ? "active" : ""}`}
           >
             <Zap className="w-4 h-4" />
-            {t('nav.training')}
+            {t("nav.training")}
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("progress")}
             className={`tab-trigger ${activeTab === "progress" ? "active" : ""}`}
           >
             <TrendingUp className="w-4 h-4" />
-            {t('nav.progress')}
+            {t("nav.progress")}
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("voice")}
             className={`tab-trigger ${activeTab === "voice" ? "active" : ""}`}
           >
             <Mic className="w-4 h-4" />
-            {t('nav.voice')}
+            {t("nav.voice")}
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("trophies")}
             className={`tab-trigger ${activeTab === "trophies" ? "active" : ""}`}
           >
             <Trophy className="w-4 h-4" />
-            {t('nav.trophies')}
+            {t("nav.trophies")}
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("group")}
             className={`tab-trigger ${activeTab === "group" ? "active" : ""}`}
           >
             <Users className="w-4 h-4" />
-            {t('nav.group')}
+            {t("nav.group")}
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("highlights")}
             className={`tab-trigger ${activeTab === "highlights" ? "active" : ""}`}
           >
             <Award className="w-4 h-4" />
             Highlights
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("body")}
             className={`tab-trigger ${activeTab === "body" ? "active" : ""}`}
           >
@@ -1327,7 +1325,7 @@ const MainDashboard = () => {
             Body
           </button>
           {isAuthenticated && (
-            <button 
+            <button
               onClick={() => setActiveTab("reports")}
               className={`tab-trigger ${activeTab === "reports" ? "active" : ""}`}
             >
@@ -1347,16 +1345,16 @@ const MainDashboard = () => {
 
         <TabsContent value="training">
           {currentPlayer ? (
-            <TrainingDashboard 
-              playerId={currentPlayer.player_name} 
-              playerData={currentPlayer}
-            />
+            <TrainingDashboard playerId={currentPlayer.player_name} playerData={currentPlayer} />
           ) : (
             <Card className="professional-card text-center p-12">
               <CardContent>
                 <Target className="w-16 h-16 mx-auto mb-4 text-[--text-muted]" />
                 <h3 className="text-2xl font-semibold mb-2">Elite Training Dashboard</h3>
-                <p className="text-[--text-muted]">Complete your assessment to unlock the advanced periodized training system with micro/macro cycles, detailed exercise instructions, and progress tracking.</p>
+                <p className="text-[--text-muted]">
+                  Complete your assessment to unlock the advanced periodized training system with
+                  micro/macro cycles, detailed exercise instructions, and progress tracking.
+                </p>
                 <div className="mt-6 space-y-2 text-sm text-[--text-muted]">
                   <div className="flex items-center justify-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-600" />
@@ -1384,13 +1382,13 @@ const MainDashboard = () => {
           {currentPlayer ? (
             <ProgressTracker playerData={currentPlayer} />
           ) : (
-            <ComingSoon 
+            <ComingSoon
               title="Advanced Progress Analytics"
               description="Comprehensive performance tracking and predictive analytics for elite player development"
               icon={TrendingUp}
               features={[
                 "Real-time performance metrics",
-                "Progress comparison analytics", 
+                "Progress comparison analytics",
                 "Goal tracking and predictions",
                 "Performance trend analysis"
               ]}
@@ -1401,7 +1399,7 @@ const MainDashboard = () => {
         </TabsContent>
 
         <TabsContent value="voice">
-          <ComingSoon 
+          <ComingSoon
             title="AI Voice Coaching Assistant"
             description="Intelligent voice analysis and personalized coaching feedback system"
             icon={Headphones}
@@ -1417,7 +1415,7 @@ const MainDashboard = () => {
         </TabsContent>
 
         <TabsContent value="trophies">
-          <ComingSoon 
+          <ComingSoon
             title="Achievement & Recognition System"
             description="Comprehensive achievement tracking with performance milestones and rewards"
             icon={Trophy}
@@ -1433,7 +1431,7 @@ const MainDashboard = () => {
         </TabsContent>
 
         <TabsContent value="group">
-          <ComingSoon 
+          <ComingSoon
             title="Team Management Platform"
             description="Advanced team coordination and group training management system"
             icon={Shield}
@@ -1460,8 +1458,7 @@ const MainDashboard = () => {
           <SavedReports />
         </TabsContent>
       </Tabs>
-      
-      {/* Authentication Modal */}
+
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
@@ -1471,7 +1468,19 @@ const MainDashboard = () => {
   );
 };
 
-// Main App component with AuthProvider
+// -------------------- MAIN APP WRAPPERS --------------------
+const MainApp = () => (
+  <LanguageProvider>
+    <BrowserRouter>
+      <div className="min-h-screen">
+        <Routes>
+          <Route path="/" element={<MainDashboard />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  </LanguageProvider>
+);
+
 export default function App() {
   return (
     <AuthProvider>
